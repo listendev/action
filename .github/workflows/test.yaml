@@ -1,0 +1,22 @@
+name: testing
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - name: Install the dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test
