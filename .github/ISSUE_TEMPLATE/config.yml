@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ask a question on how to use listendev/action
+    about: For general-purpose questions and answers, see the discussions section.
+    url: https://github.com/listendev/action/discussions
+  - name: Ask a question about listen.dev
+    about: Please check out our Discord for discussions about listen.dev and our approach to supply chain security.
+    url: https://discord.gg/JB6tvTs5Fc
