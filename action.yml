@@ -1,0 +1,23 @@
+name: "Scan your dependencies with the listen.dev CLI"
+description: "Get real-time dependency insights in your pull requests 🐬"
+author: "The listen.dev team <engineering@garnet.ai>"
+inputs:
+  token:
+    description: "The GitHub API token."
+    required: true
+    default: ${{ github.token }}
+  lstn:
+    description: "The lstn version."
+    required: false
+    default: latest
+  workdir:
+    description: "Working directory relative to the root directory."
+    required: false
+    default: "."
+
+runs:
+  using: "node16"
+  main: "dist/index.js"
+branding:
+  color: "green"
+  icon: "alert-octagon"
