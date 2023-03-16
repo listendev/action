@@ -21,10 +21,10 @@ describe("installer", () => {
         "installs specific lstn version",
         async() => {
             const dir = await fs.mkdtemp(path.join(tmpdir, "lstn-"));
-            const lstn = await installer.lstn("v0.2.0", dir);
+            const lstn = await installer.lstn("v0.3.0", dir);
             const out = await exec.getExecOutput(lstn, ["version"]);
             expect(out.exitCode).toBe(0);
-            expect(out.stderr.trim()).toEqual("lstn v0.2.0");
+            expect(out.stderr.trim()).toEqual("lstn v0.3.0");
         },
         5 * 60 * 1000
     );
