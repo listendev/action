@@ -2,18 +2,16 @@ import * as path from "path";
 import * as core from "@actions/core";
 import * as http from "@actions/http-client";
 import * as tc from "@actions/tool-cache";
-import {version} from "../package.json";
 
 export async function lstn(tag: string, directory: string): Promise<string> {
-    core.info(`looking for release ${tag}...`);
-
     const owner = "listendev";
     const repo = "lstn"
-    const vers = tagToVersion(tag, owner, repo);
+    const vers = await tagToVersion(tag, owner, repo);
     const plat = getPlat(process.platform.toString());
     const arch = getArch(process.arch.toString());
     const archive = getFormat(plat);
-    const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/lstn_${vers}_${plat}_${arch}.${archive}`;
+    const name = `lstn_${vers}_${plat}_${arch}`;
+    const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
 
     core.info(`downloading from ${url}`);
 
@@ -30,7 +28,7 @@ export async function lstn(tag: string, directory: string): Promise<string> {
       res = await tc.extractTar(download, directory);
     }
 
-    return path.join(res, `lstn${ext}`)
+    return path.join(res, name, `lstn${ext}`)
 }
 
 function getPlat(os: string): string {
@@ -91,11 +89,15 @@ async function tagToVersion(tag: string, owner: string, repo: string): Promise<s
       tag_name: string;
     }
 
+    const version = process.env.npm_package_version;
     const ua = `listendev-action/${version}; lstn/${tag}`;
     const url = `https://github.com/${owner}/${repo}/releases/${tag}`;
     const client = new http.HttpClient(ua);
     const headers = { [http.Headers.Accept]: "application/json" };
     const response = await client.getJson<Release>(url, headers);
+
+    core.info(`looking for release ${url}`);
+    core.info(`using user agent "${ua}"`);
 
     if (response.statusCode != http.HttpCodes.OK) {
       core.error(`${url} returns unexpected HTTP status code: ${response.statusCode}`);
