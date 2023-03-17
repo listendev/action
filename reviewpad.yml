@@ -44,7 +44,7 @@ rules:
   - name: breaking-changes
     spec: $matchString("^([A-Za-z0-9_]+)??(\([A-Za-z0-9_\/]+\))??!:.+$", $title())
   - name: exclude-changes
-    spec: $matchString("^(chore|refactor|revert|perf|test)\/.+", $head()) || $matchString("^(chore|refactor|revert|perf|test)(\([A-Za-z0-9_\/]+\))??:.+$", $title())
+    spec: $matchString("^(chore|refactor|revert|perf|test)(\([A-Za-z0-9_\/]+\))??:.+$", $title())
   - name: by-bot
     spec: $matchString("^(dependabot|github-actions).*$", $author())
   - name: build-changes
