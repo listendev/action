@@ -12,5 +12,5 @@ on:
   workflow_dispatch:
 
 jobs:
-  check:
+  distribution:
     uses: actions/reusable-workflows/.github/workflows/check-dist.yml@main
