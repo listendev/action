@@ -14,32 +14,32 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/ban-ts-comment': [
-    'error',
-    {
-      'ts-ignore': 'allow-with-description'
-    }
+      'error',
+      {
+        'ts-ignore': 'allow-with-description'
+      }
     ],
     'no-console': 'error',
     'yoda': 'error',
     'prefer-const': [
-    'error',
-    {
-      destructuring: 'all'
-    }
+      'error',
+      {
+        destructuring: 'all'
+      }
     ],
     'no-control-regex': 'off',
     'no-constant-condition': ['error', {checkLoops: false}]
   },
   overrides: [
     {
-    files: ['**/*{test,spec}.ts'],
-    rules: {
-      '@typescript-eslint/no-unused-vars': 'off',
-      'jest/no-standalone-expect': 'off',
-      'jest/no-conditional-expect': 'off',
-      'no-console': 'off',
+      files: ['**/*{test,spec}.ts'],
+      rules: {
+        '@typescript-eslint/no-unused-vars': 'off',
+        'jest/no-standalone-expect': 'off',
+        'jest/no-conditional-expect': 'off',
+        'no-console': 'off',
 
-    }
+      }
     }
   ],
   env: {
