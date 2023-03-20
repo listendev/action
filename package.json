@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest",
-    "pack": "ncc build --source-map --license licenses.txt -o dist/ src/main.ts"
+    "build": "tsc && ncc build --source-map --license licenses.txt -o dist/ src/main.ts"
   },
   "repository": {
     "type": "git",

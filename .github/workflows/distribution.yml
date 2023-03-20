@@ -1,0 +1,16 @@
+name: distribution
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+  check:
+    uses: actions/reusable-workflows/.github/workflows/check-dist.yml@main
