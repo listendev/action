@@ -55,7 +55,7 @@ rules:
 
 groups:
   - name: ignore-patterns
-    spec: '["package-lock.json"]'
+    spec: '["package-lock.json", "dist/**"]'
 
 # For more details see https://docs.reviewpad.com/guides/syntax#workflow.
 workflows:
