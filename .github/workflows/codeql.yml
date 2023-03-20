@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: '11 15 * * 1'
+    - cron: '27 15 * * 1'
 
 jobs:
   call-codeql-analysis:
