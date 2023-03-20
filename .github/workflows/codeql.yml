@@ -6,9 +6,11 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: '55 14 * * 1'
+    - cron: '11 15 * * 1'
 
 jobs:
   call-codeql-analysis:
     name: analysis
     uses: actions/reusable-workflows/.github/workflows/codeql-analysis.yml@main
+    with:
+      codeql-cfg-path: './.github/codeql-config.yml'
