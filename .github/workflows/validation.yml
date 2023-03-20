@@ -1,0 +1,15 @@
+name: validating
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  basic:
+    uses: actions/reusable-workflows/.github/workflows/basic-validation.yml@main
