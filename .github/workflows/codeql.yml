@@ -1,0 +1,14 @@
+name: codeql
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '45 14 * * 1'
+
+jobs:
+  call-codeql-analysis:
+    name: analysis
+    uses: actions/reusable-workflows/.github/workflows/codeql-analysis.yml@main
