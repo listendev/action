@@ -31,10 +31,8 @@ async function run() {
     const exit = await core.group(
       '🐬 Running lstn...',
       async (): Promise<number> => {
-       const env = {
-          LSTN_GH_TOKEN: core.getInput('token'),
-          HOME: tmpdir,
-       }
+  
+       process.env['LSTN_GH_TOKEN'] =core.getInput('github_token')
        const prNumber = github.context.payload.pull_request?.number;
        const repoName = github.context.payload.repository?.name;
        const ownerName = github.context.payload.repository?.owner.login;
@@ -58,7 +56,6 @@ async function run() {
           prNumber.toString(),
         ], {
           cwd,
-          env,
         });
       }
     );

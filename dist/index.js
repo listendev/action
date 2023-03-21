@@ -13602,10 +13602,7 @@ async function run() {
         });
         // TODO: restore cache here
         const exit = await core.group('🐬 Running lstn...', async () => {
-            const env = {
-                LSTN_GH_TOKEN: core.getInput('token'),
-                HOME: tmpdir,
-            };
+            process.env['LSTN_GH_TOKEN'] = core.getInput('token');
             const prNumber = github.context.payload.pull_request?.number;
             const repoName = github.context.payload.repository?.name;
             const ownerName = github.context.payload.repository?.owner.login;
@@ -13629,7 +13626,6 @@ async function run() {
                 prNumber.toString(),
             ], {
                 cwd,
-                env,
             });
         });
         // TODO: save cache here
