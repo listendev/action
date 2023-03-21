@@ -13607,9 +13607,15 @@ async function run() {
             };
             const prNumber = github.context.payload.pull_request?.number;
             const repoName = github.context.payload.repository?.name;
-            const ownerName = github.context.payload.repository?.owner.name;
-            if (prNumber == null || repoName == null || ownerName == null) {
-                throw new Error('missing prNumber, repoName, or ownerName');
+            const ownerName = github.context.payload.repository?.owner.login;
+            if (prNumber == null) {
+                throw new Error('No pull request number found');
+            }
+            if (repoName == null) {
+                throw new Error('No repository name found');
+            }
+            if (ownerName == null) {
+                throw new Error('No owner name found');
             }
             return await exec.exec(lstn, [
                 'scan',
