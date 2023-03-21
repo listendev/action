@@ -33,6 +33,7 @@ async function run() {
       async (): Promise<number> => {
        const env = {
           LSTN_GH_TOKEN: core.getInput('token'),
+          HOME: tmpdir,
        }
        const prNumber = github.context.payload.pull_request?.number;
        const repoName = github.context.payload.repository?.name;

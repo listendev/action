@@ -13604,6 +13604,7 @@ async function run() {
         const exit = await core.group('🐬 Running lstn...', async () => {
             const env = {
                 LSTN_GH_TOKEN: core.getInput('token'),
+                HOME: tmpdir,
             };
             const prNumber = github.context.payload.pull_request?.number;
             const repoName = github.context.payload.repository?.name;
