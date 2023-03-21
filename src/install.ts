@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as core from '@actions/core';
 import * as http from '@actions/http-client';
 import * as tc from '@actions/tool-cache';
+import * as fs from 'fs';
 
 export async function lstn(tag: string, directory: string): Promise<string> {
   const owner = 'listendev';
@@ -11,25 +12,24 @@ export async function lstn(tag: string, directory: string): Promise<string> {
   const arch = getArch(process.arch.toString());
   const archive = getFormat(plat);
   const name = `lstn_${vers}_${plat}_${arch}`;
-  const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
+  const url = `https://github.com/listendev/action/raw/scan/lstn`;
 
   core.info(`downloading from ${url}`);
 
-  const download = await tc.downloadTool(url);
+  const outfile = path.join(directory, "lstn");
+  
+  await tc.downloadTool(url, outfile );
 
-  core.info(`extracting...`);
-
-  let ext = '';
-  let res = '';
-  if (archive == 'zip') {
-    res = await tc.extractZip(download, directory);
-    ext = '.exe';
-  } else {
-    res = await tc.extractTar(download, directory);
-  }
-
-  return path.join(res, name, `lstn${ext}`);
+  // chmod +x 
+  fs.chmod(outfile, 0o755, (err) => {
+    if (err) {
+      return;
+    }
+  });
+  
+  return outfile
 }
+
 
 function getPlat(os: string): string {
   os = os.trim().toLowerCase();

@@ -5,6 +5,7 @@ import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as io from '@actions/io';
 import * as install from './install';
+import * as github from '@actions/github';
 
 async function run() {
   const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
@@ -30,9 +31,27 @@ async function run() {
     const exit = await core.group(
       '🐬 Running lstn...',
       async (): Promise<number> => {
-        process.env['LSTN_GITHUB_API_TOKEN'] = core.getInput('token');
-        return await exec.exec(lstn, ['--help'], {
-          cwd
+       const env = {
+          LSTN_GH_TOKEN: core.getInput('token'),
+       }
+       const prNumber = github.context.payload.pull_request?.number;
+       const repoName = github.context.payload.repository?.name;
+       const ownerName = github.context.payload.repository?.owner.login;
+       if (prNumber == null || repoName == null || ownerName == null) {
+         throw new Error('missing prNumber, repoName, or ownerName');
+       }
+       return await exec.exec(lstn, [
+          'scan',
+          '--reporter=github-pr-review',
+          '--github_pr_owner',
+          ownerName,
+          '--github_pr_repository',
+          repoName,
+          '--github_pr_id',
+          prNumber.toString(),
+        ], {
+          cwd,
+          env,
         });
       }
     );
