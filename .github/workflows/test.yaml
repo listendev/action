@@ -35,3 +35,6 @@ jobs:
         with:
           lstn: v0.4.0
           lstn_flags: '--debug-options'
+
+      - name: Self run (default reporter)
+        uses: ./

@@ -15,7 +15,7 @@ inputs:
     required: false
     default: "."
   reporter:
-    description: "One or more reporting mechanism (gh-pull-comment,gh-pull-review,gh-pull-check)"
+    description: "One or more reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check)"
     required: false
     default: "gh-pull-comment"
   lstn_flags:
