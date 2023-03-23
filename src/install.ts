@@ -98,7 +98,7 @@ async function tagToVersion(
     tag_name: string;
   }
 
-  const version = process.env.npm_package_version;
+  const version = process.env.npm_package_version || 'unknown';
   const ua = `listendev-action/${version}; lstn/${tag}`;
   const url = `https://github.com/${owner}/${repo}/releases/${tag}`;
   const client = new http.HttpClient(ua);
