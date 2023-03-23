@@ -7,7 +7,7 @@ on:
     branches: ['main']
 
 jobs:
-  test:
+  unit:
     strategy:
       fail-fast: false
       matrix:
@@ -22,3 +22,14 @@ jobs:
 
       - name: Run tests
         run: npm run test
+
+  integration:
+    needs: unit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - uses: ./
+        with:
+          workdir: testdata/
