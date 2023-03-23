@@ -34,10 +34,6 @@ async function run() {
     const exit = await core.group(
       '🐬 Running lstn...',
       async (): Promise<number> => {
-<<<<<<< HEAD
-        process.env['LSTN_GITHUB_API_TOKEN'] = core.getInput('token');
-        return await exec.exec(lstn, ['--help', ...flags.parse(lstnFlags)], {
-=======
         process.env['LSTN_GH_TOKEN'] = core.getInput('token');
 
         process.env['LSTN_GH_PULL_ID'] =
@@ -57,10 +53,13 @@ async function run() {
           throw new Error(`couldn't find the owner name`);
         }
 
-        return await exec.exec(lstn, ['scan', `--reporter ${reporter}`], {
->>>>>>> 66668ae (feat: scan)
-          cwd
-        });
+        return await exec.exec(
+          lstn,
+          ['scan', '--reporter', `${reporter}`, ...flags.parse(lstnFlags)],
+          {
+            cwd
+          }
+        );
       }
     );
 
