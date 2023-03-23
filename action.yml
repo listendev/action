@@ -14,6 +14,10 @@ inputs:
     description: "Working directory relative to the root directory."
     required: false
     default: "."
+  lstn_flags:
+    description: "Additional lstn flags"
+    required: false
+    default: ""
 
 runs:
   using: "node16"
