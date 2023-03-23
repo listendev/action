@@ -30,6 +30,8 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
 
-      - uses: ./
+      - name: Debug options
+        uses: ./
         with:
-          workdir: testdata/
+          lstn: v0.4.0
+          lstn_flags: '--debug-options'
