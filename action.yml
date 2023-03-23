@@ -9,11 +9,15 @@ inputs:
   lstn:
     description: "The lstn version."
     required: false
-    default: latest
+    default: "latest"
   workdir:
     description: "Working directory relative to the root directory."
     required: false
     default: "."
+  reporter:
+    description: "One or more reporting mechanism (gh-pull-comment,gh-pull-review,gh-pull-check)"
+    required: false
+    default: "gh-pull-comment"
   lstn_flags:
     description: "Additional lstn flags"
     required: false
