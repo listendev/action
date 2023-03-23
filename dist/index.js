@@ -6518,6 +6518,25 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 3252:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parse = void 0;
+function parse(flags) {
+    flags = flags.trim();
+    if (flags === '') {
+        return [];
+    }
+    return flags.split(/\s+/);
+}
+exports.parse = parse;
+
+
+/***/ }),
+
 /***/ 1649:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -6623,7 +6642,7 @@ function getFormat(platform) {
 }
 async function tagToVersion(tag, owner, repo) {
     core.info(`looking for a release for tag ${tag}`);
-    const version = process.env.npm_package_version;
+    const version = process.env.npm_package_version || 'unknown';
     const ua = `listendev-action/${version}; lstn/${tag}`;
     const url = `https://github.com/${owner}/${repo}/releases/${tag}`;
     const client = new http.HttpClient(ua);
@@ -6682,6 +6701,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const install = __importStar(__nccwpck_require__(1649));
+const flags = __importStar(__nccwpck_require__(3252));
 async function run() {
     const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
     const tmpdir = await fs_1.promises.mkdtemp(path.join(runnertmp, 'lstn-'));
@@ -6689,13 +6709,14 @@ async function run() {
         const version = core.getInput('lstn');
         const workdir = core.getInput('workdir');
         const cwd = path.relative(process.env['GITHUB_WORKSPACE'] || process.cwd(), workdir);
+        const lstnFlags = core.getInput('lstn_flags');
         const lstn = await core.group('🐬 Installing lstn... https://github.com/listendev/lstn', async () => {
             return await install.lstn(version, tmpdir);
         });
         // TODO: restore cache here
         const exit = await core.group('🐬 Running lstn...', async () => {
             process.env['LSTN_GITHUB_API_TOKEN'] = core.getInput('token');
-            return await exec.exec(lstn, ['--help'], {
+            return await exec.exec(lstn, ['--help', ...flags.parse(lstnFlags)], {
                 cwd
             });
         });
