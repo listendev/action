@@ -5,6 +5,7 @@ import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as io from '@actions/io';
 import * as install from './install';
+import * as flags from './flags';
 
 async function run() {
   const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
@@ -17,6 +18,7 @@ async function run() {
       process.env['GITHUB_WORKSPACE'] || process.cwd(),
       workdir
     );
+    const lstnFlags = core.getInput('lstn_flags');
 
     const lstn = await core.group(
       '🐬 Installing lstn... https://github.com/listendev/lstn',
@@ -31,7 +33,7 @@ async function run() {
       '🐬 Running lstn...',
       async (): Promise<number> => {
         process.env['LSTN_GITHUB_API_TOKEN'] = core.getInput('token');
-        return await exec.exec(lstn, ['--help'], {
+        return await exec.exec(lstn, ['--help', ...flags.parse(lstnFlags)], {
           cwd
         });
       }
