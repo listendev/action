@@ -30,6 +30,10 @@ steps:
       # The working directory relative to the root one.
       # Defaults to the root directory.
       workdir: "."
+      # One or more reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check)
+      reporter: "gh-pull-comment"
+      # Addition lstn flags for power users
+      lstn_flags: ""
 ```
 
 ## License
