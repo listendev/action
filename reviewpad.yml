@@ -29,6 +29,16 @@ labels:
   needs-review:
     description: Marks a pull request as waiting for review
     color: "#aa2297"
+  "bump:major":
+    description: Marks a pull request as introducing a breaking change
+    color: "#fc0324"
+  "bump:minor":
+    description: Marks a pull request as introducing a minor change
+    color: "#ae40b8"
+  "bump:patch":
+    description: Marks a pull request as introducing a patch
+    color: "#ad8fb0"
+
 
 rules:
   - name: docs-changes
@@ -133,51 +143,50 @@ workflows:
     description: Label pull requests
     always-run: true
     if:
-      # Label pull requests with `docs` if they modify markdown or txt files, or if the branch starts with the `docs/` prefix, or if the title starts with the `docs:` prefix
       - rule: docs-changes
         extra-actions:
           - $addLabel("documentation")
-      # Label pull requests with `ci` if they modify files in the .github/ directory, or if the branch starts with the `ci/` prefix, or if the title starts with the `ci:` prefix
+          - $addLabel("bump:patch")
       - rule: ci-changes
         extra-actions:
           - $addLabel("ci")
-      # Label pull requests with `dependencies` if they  modify `package.json` and `package.lock` files.
+          - $addLabel("bump:patch")
       - rule: deps-changes
         extra-actions:
           - $addLabel("dependencies")
-      # Label pull requestd with `test` if they modify files in __tests__/ directory.
+          - $addLabel("bump:patch")
       - rule: test-changes
         extra-actions:
           - $addLabel("test")
-      # Label pull requests with `build` they modify files in the make/ directory, or if the branch starts with the `build/` prefix, or if the title starts with the `build:` prefix
+          - $addLabel("bump:patch")
       - rule: build-changes
         extra-actions:
           - $addLabel("build")
-      # Label pull requests with `enhancement` if the branch starts with (new|feat[ure]/) or the title starts with the feat prefix
+          - $addLabel("bump:patch")
       - rule: feat-changes
         extra-actions:
           - $addLabel("enhancement")
-      # Label pull requests with `bug` if the branch starts with the `fix/` prefix, or with the `bug/` prefix, or if the title starts with the `fix:` prefix
+          - $addLabel("bump:minor")
       - rule: fix-changes
         extra-actions:
           - $addLabel("bug")
-      # Label pull requests with `breaking-change` if the title contains any prefix followed by "!"
+          - $addLabel("bump:patch")
       - rule: breaking-changes
         extra-actions:
           - $addLabel("breaking-change")
-      # Label pull requests with `no-releasenotes` if the branch or the title starts with one of the excluded prefixes (chore|refactor|revert|perf|test)
+          - $addLabel("bump:major")
+          - $removeLabels("bump:minor", "bump:patch")
       - rule: exclude-changes
         extra-actions:
           - $addLabel("no-releasenotes")
-      # Label pull requests with `no-releasenotes` if their author is...
+          - $removeLabels("bump:major", "bump:minor", "bump:patch")
       - rule: by-bot
         extra-actions:
           - $addLabel("no-releasenotes")
-      # Label pull requests with `needs-review` if they are waiting for review
+          - $removeLabels("bump:major", "bump:minor", "bump:patch")
       - rule: $isWaitingForReview()
         extra-actions:
           - $addLabel("needs-review")
-      # Unlabel pull requests with `needs-review` when they got a review
       - rule: $isWaitingForReview() == false
         extra-actions:
           - $removeLabel("needs-review")
