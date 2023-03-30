@@ -124,8 +124,14 @@ Please note that this project adheres to a [Contributor Code of Conduct][code-of
 Just create a tag.
 
 ```
-git tag -a vX.Y.Z -m "vX.Y.Z"
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
+git push origin vX.Y.Z
 ```
+
+Once the release CI workflow completed, **manually** edit the release to:
+
+1. generate GitHub release notes by clicking the top-right button
+2. publish the new release on the GitHub Actions Marketplace by ensuring its checkbox is selected
 
 ## Resources
 
