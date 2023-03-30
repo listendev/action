@@ -37,7 +37,7 @@ jobs:
       - name: Debug options
         uses: ./
         with:
-          lstn: v0.4.0
+          lstn: v0.5.0
           lstn_flags: '--debug-options'
 
       - name: Self run (default reporter)
