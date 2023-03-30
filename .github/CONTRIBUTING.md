@@ -121,7 +121,11 @@ Please note that this project adheres to a [Contributor Code of Conduct][code-of
 
 ## Releases
 
-_TODO_
+Just create a tag.
+
+```
+git tag -a vX.Y.Z -m "vX.Y.Z"
+```
 
 ## Resources
 

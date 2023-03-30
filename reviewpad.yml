@@ -73,6 +73,7 @@ workflows:
         extra-actions:
           - $addLabel("enhancement")
           - $addLabel("bump:minor")
+          - $removeLabel("bump:patch")
       - rule: fix-changes
         extra-actions:
           - $addLabel("bug")
