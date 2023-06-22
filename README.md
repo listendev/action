@@ -2,7 +2,8 @@
 
 > Get real-time dependency insights in your pull requests 🐬
 
-TODO: screenshots/demo
+![image](https://github.com/listendev/action/assets/3413596/94718f08-320f-4948-88e9-48b7703da359)
+See [demo video](https://www.loom.com/share/d6662a575b41478fb4ddceef39ba1d57?sid=84017f2c-abdb-459f-b002-3c0b90e45845).
 
 ## Usage
 
