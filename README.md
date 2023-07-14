@@ -13,14 +13,14 @@ See [action.yml](action.yml).
 
 ```yaml
 steps:
-  - uses: listendev/action@v1
+  - uses: listendev/action@v0.2.1
 ```
 
 ### Full
 
 ```yaml
 steps:
-  - uses: listendev/action@v1
+  - uses: listendev/action@v0.2.1
     with:
       # The Github API token.
       # Defaults to ${{ github.token }}
