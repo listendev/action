@@ -1,5 +1,5 @@
-name: "Scan your dependencies with the listen.dev CLI"
-description: "Get real-time dependency insights in your pull requests 🐬"
+name: "listen.dev Dependency Scan"
+description: "Get real-time dependency insights in Pull Requests 🐬"
 author: "The listen.dev team <engineering@garnet.ai>"
 inputs:
   token:
@@ -7,7 +7,7 @@ inputs:
     required: true
     default: ${{ github.token }}
   lstn:
-    description: "The lstn version."
+    description: "The lstn CLI version."
     required: false
     default: "latest"
   workdir:
@@ -15,11 +15,11 @@ inputs:
     required: false
     default: "."
   reporter:
-    description: "One or more reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check)"
+    description: "Preferred reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check)"
     required: false
     default: "gh-pull-comment"
   lstn_flags:
-    description: "Additional lstn flags"
+    description: "Additional lstn CLI flags"
     required: false
     default: ""
 
