@@ -1,5 +1,5 @@
 name: "listen.dev Dependency Scan"
-description: "Get real-time dependency insights in Pull Requests 🐬"
+description: "Real-time dependency insights in GitHub PRs 🐬"
 author: "The listen.dev team <engineering@garnet.ai>"
 inputs:
   token:
@@ -26,6 +26,7 @@ inputs:
 runs:
   using: "node16"
   main: "dist/index.js"
+# https://actions-cool.github.io/github-action-branding/
 branding:
-  color: "green"
-  icon: "alert-octagon"
+  icon: 'shield'
+  color: 'green'
