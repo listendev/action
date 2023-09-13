@@ -37,6 +37,24 @@ steps:
       lstn_flags: ""
 ```
 
+### Examples
+
+TODO:
+
+## Development
+
+To develop this GitHub action you first need to install its dependencies:
+
+```bash
+npm run i
+```
+
+You can then use `npm run build` to compile it. Also, remember that we check on every pull request that you've run this command, as to avoid the `dist/` directory to be out of sync.
+
+You can also run unit tests locally with the `npm run test` command.
+
+The CI makes extensive use of the official [GitHub reusable workflows](https://github.com/actions/reusable-workflows) for developing actions following best practices (see the [.github](./.github) directory).
+
 ## License
 
 The scripts and documentation in this project are released under the [Apache 2.0](LICENSE) license.
