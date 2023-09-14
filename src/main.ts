@@ -46,6 +46,8 @@ async function run() {
           ['scan', ...lstnArgs, ...flags.parse(lstnFlags)],
           {
             cwd
+            // TODO: ignoreReturnCode
+            // TODO: outStream
           }
         );
       }

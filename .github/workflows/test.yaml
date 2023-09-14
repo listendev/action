@@ -34,24 +34,31 @@ jobs:
       - name: Check out
         uses: actions/checkout@v4
 
+      # TODO: check outputs
       - name: Debug options
         uses: ./
         with:
           lstn: v0.9.0
           lstn_flags: '--debug-options'
 
-      - name: Self run (default reporter)
-        uses: ./
-
       - name: Self run (custom reporter)
         uses: ./
         with:
           reporter: gh-pull-review
+          lstn_flags: '--debug-options'
 
       - name: Self run with lstn_flags
         uses: ./
         with:
           lstn: v0.9.0
-          lstn_flags: --select '(@.severity == "high")' -r gh-pull-comment,gh-pull-check --json
+          lstn_flags: "--json --jq '.[] | select(.verdicts == [])' --debug-options"
 
-          # TODO: check outputs
+      - name: Self run with lstn_flags
+        uses: ./
+        with:
+          lstn: v0.9.0
+          lstn_flags: --select '(@.severity == "high")' --timeout 120
+
+      # This actually runs
+      - name: Self run (default reporter)
+        uses: ./

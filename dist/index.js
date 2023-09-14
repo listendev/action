@@ -6793,6 +6793,8 @@ async function run() {
             process.env['LSTN_GH_TOKEN'] = core.getInput('token');
             return await exec.exec(lstn, ['scan', ...lstnArgs, ...flags.parse(lstnFlags)], {
                 cwd
+                // TODO: ignoreReturnCode
+                // TODO: outStream
             });
         });
         // TODO: save cache here
