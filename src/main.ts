@@ -15,6 +15,7 @@ async function run() {
     const version = core.getInput('lstn');
     const workdir = core.getInput('workdir');
     const reporter = core.getInput('reporter');
+    const select = core.getInput('select');
     const cwd = path.relative(
       process.env['GITHUB_WORKSPACE'] || process.cwd(),
       workdir
@@ -30,6 +31,11 @@ async function run() {
 
     // TODO: restore cache here
 
+    const lstnArgs = ['--reporter', `${reporter}`]; // There's a default reporter
+    if (select != "") {
+      lstnArgs.push(...['--select', `${select}`])
+    }
+
     const exit = await core.group(
       '🐬 Running lstn...',
       async (): Promise<number> => {
@@ -37,7 +43,7 @@ async function run() {
 
         return await exec.exec(
           lstn,
-          ['scan', '--reporter', `${reporter}`, ...flags.parse(lstnFlags)],
+          ['scan', ...lstnArgs, ...flags.parse(lstnFlags)],
           {
             cwd
           }
