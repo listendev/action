@@ -6778,15 +6778,20 @@ async function run() {
         const version = core.getInput('lstn');
         const workdir = core.getInput('workdir');
         const reporter = core.getInput('reporter');
+        const select = core.getInput('select');
         const cwd = path.relative(process.env['GITHUB_WORKSPACE'] || process.cwd(), workdir);
         const lstnFlags = core.getInput('lstn_flags');
         const lstn = await core.group('🐬 Installing lstn... https://github.com/listendev/lstn', async () => {
             return await install.lstn(version, tmpdir);
         });
         // TODO: restore cache here
+        const lstnArgs = ['--reporter', `${reporter}`]; // There's a default reporter
+        if (select != "") {
+            lstnArgs.push(...['--select', `${select}`]);
+        }
         const exit = await core.group('🐬 Running lstn...', async () => {
             process.env['LSTN_GH_TOKEN'] = core.getInput('token');
-            return await exec.exec(lstn, ['scan', '--reporter', `${reporter}`, ...flags.parse(lstnFlags)], {
+            return await exec.exec(lstn, ['scan', ...lstnArgs, ...flags.parse(lstnFlags)], {
                 cwd
             });
         });
