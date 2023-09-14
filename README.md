@@ -39,7 +39,35 @@ steps:
 
 ### Examples
 
-TODO:
+Let's say you want results in JSON format...
+
+```yaml
+steps:
+  - uses: listendev/action@v0.2.2
+    with:
+      lstn_flags: "--json"
+```
+
+Let's say you only care for high severity verdicts...
+
+```yaml
+steps:
+  - uses: listendev/action@v0.2.2
+    with:
+      lstn: "v0.9.0"
+      lstn_flags: "--select '@.severity == \"high\"'"
+```
+
+You can select the verdicts also with the `select` input.
+
+Let's say we only care for dynamic instrumentation verdicts regarding processes...
+
+```yaml
+steps:
+  - uses: listendev/action@v0.2.2
+    with:
+      select: "(@.file =~ \"^dynamic\" && \"process\" in @.categories)"
+```
 
 ## Development
 
