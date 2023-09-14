@@ -42,3 +42,9 @@ jobs:
 
       - name: Self run (default reporter)
         uses: ./
+
+      - name: Self run (custom reporter)
+        uses: ./
+        with:
+          reporter: gh-pull-review
+
