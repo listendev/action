@@ -18,6 +18,10 @@ inputs:
     description: "Preferred reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check)"
     required: false
     default: "gh-pull-comment"
+  select:
+    description: "JSONPath script expression to filter the output verdicts"
+    required: false
+    default: ""
   lstn_flags:
     description: "Additional lstn CLI flags"
     required: false
