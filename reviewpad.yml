@@ -34,7 +34,7 @@ rules:
   - name: build-changes
     spec: $hasFilePattern("make/**") || $matchString("^build(\([A-Za-z0-9_\/]+\))??:.+$", $title()) || $matchString("^build\/.+", $head())
   - name: test-changes
-    spec: $hasFilePattern("__tests__/**")
+    spec: $hasFilePattern("__tests__/**") || $hasFileName(".github/workflows/test.yaml")
 
 
 groups:
@@ -49,6 +49,11 @@ workflows:
     description: Label pull requests
     always-run: true
     if:
+      - rule: feat-changes
+        extra-actions:
+          - $addLabel("enhancement")
+          - $addLabel("bump:minor")
+          - $removeLabel("bump:patch")
       - rule: docs-changes
         extra-actions:
           - $addLabel("documentation")
@@ -69,11 +74,6 @@ workflows:
         extra-actions:
           - $addLabel("build")
           - $addLabel("bump:patch")
-      - rule: feat-changes
-        extra-actions:
-          - $addLabel("enhancement")
-          - $addLabel("bump:minor")
-          - $removeLabel("bump:patch")
       - rule: fix-changes
         extra-actions:
           - $addLabel("bug")
