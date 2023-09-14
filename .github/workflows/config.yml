@@ -11,13 +11,13 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: 'main'
           path: 'target'
 
       - name: Checkout actions/reusable-workflows repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: 'actions/reusable-workflows'
           ref: 'main'
