@@ -48,3 +48,10 @@ jobs:
         with:
           reporter: gh-pull-review
 
+      - name: Self run with lstn_flags
+        uses: ./
+        with:
+          lstn: v0.9.0
+          lstn_flags: --select '(@.severity == "high")' -r gh-pull-comment,gh-pull-check --json
+
+          # TODO: check outputs
