@@ -19,7 +19,9 @@ export function parse(flags: string): string[] {
   // |                          # Or
   // [^ "']+                      # Matches any character without quotes or spaces one or more times (flag values without quotes)
   const parts = flags
-    .match(/(?=(-(?:-\w+|\w)(?:=| )))\1|""|''|(["'])[^]*?[^\\](?:\\\\)*\2|[^ "']+/g)
+    .match(
+      /(?=(-(?:-\w+|\w)(?:=| )))\1|""|''|(["'])[^]*?[^\\](?:\\\\)*\2|[^ "']+/g
+    )
     // Removing matching quotes
     ?.map(arg => arg.replace(/^"(.*)"$/, '$1'))
     ?.map(arg => arg.replace(/^'(.*)'$/, '$1'))
