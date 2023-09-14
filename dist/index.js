@@ -6786,7 +6786,7 @@ async function run() {
         });
         // TODO: restore cache here
         const lstnArgs = ['--reporter', `${reporter}`]; // There's a default reporter
-        if (select != "") {
+        if (select != '') {
             lstnArgs.push(...['--select', `${select}`]);
         }
         const exit = await core.group('🐬 Running lstn...', async () => {
