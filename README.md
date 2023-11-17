@@ -13,14 +13,14 @@ See [action.yml](action.yml).
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.2.2
+  - uses: listendev/action@v0.3.0
 ```
 
 ### Full
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.2.2
+  - uses: listendev/action@v0.3.0
     with:
       # The Github API token.
       # Defaults to ${{ github.token }}
@@ -43,7 +43,7 @@ Let's say you want results in JSON format...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.2.2
+  - uses: listendev/action@v0.3.0
     with:
       lstn_flags: "--json"
 ```
@@ -52,7 +52,7 @@ Let's say you only care for high severity verdicts...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.2.2
+  - uses: listendev/action@v0.3.0
     with:
       lstn: "v0.9.0"
       lstn_flags: "--select '@.severity == \"high\"'"
@@ -64,7 +64,7 @@ Let's say we only care for dynamic instrumentation verdicts regarding processes.
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.2.2
+  - uses: listendev/action@v0.3.0
     with:
       select: "(@.file =~ \"^dynamic\" && \"process\" in @.categories)"
 ```
