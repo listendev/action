@@ -12,6 +12,7 @@ async function run() {
   const tmpdir = await fs.mkdtemp(path.join(runnertmp, 'lstn-'));
 
   try {
+    const jwt = core.getInput('jwt');
     const version = core.getInput('lstn');
     const workdir = core.getInput('workdir');
     const reporter = core.getInput('reporter');
@@ -30,8 +31,9 @@ async function run() {
     );
 
     // TODO: restore cache here
+    const lstnCommand = jwt != '' ? 'in' : 'scan';
 
-    const lstnArgs = ['--reporter', `${reporter}`]; // There's a default reporter
+    const lstnArgs = ['--reporter', `${jwt != '' ? 'pro' : reporter}`]; // There's always a reporter (default)
     if (select != '') {
       lstnArgs.push(...['--select', `${select}`]);
     }
@@ -40,10 +42,11 @@ async function run() {
       '🐬 Running lstn...',
       async (): Promise<number> => {
         process.env['LSTN_GH_TOKEN'] = core.getInput('token');
+        process.env['LSTN_JWT_TOKEN'] = jwt;
 
         return await exec.exec(
           lstn,
-          ['scan', ...lstnArgs, ...flags.parse(lstnFlags)],
+          [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)],
           {
             cwd
             // TODO: ignoreReturnCode
