@@ -6,6 +6,10 @@ inputs:
     description: "The GitHub API token."
     required: true
     default: ${{ github.token }}
+  jwt:
+    description: "The listen.dev JWT token."
+    required: false
+    default: ${{ secrets.LSTN_JWT_TOKEN }}
   lstn:
     description: "The lstn CLI version."
     required: false
@@ -15,7 +19,7 @@ inputs:
     required: false
     default: "."
   reporter:
-    description: "Preferred reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check)"
+    description: "Preferred reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check,pro)"
     required: false
     default: "gh-pull-comment"
   select:
