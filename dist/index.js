@@ -6775,6 +6775,7 @@ async function run() {
     const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
     const tmpdir = await fs_1.promises.mkdtemp(path.join(runnertmp, 'lstn-'));
     try {
+        const jwt = core.getInput('jwt');
         const version = core.getInput('lstn');
         const workdir = core.getInput('workdir');
         const reporter = core.getInput('reporter');
@@ -6785,13 +6786,15 @@ async function run() {
             return await install.lstn(version, tmpdir);
         });
         // TODO: restore cache here
-        const lstnArgs = ['--reporter', `${reporter}`]; // There's a default reporter
+        const lstnCommand = jwt != '' ? 'in' : 'scan';
+        const lstnArgs = ['--reporter', `${jwt != '' ? 'pro' : reporter}`]; // There's always a reporter (default)
         if (select != '') {
             lstnArgs.push(...['--select', `${select}`]);
         }
         const exit = await core.group('🐬 Running lstn...', async () => {
             process.env['LSTN_GH_TOKEN'] = core.getInput('token');
-            return await exec.exec(lstn, ['scan', ...lstnArgs, ...flags.parse(lstnFlags)], {
+            process.env['LSTN_JWT_TOKEN'] = jwt;
+            return await exec.exec(lstn, [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)], {
                 cwd
                 // TODO: ignoreReturnCode
                 // TODO: outStream
