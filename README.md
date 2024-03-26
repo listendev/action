@@ -13,37 +13,80 @@ See [action.yml](action.yml).
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.3.0
+  - uses: listendev/action@v0.4
 ```
 
 ### Full
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.3.0
+  - uses: listendev/action@v0.4
     with:
       # The Github API token.
       # Defaults to ${{ github.token }}
       token: "..."
+      # The listen.dev JWT token.
+      # Defaults to ${{ secrets.LSTN_JWT_TOKEN }}
+      jwt: ${{ secrets.MY_JWT_TOKEN }}
       # The lstn version.
-      # Defaults to the latest lstn release tag.
+      # Defaults to the latest lstn release tag (recommended).
       lstn: "vX.Y.Z"
       # The working directory relative to the root one.
       # Defaults to the root directory.
       workdir: "."
-      # One or more reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check)
+      # One or more reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check,pro)
       reporter: "gh-pull-comment"
       # Addition lstn flags for power users
       lstn_flags: ""
 ```
 
-### Examples
+### Connect to listen.dev
 
-Let's say you want results in JSON format...
+Just [include a secret](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) `LSTN_JWT_TOKEN` into your GitHub Actions environment...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.3.0
+  - uses: listendev/action@v0.4
+```
+
+This will instruct the action to report to [listen.dev](https://listen.dev) all the verdicts for all the dependencies of the `package-lock.json` file into the working directory.
+
+When the action notices that the [listen.dev](https://listen.dev) JWT secret exists, it will automatically override the reporter to the `pro` one.
+
+Where to get your JWT token?
+
+_TODO: screenshot._
+
+<details>
+<summary>Do you want to use a secret with a different name?</summary>
+
+```yaml
+steps:
+  - uses: listendev/action@v0.4
+    with:
+      jwt: ${{ secrets.MY_JWT }}
+```
+</details>
+
+<details>
+<summary>Do you also want to use another reporter?</summary>
+
+```yaml
+steps:
+  - uses: listendev/action@v0.4
+    with:
+      jwt: ${{ secrets.MY_JWT }}
+      lstn_flags: "--reporter gh-pull-comment"
+```
+</details>
+
+### Examples
+
+Let's say you want the verdicts in JSON format...
+
+```yaml
+steps:
+  - uses: listendev/action@v0.4
     with:
       lstn_flags: "--json"
 ```
@@ -52,7 +95,7 @@ Let's say you only care for high severity verdicts...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.3.0
+  - uses: listendev/action@v0.4
     with:
       lstn: "v0.10.0"
       lstn_flags: "--select '@.severity == \"high\"'"
@@ -64,7 +107,7 @@ Let's say we only care for dynamic instrumentation verdicts regarding processes.
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.3.0
+  - uses: listendev/action@v0.4
     with:
       select: "(@.file =~ \"^dynamic\" && \"process\" in @.categories)"
 ```
