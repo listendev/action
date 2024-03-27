@@ -26,7 +26,7 @@ steps:
       # Defaults to ${{ github.token }}
       token: "..."
       # The listen.dev JWT token.
-      # Defaults to ${{ secrets.LSTN_JWT_TOKEN }}
+      # Defaults to empty string.
       jwt: ${{ secrets.MY_JWT_TOKEN }}
       # The lstn version.
       # Defaults to the latest lstn release tag (recommended).
@@ -35,6 +35,7 @@ steps:
       # Defaults to the root directory.
       workdir: "."
       # One or more reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check,pro)
+      # Defaults to "gh-pull-comment" when there is no JWT input, to "pro" otherwise.
       reporter: "gh-pull-comment"
       # Addition lstn flags for power users
       lstn_flags: ""
@@ -42,11 +43,13 @@ steps:
 
 ### Connect to listen.dev
 
-Just [include a secret](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) `LSTN_JWT_TOKEN` into your GitHub Actions environment...
+Just [create a secret](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) and pass it to the `jwt` input...
 
 ```yaml
 steps:
   - uses: listendev/action@v0.4
+    with:
+      jwt: ${{ secrets.MY_LISTENDEV_JWT }}
 ```
 
 This will instruct the action to report to [listen.dev](https://listen.dev) all the verdicts for all the dependencies of the `package-lock.json` file into the working directory.
@@ -58,18 +61,7 @@ Where to get your JWT token?
 _TODO: screenshot._
 
 <details>
-<summary>Do you want to use a secret with a different name?</summary>
-
-```yaml
-steps:
-  - uses: listendev/action@v0.4
-    with:
-      jwt: ${{ secrets.MY_JWT }}
-```
-</details>
-
-<details>
-<summary>Do you also want to use another reporter?</summary>
+<summary>Do you also want to also use another reporter together with the pro one?</summary>
 
 ```yaml
 steps:
@@ -97,7 +89,7 @@ Let's say you only care for high severity verdicts...
 steps:
   - uses: listendev/action@v0.4
     with:
-      lstn: "v0.10.0"
+      lstn: "v0.11.0"
       lstn_flags: "--select '@.severity == \"high\"'"
 ```
 
