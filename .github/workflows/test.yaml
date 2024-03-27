@@ -38,7 +38,7 @@ jobs:
       - name: Debug options
         uses: ./
         with:
-          lstn: v0.10.0
+          lstn: v0.11.0
           lstn_flags: '--debug-options'
 
       - name: Self run (custom reporter)
@@ -50,14 +50,14 @@ jobs:
       - name: Self run with lstn_flags
         uses: ./
         with:
-          lstn: v0.10.0
+          lstn: v0.11.0
           reporter: gh-pull-check
           lstn_flags: "--json --jq '.[] | select(.verdicts == [])' --debug-options"
 
       - name: Self run (select input)
         uses: ./
         with:
-          lstn: v0.10.0
+          lstn: v0.11.0
           reporter: gh-pull-check
           select: (@.severity == "high")
           lstn_flags: --timeout 120
