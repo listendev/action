@@ -9,7 +9,7 @@ inputs:
   jwt:
     description: "The listen.dev JWT token."
     required: false
-    default: ${{ secrets.LSTN_JWT_TOKEN }}
+    default: ""
   lstn:
     description: "The lstn CLI version."
     required: false
@@ -32,7 +32,7 @@ inputs:
     default: ""
 
 runs:
-  using: "node16"
+  using: "node20"
   main: "dist/index.js"
 # https://actions-cool.github.io/github-action-branding/
 branding:
