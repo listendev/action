@@ -44,8 +44,15 @@ jobs:
       - name: Debug jwt input
         uses: ./
         with:
-          jwt: 'xxx.yyy.zzz'
+          jwt: 'xxx.yyy.zzz' #  NOTE: do not do this, use a secret
           lstn_flags: '--debug-options'
+
+      - name: Debug jwt input with additional reporter
+        uses: ./
+        with:
+          jwt: 'xxx.yyy.zzz' #  NOTE: do not do this, use a secret
+          lstn_flags: '-r gh-pull-comment --debug-options'
+
 
       - name: Self run (custom reporter)
         uses: ./
