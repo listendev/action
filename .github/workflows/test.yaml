@@ -41,6 +41,12 @@ jobs:
           lstn: v0.11.0
           lstn_flags: '--debug-options'
 
+      - name: Debug jwt input
+        uses: ./
+        with:
+          jwt: 'xxx.yyy.zzz'
+          lstn_flags: '--debug-options'
+
       - name: Self run (custom reporter)
         uses: ./
         with:
