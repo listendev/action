@@ -89,7 +89,7 @@ Let's say you only care for high severity verdicts...
 steps:
   - uses: listendev/action@v0.4
     with:
-      lstn: "v0.11.0"
+      lstn: "v0.12.0"
       lstn_flags: "--select '@.severity == \"high\"'"
 ```
 
