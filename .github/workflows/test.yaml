@@ -38,7 +38,7 @@ jobs:
       - name: Debug options
         uses: ./
         with:
-          lstn: v0.11.0
+          lstn: v0.12.0
           lstn_flags: '--debug-options'
 
       - name: Debug jwt input
@@ -53,6 +53,34 @@ jobs:
           jwt: 'xxx.yyy.zzz' #  NOTE: do not do this, use a secret
           lstn_flags: '-r gh-pull-comment --debug-options'
 
+      - name: Debug invoking lstn from root with custom config file containing multiple lockfiles
+        uses: ./
+        with:
+          jwt: 'xxx.123.987' #  NOTE: do not do this, use a secret
+          workdir: '.'
+          lstn_flags: '--config __tests/testdata/from_root.yaml --debug-options'
+
+      - name: Debug invoking lstn from root with custom workdir + explicit lockfiles flag
+        uses: ./
+        with:
+          jwt: 'xxx.123.789' #  NOTE: do not do this, use a secret
+          workdir: '__tests__/testdata'
+          lstn_flags: '--lockfiles monorepo/package-lock.json,monorepo/sub/poetry.lock --debug-options'
+
+      - name: Debug invoking lstn from root with custom workdir containing .lstn.yaml (lockfiles relative to workdir)
+        uses: ./
+        with:
+          jwt: 'xxx.123.789' #  NOTE: do not do this, use a secret
+          workdir: '__tests__/testdata'
+          lstn_flags: '--debug-options'
+
+      - name: Debug invoking lstn from root with custom workdir containing default lockfiles
+        uses: ./
+        with:
+          jwt: 'xxx.123.yyy' #  NOTE: do not do this, use a secret
+          workdir: '__tests__/testdata/monorepo'
+          lstn_flags: '--debug-options'
+
       - name: Self run (custom reporter)
         uses: ./
         with:
@@ -62,14 +90,14 @@ jobs:
       - name: Self run with lstn_flags
         uses: ./
         with:
-          lstn: v0.11.0
+          lstn: v0.12.0
           reporter: gh-pull-check
           lstn_flags: "--json --jq '.[] | select(.verdicts == [])' --debug-options"
 
       - name: Self run (select input)
         uses: ./
         with:
-          lstn: v0.11.0
+          lstn: v0.12.0
           reporter: gh-pull-check
           select: (@.severity == "high")
           lstn_flags: --timeout 120
