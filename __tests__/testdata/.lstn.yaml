@@ -1,0 +1,5 @@
+timeout: 3000
+lockfiles:
+  - monorepo/package-lock.json
+  - monorepo/poetry.lock
+  - monorepo/sub/poetry.lock

@@ -1,0 +1,5 @@
+timeout: 5000
+lockfiles:
+  - __tests__/testdata/monorepo/package-lock.json
+  - __tests__/testdata/monorepo/poetry.lock
+  - __tests__/testdata/monorepo/sub/poetry.lock
