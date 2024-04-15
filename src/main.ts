@@ -6,6 +6,7 @@ import * as exec from '@actions/exec';
 import * as io from '@actions/io';
 import * as install from './install';
 import * as flags from './flags';
+import * as utils from './utils';
 
 async function run() {
   const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
@@ -15,6 +16,7 @@ async function run() {
     const jwt = core.getInput('jwt');
     const version = core.getInput('lstn');
     const workdir = core.getInput('workdir');
+    const config = core.getInput('config');
     const reporter = core.getInput('reporter');
     const select = core.getInput('select');
     const cwd = path.relative(
@@ -37,6 +39,26 @@ async function run() {
     const lstnArgs = ['--reporter', `${jwt != '' ? 'pro' : reporter}`]; // There's always a reporter (default)
     if (select != '') {
       lstnArgs.push(...['--select', `${select}`]);
+    }
+    if (config != '') {
+      const res = await utils.checkPath(config);
+      if (!res.exists) {
+        core.setFailed(`${config} does not exists`);
+        return;
+      }
+      if (res.isFile) {
+        lstnArgs.push(...['--config', `${config}`]);
+      } else {
+        // The input config is a directory
+        const defaultFile = path.join(config, '.lstn.yaml');
+        const fallback = await utils.checkPath(defaultFile);
+        if (!fallback.exists) {
+          core.setFailed(`${defaultFile} config file does not exists`);
+          return;
+        }
+        // Assuming that defaultFile is a proper file now
+        lstnArgs.push(...['--config', `${defaultFile}`]);
+      }
     }
 
     const exit = await core.group(
