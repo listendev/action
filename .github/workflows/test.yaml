@@ -59,7 +59,17 @@ jobs:
           jwt: 'xxx.123.987' #  NOTE: do not do this, use a secret
           workdir: '.'
           lstn_flags: '--config __tests__/testdata/from_root.yaml --debug-options'
-      # Expects "lockfiles": ["__tests__/testdata/monorepo/package-lock.json","__tests__/testdata/monorepo/poetry.lock","__tests__/testdata/monorepo/sub/poetry.lock"]
+        # Expects "lockfiles": ["__tests__/testdata/monorepo/package-lock.json","__tests__/testdata/monorepo/poetry.lock","__tests__/testdata/monorepo/sub/poetry.lock"]
+
+      - name: Debug invoking lstn from root with custom config file containing multiple lockfiles using action input
+        uses: ./
+        with:
+          jwt: 'xxx.123.987' #  NOTE: do not do this, use a secret
+          workdir: '.'
+          config: '__tests__/testdata/from_root.yaml'
+          lstn_flags: '--debug-options'
+        # Expects "lockfiles": ["__tests__/testdata/monorepo/package-lock.json","__tests__/testdata/monorepo/poetry.lock","__tests__/testdata/monorepo/sub/poetry.lock"]
+
       - name: Debug invoking lstn from root with custom workdir + explicit lockfiles flag
         uses: ./
         with:
