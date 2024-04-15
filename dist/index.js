@@ -6771,6 +6771,7 @@ const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const install = __importStar(__nccwpck_require__(1649));
 const flags = __importStar(__nccwpck_require__(3252));
+const utils = __importStar(__nccwpck_require__(1314));
 async function run() {
     const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
     const tmpdir = await fs_1.promises.mkdtemp(path.join(runnertmp, 'lstn-'));
@@ -6778,6 +6779,7 @@ async function run() {
         const jwt = core.getInput('jwt');
         const version = core.getInput('lstn');
         const workdir = core.getInput('workdir');
+        const config = core.getInput('config');
         const reporter = core.getInput('reporter');
         const select = core.getInput('select');
         const cwd = path.relative(process.env['GITHUB_WORKSPACE'] || process.cwd(), workdir);
@@ -6790,6 +6792,27 @@ async function run() {
         const lstnArgs = ['--reporter', `${jwt != '' ? 'pro' : reporter}`]; // There's always a reporter (default)
         if (select != '') {
             lstnArgs.push(...['--select', `${select}`]);
+        }
+        if (config != '') {
+            const res = await utils.checkPath(config);
+            if (!res.exists) {
+                core.setFailed(`${config} does not exists`);
+                return;
+            }
+            if (res.isFile) {
+                lstnArgs.push(...['--config', `${config}`]);
+            }
+            else {
+                // The input config is a directory
+                const defaultFile = path.join(config, '.lstn.yaml');
+                const fallback = await utils.checkPath(defaultFile);
+                if (!fallback.exists) {
+                    core.setFailed(`${defaultFile} config file does not exists`);
+                    return;
+                }
+                // Assuming that defaultFile is a proper file now
+                lstnArgs.push(...['--config', `${defaultFile}`]);
+            }
         }
         const exit = await core.group('🐬 Running lstn...', async () => {
             process.env['LSTN_GH_TOKEN'] = core.getInput('token');
@@ -6830,6 +6853,42 @@ async function run() {
     }
 }
 run();
+
+
+/***/ }),
+
+/***/ 1314:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.checkPath = void 0;
+const fs_1 = __nccwpck_require__(7147);
+async function checkPath(path) {
+    try {
+        const stats = await fs_1.promises.stat(path);
+        if (stats.isFile()) {
+            return { exists: true, isFile: true };
+        }
+        else if (stats.isDirectory()) {
+            return { exists: true, isFile: false };
+        }
+        else {
+            // Handle other types (unlikely in most cases)
+            return { exists: true, isFile: undefined };
+        }
+    }
+    catch (error) {
+        if (error.code === 'ENOENT') {
+            return { exists: false };
+        }
+        else {
+            throw error; // Re-throw other errors
+        }
+    }
+}
+exports.checkPath = checkPath;
 
 
 /***/ }),
