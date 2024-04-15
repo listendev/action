@@ -18,6 +18,10 @@ inputs:
     description: "Working directory relative to the root directory."
     required: false
     default: "."
+  config:
+    description: "The path of the configuration file."
+    required: false
+    default: ""
   reporter:
     description: "Preferred reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check,pro)"
     required: false
