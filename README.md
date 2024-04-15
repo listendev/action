@@ -13,14 +13,14 @@ See [action.yml](action.yml).
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.4
+  - uses: listendev/action@v0.5
 ```
 
 ### Full
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.4
+  - uses: listendev/action@v0.5
     with:
       # The Github API token.
       # Defaults to ${{ github.token }}
@@ -34,6 +34,10 @@ steps:
       # The working directory relative to the root one.
       # Defaults to the root directory.
       workdir: "."
+      # The path to the YAML configuration file.
+      # Or the path of the directory containing a .lstn.yaml file.
+      # Defaults to empty.
+      config: "..."
       # One or more reporting mechanisms (gh-pull-comment,gh-pull-review,gh-pull-check,pro)
       # Defaults to "gh-pull-comment" when there is no JWT input, to "pro" otherwise.
       reporter: "gh-pull-comment"
@@ -47,7 +51,7 @@ Just [create a secret](https://docs.github.com/en/actions/security-guides/using-
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.4
+  - uses: listendev/action@v0.5
     with:
       jwt: ${{ secrets.MY_LISTENDEV_JWT }}
 ```
@@ -58,14 +62,14 @@ When the action notices that the [listen.dev](https://listen.dev) JWT secret exi
 
 Where to get your JWT token?
 
-_TODO: screenshot._
+![Get your API key from the project settings](docs/listendev_pro_jwt_api_key.png)
 
 <details>
 <summary>Do you also want to also use another reporter together with the pro one?</summary>
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.4
+  - uses: listendev/action@v0.5
     with:
       jwt: ${{ secrets.MY_JWT }}
       lstn_flags: "--reporter gh-pull-comment"
@@ -78,7 +82,7 @@ Let's say you want the verdicts in JSON format...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.4
+  - uses: listendev/action@v0.5
     with:
       lstn_flags: "--json"
 ```
@@ -87,7 +91,7 @@ Let's say you only care for high severity verdicts...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.4
+  - uses: listendev/action@v0.5
     with:
       lstn: "v0.12.1"
       lstn_flags: "--select '@.severity == \"high\"'"
@@ -99,7 +103,7 @@ Let's say we only care for dynamic instrumentation verdicts regarding processes.
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.4
+  - uses: listendev/action@v0.5
     with:
       select: "(@.file =~ \"^dynamic\" && \"process\" in @.categories)"
 ```
