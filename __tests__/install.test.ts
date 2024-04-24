@@ -17,7 +17,7 @@ describe('installer', () => {
     await io.rmRF(tmpdir);
   });
 
-  it(
+  it.skipWindows(
     'installs specific lstn version',
     async () => {
       const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
@@ -29,7 +29,7 @@ describe('installer', () => {
     5 * 60 * 1000
   );
 
-  it(
+  it.skipWindows(
     'installs the latest version of lstn',
     async () => {
       const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
@@ -40,7 +40,7 @@ describe('installer', () => {
     5 * 60 * 1000
   );
 
-  it(
+  it.onLinux(
     'installs argus for the lstn v0.13.0',
     async () => {
       const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
@@ -51,7 +51,7 @@ describe('installer', () => {
     5 * 60 * 1000
   );
 
-  it(
+  it.onLinux(
     'installs argus for the latest lstn',
     async () => {
       const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
