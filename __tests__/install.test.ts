@@ -50,4 +50,15 @@ describe('installer', () => {
     },
     5 * 60 * 1000
   );
+
+  it(
+    'installs argus for the latest lstn',
+    async () => {
+      const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
+      const argus = await installer.argusFor('latest', dir);
+      const code = await exec.exec(argus, ['-v']);
+      expect(code).toBe(0);
+    },
+    5 * 60 * 1000
+  );
 });
