@@ -38,12 +38,26 @@ export async function argusFor(
   tag: string,
   directory: string
 ): Promise<string> {
+  // Argus only runs on linux amd64
+  const plat = getPlat(process.platform.toString());
+  switch (plat) {
+    case 'linux':
+      break;
+    default:
+      throw new Error(`unsupporter platform: ${plat}`);
+  }
+  const arch = getArch(process.arch.toString());
+  switch (arch) {
+    case 'amd64':
+      break;
+    default:
+      throw new Error(`unsupporter arch: ${arch}`);
+  }
+
   const argusTag = getArgusTag(tag);
   const owner = 'listendev';
   const repo = 'argus-releases';
   const vers = await tagToVersion(argusTag, owner, repo);
-  // const plat = getPlat(process.platform.toString());
-  // const arch = getArch(process.arch.toString());
 
   const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/loader`;
 
