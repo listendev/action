@@ -1,9 +1,10 @@
+import * as fs from 'fs';
 import * as path from 'path';
 import * as core from '@actions/core';
 import * as http from '@actions/http-client';
 import * as tc from '@actions/tool-cache';
 import * as io from '@actions/io';
-import { getArgusTag } from './argus';
+import {getArgusTag} from './argus';
 
 export async function lstn(tag: string, directory: string): Promise<string> {
   const owner = 'listendev';
@@ -33,8 +34,11 @@ export async function lstn(tag: string, directory: string): Promise<string> {
   return path.join(res, name, `lstn${ext}`);
 }
 
-export async function argusFor(tag: string, directory: string): Promise<string> {
-  const argusTag = getArgusTag(tag)
+export async function argusFor(
+  tag: string,
+  directory: string
+): Promise<string> {
+  const argusTag = getArgusTag(tag);
   const owner = 'listendev';
   const repo = 'argus-releases';
   const vers = await tagToVersion(argusTag, owner, repo);
@@ -49,10 +53,11 @@ export async function argusFor(tag: string, directory: string): Promise<string> 
 
   core.info(`preparing binary...`);
 
-  const dest = path.join(directory, 'argus')
-  await io.mv(download, dest)
+  const dest = path.join(directory, 'argus');
+  await io.mv(download, dest);
+  fs.chmodSync(dest, 0o755);
 
-  return dest
+  return dest;
 }
 
 function getPlat(os: string): string {
