@@ -7,4 +7,5 @@ module.exports = {
     "^.+\\.ts$": "ts-jest",
   },
   verbose: true,
+  setupFilesAfterEnv: ["jest-os-detection"],
 };
