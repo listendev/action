@@ -39,4 +39,15 @@ describe('installer', () => {
     },
     5 * 60 * 1000
   );
+
+  it(
+    'installs argus for the lstn v0.13.0',
+    async () => {
+      const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
+      const argus = await installer.argusFor('v0.13.0', dir);
+      const code = await exec.exec(argus, ['version']);
+      expect(code).toBe(0);
+    },
+    5 * 60 * 1000
+  );
 });
