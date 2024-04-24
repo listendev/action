@@ -2,6 +2,8 @@ import * as path from 'path';
 import * as core from '@actions/core';
 import * as http from '@actions/http-client';
 import * as tc from '@actions/tool-cache';
+import * as io from '@actions/io';
+import { getArgusTag } from './argus';
 
 export async function lstn(tag: string, directory: string): Promise<string> {
   const owner = 'listendev';
@@ -29,6 +31,28 @@ export async function lstn(tag: string, directory: string): Promise<string> {
   }
 
   return path.join(res, name, `lstn${ext}`);
+}
+
+export async function argusFor(tag: string, directory: string): Promise<string> {
+  const argusTag = getArgusTag(tag)
+  const owner = 'listendev';
+  const repo = 'argus-releases';
+  const vers = await tagToVersion(argusTag, owner, repo);
+  // const plat = getPlat(process.platform.toString());
+  // const arch = getArch(process.arch.toString());
+
+  const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/loader`;
+
+  core.info(`downloading from ${url}`);
+
+  const download = await tc.downloadTool(url);
+
+  core.info(`preparing binary...`);
+
+  const dest = path.join(directory, 'argus')
+  await io.mv(download, dest)
+
+  return dest
 }
 
 function getPlat(os: string): string {
@@ -92,14 +116,14 @@ async function tagToVersion(
   owner: string,
   repo: string
 ): Promise<string> {
-  core.info(`looking for a release for tag ${tag}`);
+  core.info(`looking for ${repo}/${tag}`);
 
   interface Release {
     tag_name: string;
   }
 
   const version = process.env.npm_package_version || 'unknown';
-  const ua = `listendev-action/${version}; lstn/${tag}`;
+  const ua = `listendev-action/${version}; ${repo}/${tag}`;
   const url = `https://github.com/${owner}/${repo}/releases/${tag}`;
   const client = new http.HttpClient(ua);
   const headers = {[http.Headers.Accept]: 'application/json'};
