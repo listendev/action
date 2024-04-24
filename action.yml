@@ -14,6 +14,10 @@ inputs:
     description: "The lstn CLI version."
     required: false
     default: "latest"
+  ci:
+    description: "Whether to run the Argus CI tool or not. It works with the listen.dev JWT token."
+    required: false
+    default: "false"
   workdir:
     description: "Working directory relative to the root directory."
     required: false
