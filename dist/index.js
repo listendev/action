@@ -6844,15 +6844,12 @@ async function run() {
         const lstn = await core.group('🐬 Installing lstn... https://github.com/listendev/lstn', async () => {
             return await install.lstn(version, tmpdir);
         });
-        // if (runArgus) {
-        // TODO:
-        // const argus = await core.group(
-        //   '👁️‍🗨️ Installing argus... https://listen.dev',
-        //   async () => {
-        //     return await install.argusFor(version, tmpdir);
-        //   }
-        // )
-        // }
+        let argus;
+        if (runArgus) {
+            argus = await core.group('👁️‍🗨️ Installing argus... https://listen.dev', async () => {
+                return await install.argusFor(version, tmpdir);
+            });
+        }
         // TODO: restore cache here
         const lstnCommand = jwt != '' ? 'in' : 'scan';
         const lstnArgs = ['--reporter', `${jwt != '' ? 'pro' : reporter}`]; // There's always a reporter (default)
