@@ -80,7 +80,7 @@ async function run() {
         process.env['LSTN_JWT_TOKEN'] = jwt;
 
         if (runArgus) {
-          await exec.exec(lstn, ['ci']); // TODO: path for argus binary?
+          await exec.exec('sudo', [lstn, 'ci']); // TODO: path for argus binary?
         }
 
         return await exec.exec(
