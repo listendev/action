@@ -6882,7 +6882,7 @@ async function run() {
             process.env['LSTN_GH_TOKEN'] = core.getInput('token');
             process.env['LSTN_JWT_TOKEN'] = jwt;
             if (runArgus) {
-                await exec.exec(lstn, ['ci']); // TODO: path for argus binary?
+                await exec.exec('sudo', [lstn, 'ci']); // TODO: path for argus binary?
             }
             return await exec.exec(lstn, [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)], {
                 cwd

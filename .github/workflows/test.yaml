@@ -103,6 +103,13 @@ jobs:
           lstn_flags: '--debug-options'
         # Expects "lockfiles": ["package-lock.json","poetry.lock"]
 
+      - name: Debug CI eavesdrop tool
+        uses: ./
+        with:
+          jwt: 'xxx.yyy.zzz' #  NOTE: do not do this, use a secret
+          ci: true
+          lstn_flags: '--debug-options'
+
       - name: Self run (custom reporter)
         uses: ./
         with:
