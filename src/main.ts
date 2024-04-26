@@ -13,6 +13,7 @@ async function run() {
   const tmpdir = await fs.mkdtemp(path.join(runnertmp, 'lstn-'));
 
   try {
+    const runArgus = core.getInput('ci') == 'true';
     const jwt = core.getInput('jwt');
     const version = core.getInput('lstn');
     const workdir = core.getInput('workdir');
@@ -31,6 +32,16 @@ async function run() {
         return await install.lstn(version, tmpdir);
       }
     );
+
+    // if (runArgus) {
+    // TODO:
+    // const argus = await core.group(
+    //   '👁️‍🗨️ Installing argus... https://listen.dev',
+    //   async () => {
+    //     return await install.argusFor(version, tmpdir);
+    //   }
+    // )
+    // }
 
     // TODO: restore cache here
 
@@ -62,10 +73,15 @@ async function run() {
     }
 
     const exit = await core.group(
-      '🐬 Running lstn...',
+      `🐬 Running lstn${runArgus ? ' with CI eavesdropper' : '...'}`,
       async (): Promise<number> => {
+        // Pass tokens down
         process.env['LSTN_GH_TOKEN'] = core.getInput('token');
         process.env['LSTN_JWT_TOKEN'] = jwt;
+
+        if (runArgus) {
+          await exec.exec(lstn, ['ci']); // TODO: path for argus binary?
+        }
 
         return await exec.exec(
           lstn,
