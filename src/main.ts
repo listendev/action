@@ -33,7 +33,7 @@ async function run() {
       }
     );
 
-    let argus;
+    let argus: string;
     if (runArgus) {
       argus = await core.group(
         '👁️‍🗨️ Installing argus... https://listen.dev',
@@ -80,7 +80,13 @@ async function run() {
         process.env['LSTN_JWT_TOKEN'] = jwt;
 
         if (runArgus) {
-          await exec.exec('sudo', ['--preserve-env', lstn, 'ci']); // TODO: path for argus binary?
+          await exec.exec('sudo', [
+            '-E',
+            lstn,
+            'ci',
+            '--dir',
+            path.dirname(argus)
+          ]);
         }
 
         return await exec.exec(
