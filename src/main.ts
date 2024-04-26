@@ -33,15 +33,15 @@ async function run() {
       }
     );
 
-    // if (runArgus) {
-    // TODO:
-    // const argus = await core.group(
-    //   '👁️‍🗨️ Installing argus... https://listen.dev',
-    //   async () => {
-    //     return await install.argusFor(version, tmpdir);
-    //   }
-    // )
-    // }
+    let argus;
+    if (runArgus) {
+      argus = await core.group(
+        '👁️‍🗨️ Installing argus... https://listen.dev',
+        async () => {
+          return await install.argusFor(version, tmpdir);
+        }
+      );
+    }
 
     // TODO: restore cache here
 
