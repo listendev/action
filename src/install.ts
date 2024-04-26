@@ -44,14 +44,14 @@ export async function argusFor(
     case 'linux':
       break;
     default:
-      throw new Error(`unsupporter platform: ${plat}`);
+      throw new Error(`unsupported platform: ${plat}`);
   }
   const arch = getArch(process.arch.toString());
   switch (arch) {
     case 'amd64':
       break;
     default:
-      throw new Error(`unsupporter arch: ${arch}`);
+      throw new Error(`unsupported arch: ${arch}`);
   }
 
   const argusTag = getArgusTag(tag);
@@ -96,7 +96,7 @@ function getPlat(os: string): string {
     case 'linux':
       break;
     default:
-      throw new Error(`unsupporter platform: ${os}`);
+      throw new Error(`unsupported platform: ${os}`);
   }
 
   return os;
@@ -117,7 +117,7 @@ function getArch(arch: string): string {
     case 'armv6':
       break;
     default:
-      throw new Error(`unsupporter arch: ${arch}`);
+      throw new Error(`unsupported arch: ${arch}`);
   }
 
   return arch;
