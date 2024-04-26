@@ -104,6 +104,7 @@ jobs:
         # Expects "lockfiles": ["package-lock.json","poetry.lock"]
 
       - name: Debug CI eavesdrop tool
+        if: runner.os == 'Linux'
         uses: ./
         with:
           jwt: 'xxx.yyy.zzz' #  NOTE: do not do this, use a secret
