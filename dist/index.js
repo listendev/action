@@ -6565,6 +6565,29 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 2397:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getArgusTag = void 0;
+// argusVersion maps the lstn tags to the argus ones.
+const argusTags = {
+    latest: 'v0.1',
+    'v0.13.0': 'v0.1'
+};
+function getArgusTag(lstnTag) {
+    if (!Object.keys(argusTags).includes(lstnTag)) {
+        throw new Error(`missing argus version for lstn ${lstnTag}`);
+    }
+    return argusTags[lstnTag];
+}
+exports.getArgusTag = getArgusTag;
+
+
+/***/ }),
+
 /***/ 3252:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -6635,11 +6658,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.lstn = void 0;
+exports.argusFor = exports.lstn = void 0;
+const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
 const core = __importStar(__nccwpck_require__(2186));
 const http = __importStar(__nccwpck_require__(6255));
 const tc = __importStar(__nccwpck_require__(7784));
+const io = __importStar(__nccwpck_require__(7436));
+const argus_1 = __nccwpck_require__(2397);
 async function lstn(tag, directory) {
     const owner = 'listendev';
     const repo = 'lstn';
@@ -6664,6 +6690,36 @@ async function lstn(tag, directory) {
     return path.join(res, name, `lstn${ext}`);
 }
 exports.lstn = lstn;
+async function argusFor(tag, directory) {
+    // Argus only runs on linux amd64
+    const plat = getPlat(process.platform.toString());
+    switch (plat) {
+        case 'linux':
+            break;
+        default:
+            throw new Error(`unsupported platform: ${plat}`);
+    }
+    const arch = getArch(process.arch.toString());
+    switch (arch) {
+        case 'amd64':
+            break;
+        default:
+            throw new Error(`unsupported arch: ${arch}`);
+    }
+    const argusTag = (0, argus_1.getArgusTag)(tag);
+    const owner = 'listendev';
+    const repo = 'argus-releases';
+    const vers = await tagToVersion(argusTag, owner, repo);
+    const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/loader`;
+    core.info(`downloading from ${url}`);
+    const download = await tc.downloadTool(url);
+    core.info(`preparing binary...`);
+    const dest = path.join(directory, 'argus');
+    await io.mv(download, dest);
+    fs.chmodSync(dest, 0o755);
+    return dest;
+}
+exports.argusFor = argusFor;
 function getPlat(os) {
     os = os.trim().toLowerCase();
     if (os.startsWith('win') ||
@@ -6681,7 +6737,7 @@ function getPlat(os) {
         case 'linux':
             break;
         default:
-            throw new Error(`unsupporter platform: ${os}`);
+            throw new Error(`unsupported platform: ${os}`);
     }
     return os;
 }
@@ -6699,7 +6755,7 @@ function getArch(arch) {
         case 'armv6':
             break;
         default:
-            throw new Error(`unsupporter arch: ${arch}`);
+            throw new Error(`unsupported arch: ${arch}`);
     }
     return arch;
 }
@@ -6710,9 +6766,9 @@ function getFormat(platform) {
     return 'tar.gz';
 }
 async function tagToVersion(tag, owner, repo) {
-    core.info(`looking for a release for tag ${tag}`);
+    core.info(`looking for ${repo}/${tag}`);
     const version = process.env.npm_package_version || 'unknown';
-    const ua = `listendev-action/${version}; lstn/${tag}`;
+    const ua = `listendev-action/${version}; ${repo}/${tag}`;
     const url = `https://github.com/${owner}/${repo}/releases/${tag}`;
     const client = new http.HttpClient(ua);
     const headers = { [http.Headers.Accept]: 'application/json' };
@@ -6776,6 +6832,7 @@ async function run() {
     const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
     const tmpdir = await fs_1.promises.mkdtemp(path.join(runnertmp, 'lstn-'));
     try {
+        const runArgus = core.getInput('ci') == 'true';
         const jwt = core.getInput('jwt');
         const version = core.getInput('lstn');
         const workdir = core.getInput('workdir');
@@ -6787,6 +6844,15 @@ async function run() {
         const lstn = await core.group('🐬 Installing lstn... https://github.com/listendev/lstn', async () => {
             return await install.lstn(version, tmpdir);
         });
+        // if (runArgus) {
+        // TODO:
+        // const argus = await core.group(
+        //   '👁️‍🗨️ Installing argus... https://listen.dev',
+        //   async () => {
+        //     return await install.argusFor(version, tmpdir);
+        //   }
+        // )
+        // }
         // TODO: restore cache here
         const lstnCommand = jwt != '' ? 'in' : 'scan';
         const lstnArgs = ['--reporter', `${jwt != '' ? 'pro' : reporter}`]; // There's always a reporter (default)
@@ -6814,9 +6880,13 @@ async function run() {
                 lstnArgs.push(...['--config', `${defaultFile}`]);
             }
         }
-        const exit = await core.group('🐬 Running lstn...', async () => {
+        const exit = await core.group(`🐬 Running lstn${runArgus ? ' with CI eavesdropper' : '...'}`, async () => {
+            // Pass tokens down
             process.env['LSTN_GH_TOKEN'] = core.getInput('token');
             process.env['LSTN_JWT_TOKEN'] = jwt;
+            if (runArgus) {
+                await exec.exec(lstn, ['ci']); // TODO: path for argus binary?
+            }
             return await exec.exec(lstn, [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)], {
                 cwd
                 // TODO: ignoreReturnCode
