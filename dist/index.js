@@ -6896,13 +6896,7 @@ async function run() {
                 : `${process.env['PATH']}:/usr/bin`;
             if (runArgus) {
                 // TODO: what to do when status code != 0
-                await exec.exec('sudo', [
-                    '-E',
-                    lstn,
-                    'ci',
-                    '--dir',
-                    path.dirname(argus)
-                ]);
+                await exec.exec('sudo', ['-E', lstn, 'ci']);
             }
             return await exec.exec(lstn, [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)], {
                 cwd
