@@ -112,7 +112,7 @@ jobs:
           lstn_flags: '--debug-options'
 
       - name: Debug running CI eavesdrop tool
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && github.event_name == 'pull_request'
         run: |
           sudo find /var/run/argus/default
           sudo cat /etc/systemd/system/argus.service
