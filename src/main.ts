@@ -35,12 +35,14 @@ async function run() {
 
     let argus: string;
     if (runArgus) {
+      // Install argus for lstn
       argus = await core.group(
         '👁️‍🗨️ Installing argus... https://listen.dev',
         async () => {
           return await install.argusFor(version, tmpdir);
         }
       );
+      // Moving argus to /usr/bin
     }
 
     // TODO: restore cache here
@@ -78,8 +80,13 @@ async function run() {
         // Pass tokens down
         process.env['LSTN_GH_TOKEN'] = core.getInput('token');
         process.env['LSTN_JWT_TOKEN'] = jwt;
+        // Ensure $PATH contains /usr/bin
+        process.env['PATH'] = !process.env['PATH']
+          ? '/usr/bin'
+          : `${process.env['PATH']}:/usr/bin`;
 
         if (runArgus) {
+          // TODO: what to do when status code != 0
           await exec.exec('sudo', [
             '-E',
             lstn,
