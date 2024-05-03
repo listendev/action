@@ -35,14 +35,22 @@ async function run() {
 
     let argus: string;
     if (runArgus) {
-      // Install argus for lstn
       argus = await core.group(
         '👁️‍🗨️ Installing argus... https://listen.dev',
         async () => {
-          return await install.argusFor(version, tmpdir);
+          // Install argus for lstn
+          const location = await install.argusFor(version, tmpdir);
+          // Moving argus to /usr/bin
+          const dest = '/usr/bin/argus';
+          core.info(`moving argus to ${path.basename(dest)}`);
+          const code = await exec.exec('sudo', ['mv', location, dest]);
+          if (code !== 0) {
+            throw new Error(`couldn't move argus to ${path.basename(dest)}`);
+          }
+
+          return dest;
         }
       );
-      // Moving argus to /usr/bin
     }
 
     // TODO: restore cache here
