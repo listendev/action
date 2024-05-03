@@ -103,13 +103,20 @@ jobs:
           lstn_flags: '--debug-options'
         # Expects "lockfiles": ["package-lock.json","poetry.lock"]
 
-      - name: Debug CI eavesdrop tool
+      - name: Debug invoking CI eavesdrop tool
         if: runner.os == 'Linux'
         uses: ./
         with:
           jwt: 'xxx.yyy.zzz' #  NOTE: do not do this, use a secret
           ci: true
           lstn_flags: '--debug-options'
+
+      - name: Debug running CI eavesdrop tool
+        if: runner.os == 'Linux'
+        run: |
+          sudo find /var/run/argus/default
+          sudo cat /etc/systemd/system/argus.service
+          sudo journalctl -u argus
 
       - name: Self run (custom reporter)
         uses: ./
