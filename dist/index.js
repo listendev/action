@@ -6851,10 +6851,10 @@ async function run() {
                 const location = await install.argusFor(version, tmpdir);
                 // Moving argus to /usr/bin
                 const dest = '/usr/bin/argus';
-                core.info(`moving argus to ${path.basename(dest)}`);
+                core.info(`moving argus to ${path.dirname(dest)}`);
                 const code = await exec.exec('sudo', ['mv', location, dest]);
                 if (code !== 0) {
-                    throw new Error(`couldn't move argus to ${path.basename(dest)}`);
+                    throw new Error(`couldn't move argus to ${path.dirname(dest)}`);
                 }
                 return dest;
             });
