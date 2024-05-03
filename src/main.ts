@@ -95,13 +95,7 @@ async function run() {
 
         if (runArgus) {
           // TODO: what to do when status code != 0
-          await exec.exec('sudo', [
-            '-E',
-            lstn,
-            'ci',
-            '--dir',
-            path.dirname(argus)
-          ]);
+          await exec.exec('sudo', ['-E', lstn, 'ci']);
         }
 
         return await exec.exec(
