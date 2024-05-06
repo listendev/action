@@ -33,9 +33,8 @@ async function run() {
       }
     );
 
-    let argus: string;
     if (runArgus) {
-      argus = await core.group(
+      await core.group(
         '👁️‍🗨️ Installing argus... https://listen.dev',
         async () => {
           // Install argus for lstn
