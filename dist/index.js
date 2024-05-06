@@ -6845,9 +6845,8 @@ async function run() {
         const lstn = await core.group('🐬 Installing lstn... https://github.com/listendev/lstn', async () => {
             return await install.lstn(version, tmpdir);
         });
-        let argus;
         if (runArgus) {
-            argus = await core.group('👁️‍🗨️ Installing argus... https://listen.dev', async () => {
+            await core.group('👁️‍🗨️ Installing argus... https://listen.dev', async () => {
                 // Install argus for lstn
                 const location = await install.argusFor(version, tmpdir);
                 // Moving argus to /usr/bin
