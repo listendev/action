@@ -38,6 +38,10 @@ inputs:
     description: "Additional lstn CLI flags"
     required: false
     default: ""
+  argus_version:
+    description: "Custom argus version"
+    required: false
+    default: ""
 
 runs:
   using: "node20"
