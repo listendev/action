@@ -13,7 +13,7 @@ async function run() {
   const tmpdir = await fs.mkdtemp(path.join(runnertmp, 'lstn-'));
 
   try {
-    const runArgus = core.getInput('ci') == 'true';
+    const runArgus = core.getInput('ci') == 'true'; // FIXME: switch to core.getBooleanInput() ?
     const customArgusVersion = core.getInput('argus_version');
     const jwt = core.getInput('jwt');
     const version = core.getInput('lstn');
@@ -39,7 +39,11 @@ async function run() {
         '👁️‍🗨️ Installing argus... https://listen.dev',
         async () => {
           // Install argus for lstn
-          const location = await install.argusFor(version, tmpdir, customArgusVersion);
+          const location = await install.argusFor(
+            version,
+            tmpdir,
+            customArgusVersion
+          );
           // Moving argus to /usr/bin
           const dest = '/usr/bin/argus';
           core.info(`moving argus to ${path.dirname(dest)}`);

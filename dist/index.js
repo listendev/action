@@ -6691,7 +6691,7 @@ async function lstn(tag, directory) {
     return path.join(res, name, `lstn${ext}`);
 }
 exports.lstn = lstn;
-async function argusFor(tag, directory) {
+async function argusFor(tag, directory, explicitTag) {
     // Argus only runs on linux amd64
     const plat = getPlat(process.platform.toString());
     switch (plat) {
@@ -6707,7 +6707,7 @@ async function argusFor(tag, directory) {
         default:
             throw new Error(`unsupported arch: ${arch}`);
     }
-    const argusTag = (0, argus_1.getArgusTag)(tag);
+    const argusTag = !explicitTag ? (0, argus_1.getArgusTag)(tag) : explicitTag;
     const owner = 'listendev';
     const repo = 'argus-releases';
     const vers = await tagToVersion(argusTag, owner, repo);
@@ -6833,7 +6833,8 @@ async function run() {
     const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
     const tmpdir = await fs_1.promises.mkdtemp(path.join(runnertmp, 'lstn-'));
     try {
-        const runArgus = core.getInput('ci') == 'true';
+        const runArgus = core.getInput('ci') == 'true'; // FIXME: switch to core.getBooleanInput() ?
+        const customArgusVersion = core.getInput('argus_version');
         const jwt = core.getInput('jwt');
         const version = core.getInput('lstn');
         const workdir = core.getInput('workdir');
@@ -6848,7 +6849,7 @@ async function run() {
         if (runArgus) {
             await core.group('👁️‍🗨️ Installing argus... https://listen.dev', async () => {
                 // Install argus for lstn
-                const location = await install.argusFor(version, tmpdir);
+                const location = await install.argusFor(version, tmpdir, customArgusVersion);
                 // Moving argus to /usr/bin
                 const dest = '/usr/bin/argus';
                 core.info(`moving argus to ${path.dirname(dest)}`);
