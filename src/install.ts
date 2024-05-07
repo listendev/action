@@ -37,7 +37,7 @@ export async function lstn(tag: string, directory: string): Promise<string> {
 export async function argusFor(
   tag: string,
   directory: string,
-  explicitTag?: string,
+  explicitTag?: string
 ): Promise<string> {
   // Argus only runs on linux amd64
   const plat = getPlat(process.platform.toString());
