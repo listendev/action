@@ -61,4 +61,15 @@ describe('installer', () => {
     },
     5 * 60 * 1000
   );
+
+  it.onLinux(
+    'installs custom argus version',
+    async () => {
+      const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
+      const argus = await installer.argusFor('latest', dir, 'v0.1.1');
+      const code = await exec.exec(argus, ['-v']);
+      expect(code).toBe(0);
+    },
+    5 * 60 * 1000
+  );
 });
