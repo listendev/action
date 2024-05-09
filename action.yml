@@ -1,5 +1,5 @@
-name: "listen.dev Dependency Scan"
-description: "Real-time dependency insights in GitHub PRs 🐬"
+name: "listen.dev"
+description: "Secure your CI pipeline with real-time threat detection and egress controls."
 author: "The listen.dev team <engineering@garnet.ai>"
 inputs:
   token:
