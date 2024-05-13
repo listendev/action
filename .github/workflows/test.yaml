@@ -115,8 +115,12 @@ jobs:
         if: runner.os == 'Linux' && github.event_name == 'pull_request'
         run: |
           sudo find /var/run/argus/default
+          sudo cat /var/run/argus/default
           sudo cat /etc/systemd/system/argus.service
-          sudo journalctl -u argus
+          sudo -E systemctl stop argus.service || true
+          sudo -E journalctl -u argus.service --no-pager
+          sudo -E cat /var/log/argus.log
+          sudo -E cat /var/log/argus.err
 
       - name: Self run (custom reporter)
         uses: ./
