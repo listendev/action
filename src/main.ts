@@ -142,7 +142,18 @@ async function run() {
 }
 
 async function post() {
-  core.warning('wip');
+  const runArgus = core.getInput('ci') == 'true'; // FIXME: switch to core.getBooleanInput() ?
+  if (runArgus) {
+    const exit = await core.group(
+      'Stopping the CI eavesdrop tool',
+      async (): Promise<number> => {
+        return await exec.exec('sudo', ['systemctl', 'stop', 'argus']);
+      }
+    );
+    if (exit !== 0) {
+      core.warning(`Couldn't properly stop the CI eavesdrop tool`);
+    }
+  }
 }
 
 if (!state.IsPost) {
