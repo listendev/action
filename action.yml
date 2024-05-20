@@ -46,6 +46,8 @@ inputs:
 runs:
   using: "node20"
   main: "dist/index.js"
+  post: "dist/index.js"
+
 # https://actions-cool.github.io/github-action-branding/
 branding:
   icon: 'shield'
