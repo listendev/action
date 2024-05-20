@@ -142,7 +142,7 @@ async function run() {
 }
 
 async function post() {
-  core.warning('wip')
+  core.warning('wip');
 }
 
 if (!state.IsPost) {
