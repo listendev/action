@@ -7,6 +7,7 @@ import * as io from '@actions/io';
 import * as install from './install';
 import * as flags from './flags';
 import * as utils from './utils';
+import * as state from './state';
 
 async function run() {
   const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
@@ -140,4 +141,12 @@ async function run() {
   }
 }
 
-run();
+async function post() {
+  core.warning('wip')
+}
+
+if (!state.IsPost) {
+  run();
+} else {
+  post();
+}
