@@ -6939,6 +6939,13 @@ async function run() {
 async function post() {
     const runArgus = core.getInput('ci') == 'true'; // FIXME: switch to core.getBooleanInput() ?
     if (runArgus) {
+        const isActive = await core.group('Check whether the CI eavesdrop tool is active', async () => {
+            return await exec.exec('sudo', ['systemctl', 'is-active', 'argus']);
+        });
+        if (isActive !== 0) {
+            core.info(`Moving on since the CI eavesdrop tool isn't active`);
+            return;
+        }
         const exit = await core.group('Stopping the CI eavesdrop tool', async () => {
             return await exec.exec('sudo', ['systemctl', 'stop', 'argus']);
         });
