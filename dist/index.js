@@ -6940,7 +6940,9 @@ async function post() {
     const runArgus = core.getInput('ci') == 'true'; // FIXME: switch to core.getBooleanInput() ?
     if (runArgus) {
         const isActive = await core.group('Check whether the CI eavesdrop tool is active', async () => {
-            return await exec.exec('sudo', ['systemctl', 'is-active', 'argus']);
+            return await exec.exec('sudo', ['systemctl', 'is-active', 'argus'], {
+                ignoreReturnCode: true
+            });
         });
         if (isActive !== 0) {
             core.info(`Moving on since the CI eavesdrop tool isn't active`);

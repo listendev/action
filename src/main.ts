@@ -147,7 +147,9 @@ async function post() {
     const isActive = await core.group(
       'Check whether the CI eavesdrop tool is active',
       async (): Promise<number> => {
-        return await exec.exec('sudo', ['systemctl', 'is-active', 'argus']);
+        return await exec.exec('sudo', ['systemctl', 'is-active', 'argus'], {
+          ignoreReturnCode: true
+        });
       }
     );
     if (isActive !== 0) {
