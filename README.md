@@ -13,14 +13,14 @@ See [action.yml](action.yml).
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.6
+  - uses: listendev/action@v0.8
 ```
 
 ### Full
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.6
+  - uses: listendev/action@v0.8
     with:
       # The Github API token.
       # Defaults to ${{ github.token }}
@@ -55,7 +55,7 @@ Just [create a secret](https://docs.github.com/en/actions/security-guides/using-
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.6
+  - uses: listendev/action@v0.8
     with:
       ci: true
       jwt: ${{ secrets.MY_LISTENDEV_JWT }}
@@ -76,7 +76,7 @@ Where to get your JWT token?
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.6
+  - uses: listendev/action@v0.8
     with:
       jwt: ${{ secrets.MY_JWT }}
       lstn_flags: "--reporter gh-pull-comment"
@@ -89,7 +89,7 @@ Let's say you want the verdicts in JSON format...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.6
+  - uses: listendev/action@v0.8
     with:
       lstn_flags: "--json"
 ```
@@ -98,7 +98,7 @@ Let's say you only care for high severity verdicts...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.6
+  - uses: listendev/action@v0.8
     with:
       lstn: "v0.13.0"
       lstn_flags: "--select '@.severity == \"high\"'"
@@ -110,7 +110,7 @@ Let's say we only care for dynamic instrumentation verdicts regarding processes.
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.6
+  - uses: listendev/action@v0.8
     with:
       select: "(@.file =~ \"^dynamic\" && \"process\" in @.categories)"
 ```
