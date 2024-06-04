@@ -6574,8 +6574,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getArgusTag = void 0;
 // argusVersion maps the lstn tags to the argus ones.
 const argusTags = {
-    latest: 'v0.2',
-    'v0.13.2': 'v0.2',
+    latest: 'v0.3',
+    'v0.13.2': 'v0.3',
     'v0.13.1': 'v0.1',
     'v0.13.0': 'v0.1'
 };
