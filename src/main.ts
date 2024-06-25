@@ -14,7 +14,9 @@ async function run() {
   const tmpdir = await fs.mkdtemp(path.join(runnertmp, 'lstn-'));
 
   try {
-    const runArgus = core.getInput('ci') == 'true'; // FIXME: switch to core.getBooleanInput() ?
+    const listen = core.getInput('ci') != 'only';
+    const runArgus =
+      core.getInput('ci') == 'true' || core.getInput('ci') == 'only';
     const customArgusVersion = core.getInput('argus_version');
     const jwt = core.getInput('jwt');
     const version = core.getInput('lstn');
@@ -98,20 +100,25 @@ async function run() {
           ? '/usr/bin'
           : `${process.env['PATH']}:/usr/bin`;
 
+        let exitCode = -1;
         if (runArgus) {
           // TODO: what to do when status code != 0
-          await exec.exec('sudo', ['-E', lstn, 'ci']);
+          exitCode = await exec.exec('sudo', ['-E', lstn, 'ci']);
         }
 
-        return await exec.exec(
-          lstn,
-          [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)],
-          {
-            cwd
-            // TODO: ignoreReturnCode
-            // TODO: outStream
-          }
-        );
+        if (listen) {
+          exitCode = await exec.exec(
+            lstn,
+            [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)],
+            {
+              cwd
+              // TODO: ignoreReturnCode
+              // TODO: outStream
+            }
+          );
+        }
+
+        return exitCode;
       }
     );
 
