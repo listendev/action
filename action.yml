@@ -1,5 +1,5 @@
 name: "listen.dev"
-description: "Secure your CI pipeline with real-time threat detection and egress controls."
+description: "Proactive Security Monitoring Inside GitHub Actions."
 author: "The listen.dev team <engineering@garnet.ai>"
 inputs:
   token:
