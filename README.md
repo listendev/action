@@ -1,9 +1,8 @@
 # listendev/action
 
-> Get real-time dependency insights in your pull requests 🐬
+> Proactive Security Monitoring Inside GitHub Actions 🐬
 
-![image](https://github.com/listendev/action/assets/3413596/94718f08-320f-4948-88e9-48b7703da359)
-See [demo video](https://www.loom.com/share/d6662a575b41478fb4ddceef39ba1d57?sid=84017f2c-abdb-459f-b002-3c0b90e45845).
+_Observe network, file, and process behaviors during every workflow run and flags anomalous and malicious activities—such as connections to unknown IPs or unauthorized source code changes–in your GitHub actions workflows._
 
 ## Usage
 
@@ -61,16 +60,13 @@ steps:
       jwt: ${{ secrets.MY_LISTENDEV_JWT }}
 ```
 
-This will instruct the action to report to [listen.dev](https://listen.dev) all the verdicts for all the dependencies of the `package-lock.json` file into the working directory.
-
 When the action notices that the [listen.dev](https://listen.dev) JWT secret exists, it will automatically override the reporter to the `pro` one.
 
 Because of the `ci` option set to `true`, it will also start the CI eavesdrop tool under the hoods. Notice it only works on linux runners.
 
 Where to get your JWT token?
 
-![Get your API key from the project settings](docs/listendev_pro_jwt_api_key.png)
-
+[Get your API key from the project settings](https://docs.listen.dev/workflows/generate-api-token)
 <details>
 <summary>Do you also want to also use another reporter together with the pro one?</summary>
 
