@@ -23,6 +23,7 @@ jobs:
       - name: Run tests
         run: npm run test
 
+  # TODO: check all the outputs
   integration:
     needs: unit
     strategy:
@@ -34,7 +35,6 @@ jobs:
       - name: Check out
         uses: actions/checkout@v4
 
-      # TODO: check outputs
       - name: Debug options
         uses: ./
         with:
@@ -121,6 +121,16 @@ jobs:
           sudo -E journalctl -u argus.service --no-pager
           sudo -E cat /var/log/argus.log
           sudo -E cat /var/log/argus.err
+
+      # We wanna point the action to a directory that DOES NOT contain any lock file
+      - name: Debug invoking CI eavesdrop tool only
+        if: runner.os == 'Linux'
+        uses: ./
+        with:
+          jwt: 'xxx.yyy.zzz' #  NOTE: do not do this, use a secret
+          workdir: '__tests__/testdata/nolockfiles'
+          ci: only
+          lstn_flags: '--debug-options'
 
       - name: Self run (custom reporter)
         uses: ./
