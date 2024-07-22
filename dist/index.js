@@ -6835,8 +6835,8 @@ async function run() {
     const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
     const tmpdir = await fs_1.promises.mkdtemp(path.join(runnertmp, 'lstn-'));
     try {
-        const listen = core.getInput('ci') != 'only';
-        const runArgus = core.getInput('ci') == 'true' || core.getInput('ci') == 'only';
+        const runArgusOnly = core.getInput('ci') == 'only';
+        const runArgus = core.getInput('ci') == 'true' || runArgusOnly;
         const customArgusVersion = core.getInput('argus_version');
         const jwt = core.getInput('jwt');
         const version = core.getInput('lstn');
@@ -6890,7 +6890,7 @@ async function run() {
                 lstnArgs.push(...['--config', `${defaultFile}`]);
             }
         }
-        const exit = await core.group(`🐬 Running lstn${runArgus ? ' with CI eavesdropper' : '...'}`, async () => {
+        const exit = await core.group(`🐬 Running lstn${runArgus ? ' with CI eavesdropper' : '...'}${runArgusOnly ? ' only' : ''}`, async () => {
             // Pass tokens down
             process.env['LSTN_GH_TOKEN'] = core.getInput('token');
             process.env['LSTN_JWT_TOKEN'] = jwt;
@@ -6903,7 +6903,7 @@ async function run() {
                 // TODO: what to do when status code != 0
                 exitCode = await exec.exec('sudo', ['-E', lstn, 'ci']);
             }
-            if (listen) {
+            if (!runArgusOnly) {
                 exitCode = await exec.exec(lstn, [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)], {
                     cwd
                     // TODO: ignoreReturnCode
