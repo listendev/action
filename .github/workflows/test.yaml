@@ -130,7 +130,6 @@ jobs:
           jwt: 'xxx.yyy.zzz' #  NOTE: do not do this, use a secret
           workdir: '__tests__/testdata/nolockfiles'
           ci: only
-          lstn_flags: '--debug-options'
 
       - name: Self run (custom reporter)
         uses: ./
