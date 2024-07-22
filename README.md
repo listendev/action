@@ -2,7 +2,7 @@
 
 > Proactive Security Monitoring Inside GitHub Actions 🐬
 
-_Observe network, file, and process behaviors during every workflow run and flags anomalous and malicious activities—such as connections to unknown IPs or unauthorized source code changes–in your GitHub actions workflows._
+_Observe network, file, and process behaviors during every workflow run and flags anomalous and malicious activities — such as connections to unknown IPs or unauthorized source code changes – in your GitHub actions workflows._
 
 ## Usage
 
@@ -12,14 +12,14 @@ See [action.yml](action.yml).
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.8
+  - uses: listendev/action@v0.9
 ```
 
 ### Full
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.8
+  - uses: listendev/action@v0.9
     with:
       # The Github API token.
       # Defaults to ${{ github.token }}
@@ -30,7 +30,7 @@ steps:
       # Whether to enable the CI eavesdrop tool or not.
       # Works only on linux runners. Requires a valid `jwt` option.
       # Defaults to false.
-      ci: "true|false"
+      ci: "true|false|only"
       # The lstn version.
       # Defaults to the latest lstn release tag (recommended).
       lstn: "vX.Y.Z"
@@ -54,7 +54,7 @@ Just [create a secret](https://docs.github.com/en/actions/security-guides/using-
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.8
+  - uses: listendev/action@v0.9
     with:
       ci: true
       jwt: ${{ secrets.MY_LISTENDEV_JWT }}
@@ -62,7 +62,9 @@ steps:
 
 When the action notices that the [listen.dev](https://listen.dev) JWT secret exists, it will automatically override the reporter to the `pro` one.
 
-Because of the `ci` option set to `true`, it will also start the CI eavesdrop tool under the hoods. Notice it only works on linux runners.
+Because of the `ci` option set to `true`, it will also start the CI eavesdrop tool under the hoods.
+
+Notice it only works on linux runners.
 
 Where to get your JWT token?
 
@@ -72,7 +74,7 @@ Where to get your JWT token?
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.8
+  - uses: listendev/action@v0.9
     with:
       jwt: ${{ secrets.MY_JWT }}
       lstn_flags: "--reporter gh-pull-comment"
@@ -81,11 +83,24 @@ steps:
 
 ### Examples
 
+Let's say you don't want verdicts and events about the dependencies into your lockfiles.
+Or maybe your repository doesn't contain lockfiles (package-lock.json, poetry.lock, etc.) at all...
+
+So, you only want it to eavesdrop for runtime threats...
+
+```yaml
+steps:
+  - uses: listendev/action@v0.9
+    with:
+      ci: only
+      jwt: ${{ secrets.MY_JWT }}
+```
+
 Let's say you want the verdicts in JSON format...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.8
+  - uses: listendev/action@v0.9
     with:
       lstn_flags: "--json"
 ```
@@ -94,9 +109,9 @@ Let's say you only care for high severity verdicts...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.8
+  - uses: listendev/action@v0.9
     with:
-      lstn: "v0.13.0"
+      lstn: "v0.13.2"
       lstn_flags: "--select '@.severity == \"high\"'"
 ```
 
@@ -106,7 +121,7 @@ Let's say we only care for dynamic instrumentation verdicts regarding processes.
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.8
+  - uses: listendev/action@v0.9
     with:
       select: "(@.file =~ \"^dynamic\" && \"process\" in @.categories)"
 ```
