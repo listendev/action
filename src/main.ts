@@ -14,9 +14,8 @@ async function run() {
   const tmpdir = await fs.mkdtemp(path.join(runnertmp, 'lstn-'));
 
   try {
-    const listen = core.getInput('ci') != 'only';
-    const runArgus =
-      core.getInput('ci') == 'true' || core.getInput('ci') == 'only';
+    const runArgusOnly = core.getInput('ci') == 'only';
+    const runArgus = core.getInput('ci') == 'true' || runArgusOnly;
     const customArgusVersion = core.getInput('argus_version');
     const jwt = core.getInput('jwt');
     const version = core.getInput('lstn');
@@ -90,7 +89,9 @@ async function run() {
     }
 
     const exit = await core.group(
-      `🐬 Running lstn${runArgus ? ' with CI eavesdropper' : '...'}`,
+      `🐬 Running lstn${runArgus ? ' with CI eavesdropper' : '...'}${
+        runArgusOnly ? ' only' : ''
+      }`,
       async (): Promise<number> => {
         // Pass tokens down
         process.env['LSTN_GH_TOKEN'] = core.getInput('token');
@@ -106,7 +107,7 @@ async function run() {
           exitCode = await exec.exec('sudo', ['-E', lstn, 'ci']);
         }
 
-        if (listen) {
+        if (!runArgusOnly) {
           exitCode = await exec.exec(
             lstn,
             [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)],
