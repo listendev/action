@@ -150,7 +150,8 @@ async function run() {
 }
 
 async function post() {
-  const runArgus = core.getInput('ci') == 'true' || core.getInput('ci') == 'only';
+  const runArgus =
+    core.getInput('ci') == 'true' || core.getInput('ci') == 'only';
   if (runArgus) {
     const isActive = await core.group(
       'Check whether the CI eavesdrop tool is active',
