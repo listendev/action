@@ -4,7 +4,7 @@ import * as core from '@actions/core';
 import * as http from '@actions/http-client';
 import * as tc from '@actions/tool-cache';
 import * as io from '@actions/io';
-import {getArgusTag} from './argus';
+import {getArgusTagFromListenTag} from './mappings';
 
 export async function lstn(tag: string, directory: string): Promise<string> {
   const owner = 'listendev';
@@ -55,7 +55,7 @@ export async function argusFor(
       throw new Error(`unsupported arch: ${arch}`);
   }
 
-  const argusTag = !explicitTag ? getArgusTag(tag) : explicitTag;
+  const argusTag = !explicitTag ? getArgusTagFromListenTag(tag) : explicitTag;
   const owner = 'listendev';
   const repo = 'argus-releases';
   const vers = await tagToVersion(argusTag, owner, repo);
