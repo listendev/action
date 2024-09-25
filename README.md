@@ -66,9 +66,12 @@ Because of the `ci` option set to `true`, it will also start the CI eavesdrop to
 
 Notice it only works on linux runners.
 
-Where to get your JWT token?
+**Where to get your JWT token?**
 
-[Get your API key from the project settings](https://docs.listen.dev/workflows/generate-api-token)
+[How to get your API key from the project settings](https://docs.listen.dev/workflows/generate-api-token).
+
+It's _recommended_ to regenerate the JWT token for every release, until we will release stable versions.
+
 <details>
 <summary>Do you also want to also use another reporter together with the pro one?</summary>
 
