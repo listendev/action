@@ -119,6 +119,7 @@ jobs:
           jwt: 'xxx.yyy.zzz' #  NOTE: do not do this, use a secret
           workdir: '__tests__/testdata/nolockfiles'
           ci: only
+          lstn_flags: '--debug-options'
 
       - name: Self run (custom reporter)
         uses: ./
@@ -129,18 +130,12 @@ jobs:
       - name: Self run with lstn_flags
         uses: ./
         with:
-          lstn: v0.13.0
           reporter: gh-pull-check
           lstn_flags: "--json --jq '.[] | select(.verdicts == [])' --debug-options"
 
       - name: Self run (select input)
         uses: ./
         with:
-          lstn: v0.13.0
           reporter: gh-pull-check
           select: (@.severity == "high")
           lstn_flags: --timeout 120
-
-      # This actually runs
-      - name: Self run (default reporter)
-        uses: ./
