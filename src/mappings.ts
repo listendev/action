@@ -1,7 +1,7 @@
 // argusVersion maps the lstn tags to the argus ones.
 const argusTags: Record<string, string> = {
-  latest: 'v0.5',
-  'v0.15.0': 'v0.5',
+  latest: 'v0.6',
+  'v0.15.0': 'v0.6',
   'v0.14.0': 'v0.4',
   'v0.13.2': 'v0.3',
   'v0.13.1': 'v0.1',
