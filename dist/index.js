@@ -6565,32 +6565,6 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 2397:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getArgusTag = void 0;
-// argusVersion maps the lstn tags to the argus ones.
-const argusTags = {
-    latest: 'v0.4',
-    'v0.14.0': 'v0.4',
-    'v0.13.2': 'v0.3',
-    'v0.13.1': 'v0.1',
-    'v0.13.0': 'v0.1'
-};
-function getArgusTag(lstnTag) {
-    if (!Object.keys(argusTags).includes(lstnTag)) {
-        throw new Error(`missing argus version for lstn ${lstnTag}`);
-    }
-    return argusTags[lstnTag];
-}
-exports.getArgusTag = getArgusTag;
-
-
-/***/ }),
-
 /***/ 3252:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -6668,7 +6642,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const http = __importStar(__nccwpck_require__(6255));
 const tc = __importStar(__nccwpck_require__(7784));
 const io = __importStar(__nccwpck_require__(7436));
-const argus_1 = __nccwpck_require__(2397);
+const mappings_1 = __nccwpck_require__(4559);
 async function lstn(tag, directory) {
     const owner = 'listendev';
     const repo = 'lstn';
@@ -6709,7 +6683,7 @@ async function argusFor(tag, directory, explicitTag) {
         default:
             throw new Error(`unsupported arch: ${arch}`);
     }
-    const argusTag = !explicitTag ? (0, argus_1.getArgusTag)(tag) : explicitTag;
+    const argusTag = !explicitTag ? (0, mappings_1.getArgusTagFromListenTag)(tag) : explicitTag;
     const owner = 'listendev';
     const repo = 'argus-releases';
     const vers = await tagToVersion(argusTag, owner, repo);
@@ -6975,6 +6949,33 @@ if (!state.IsPost) {
 else {
     post();
 }
+
+
+/***/ }),
+
+/***/ 4559:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getArgusTagFromListenTag = void 0;
+// argusVersion maps the lstn tags to the argus ones.
+const argusTags = {
+    latest: 'v0.6',
+    'v0.15.0': 'v0.6',
+    'v0.14.0': 'v0.4',
+    'v0.13.2': 'v0.3',
+    'v0.13.1': 'v0.1',
+    'v0.13.0': 'v0.1'
+};
+function getArgusTagFromListenTag(lstnTag) {
+    if (!Object.keys(argusTags).includes(lstnTag)) {
+        throw new Error(`missing argus version for lstn ${lstnTag}`);
+    }
+    return argusTags[lstnTag];
+}
+exports.getArgusTagFromListenTag = getArgusTagFromListenTag;
 
 
 /***/ }),
