@@ -6846,6 +6846,8 @@ async function run() {
         const reporter = core.getInput('reporter');
         const select = core.getInput('select');
         const cwd = path.relative(process.env['GITHUB_WORKSPACE'] || process.cwd(), workdir);
+        // This option is only meant for exper users and tests.
+        // We are assuming that only flags common to lstn in|ci|scan can go here.
         const lstnFlags = core.getInput('lstn_flags');
         const lstn = await core.group('🐬 Installing lstn... https://github.com/listendev/lstn', async () => {
             return await install.lstn(version, tmpdir);
@@ -6902,7 +6904,12 @@ async function run() {
             let exitCode = -1;
             if (runArgus) {
                 // TODO: what to do when status code != 0
-                exitCode = await exec.exec('sudo', ['-E', lstn, 'ci']);
+                exitCode = await exec.exec('sudo', [
+                    '-E',
+                    lstn,
+                    'ci',
+                    ...flags.parse(lstnFlags)
+                ]);
             }
             if (!runArgusOnly) {
                 exitCode = await exec.exec(lstn, [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)], {
