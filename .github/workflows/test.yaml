@@ -111,17 +111,6 @@ jobs:
           ci: true
           lstn_flags: '--debug-options'
 
-      - name: Debug running CI eavesdrop tool
-        if: runner.os == 'Linux' && github.event_name == 'pull_request'
-        run: |
-          sudo find /var/run/argus/default
-          sudo cat /var/run/argus/default
-          sudo cat /etc/systemd/system/argus.service
-          sudo -E systemctl stop argus.service || true
-          sudo -E journalctl -u argus.service --no-pager
-          sudo -E cat /var/log/argus.log
-          sudo -E cat /var/log/argus.err
-
       # We wanna point the action to a directory that DOES NOT contain any lock file
       - name: Debug invoking CI eavesdrop tool only
         if: runner.os == 'Linux'
