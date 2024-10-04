@@ -13,6 +13,9 @@ See [action.yml](action.yml).
 ```yaml
 steps:
   - uses: listendev/action@v0.11
+    with:
+      ci: only
+      jwt: ${{ secrets.LSTN_API_KEY }}
 ```
 
 ### Full
