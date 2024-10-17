@@ -120,7 +120,8 @@ async function run() {
             'ci',
             ...flags.parse(lstnFlags)
           ]);
-          if (!classifyArgusEnvironmentFile()) {
+          const didClassify = await classifyArgusEnvironmentFile();
+          if (!didClassify) {
             core.warning(
               "couldn't classify the CI eavesdrop configuration variables"
             );
