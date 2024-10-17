@@ -8,6 +8,7 @@ import * as install from './install';
 import * as flags from './flags';
 import * as utils from './utils';
 import * as state from './state';
+import {isArgusActive, stopArgus} from './eavesdrop';
 
 async function run() {
   const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
@@ -157,28 +158,17 @@ async function run() {
 }
 
 async function post() {
-  const runArgus =
+  const didArgusRun =
     core.getInput('ci') == 'true' || core.getInput('ci') == 'only';
-  if (runArgus) {
-    const isActive = await core.group(
-      'Check whether the CI eavesdrop tool is active',
-      async (): Promise<number> => {
-        return await exec.exec('sudo', ['systemctl', 'is-active', 'argus'], {
-          ignoreReturnCode: true
-        });
-      }
-    );
+  if (didArgusRun) {
+    const isActive = await isArgusActive();
     if (isActive !== 0) {
       core.info(`Moving on since the CI eavesdrop tool isn't active`);
 
       return;
     }
-    const exit = await core.group(
-      'Stopping the CI eavesdrop tool',
-      async (): Promise<number> => {
-        return await exec.exec('sudo', ['systemctl', 'stop', 'argus']);
-      }
-    );
+
+    const exit = await stopArgus();
     if (exit !== 0) {
       core.warning(`Couldn't properly stop the CI eavesdrop tool`);
     }
