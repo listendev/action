@@ -57,3 +57,17 @@ export async function daemonsReload() {
     }
   });
 }
+
+export async function stopArgus() {
+  const needsReload = await doesArgusNeedReload();
+  if (needsReload) {
+    await daemonsReload();
+  }
+
+  return await core.group(
+    'Stopping the CI eavesdrop tool',
+    async (): Promise<number> => {
+      return await exec.exec('sudo', ['systemctl', 'stop', 'argus']);
+    }
+  );
+}
