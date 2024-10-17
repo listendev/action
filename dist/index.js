@@ -6594,9 +6594,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.stopArgus = exports.daemonsReload = exports.doesArgusNeedReload = exports.isArgusActive = void 0;
+exports.classifyArgusEnvironmentFile = exports.stopArgus = exports.daemonsReload = exports.doesArgusNeedReload = exports.isArgusActive = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
+const utils_1 = __nccwpck_require__(1314);
+const stream_1 = __nccwpck_require__(2781);
 async function isArgusActive() {
     return await core.group('Check whether the CI eavesdrop tool is active', async () => {
         return await exec.exec('sudo', ['systemctl', 'is-active', 'argus'], {
@@ -6645,6 +6647,68 @@ async function stopArgus() {
     });
 }
 exports.stopArgus = stopArgus;
+async function getArgusEnvironmentFile() {
+    const argusEnvironmentFile = `/var/run/argus/default`;
+    const res = await (0, utils_1.checkPath)(argusEnvironmentFile, true);
+    if (!res.exists) {
+        return { exists: false, content: '' };
+    }
+    if (!res.isFile) {
+        return { exists: false, content: '' };
+    }
+    let file = '';
+    const options = {
+        // Redirect stdout to the writable stream
+        outStream: new stream_1.Writable({
+            write(chunk, encoding, callback) {
+                file += chunk.toString();
+                callback();
+            }
+        })
+    };
+    try {
+        await exec.exec('sudo', ['cat', argusEnvironmentFile], options);
+    }
+    catch (error) {
+        return { exists: true, content: '' };
+    }
+    return { exists: true, content: file };
+}
+async function classifyArgusEnvironmentFile() {
+    const { exists, content } = await getArgusEnvironmentFile();
+    if (!exists) {
+        return false;
+    }
+    if (content.length == 0) {
+        return false;
+    }
+    const lines = content.split('\n');
+    const secrets = new Set(['OPENAI_TOKEN']);
+    for (const line of lines) {
+        const l = line.trim();
+        if (!l || l.startsWith('#'))
+            continue;
+        const match = l.match(/^([a-zA-Z_][a-zA-Z0-9_]*)=(.*)$/);
+        if (match) {
+            const name = match[1].trim();
+            let value = match[2].trim();
+            // Handle quoted values
+            if (value.startsWith('"') && value.endsWith('"')) {
+                // Remove quotes and handle escaped quotes
+                value = value.slice(1, -1).replace(/\\"/g, '"');
+            }
+            else if (value.startsWith("'") && value.endsWith("'")) {
+                // Remove quotes and handle escaped quotes
+                value = value.slice(1, -1).replace(/\\'/g, "'");
+            }
+            if (secrets.has(name)) {
+                core.setSecret(value);
+            }
+        }
+    }
+    return true;
+}
+exports.classifyArgusEnvironmentFile = classifyArgusEnvironmentFile;
 
 
 /***/ }),
@@ -6962,6 +7026,7 @@ async function run() {
                 : `${process.env['PATH']}:/usr/bin`;
             let exitCode = -1;
             if (runArgus) {
+                // Here for `ci: true` or `ci:only`
                 // TODO: what to do when status code != 0
                 exitCode = await exec.exec('sudo', [
                     '-E',
@@ -6969,8 +7034,12 @@ async function run() {
                     'ci',
                     ...flags.parse(lstnFlags)
                 ]);
+                if (!(0, eavesdrop_1.classifyArgusEnvironmentFile)()) {
+                    core.warning("couldn't classify the CI eavesdrop configuration variables");
+                }
             }
             if (!runArgusOnly) {
+                // Here for `ci: true` or `ci: false`
                 exitCode = await exec.exec(lstn, [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)], {
                     cwd
                     // TODO: ignoreReturnCode
@@ -7104,25 +7173,68 @@ if (!exports.IsPost) {
 /***/ }),
 
 /***/ 1314:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.checkPath = void 0;
 const fs_1 = __nccwpck_require__(7147);
-async function checkPath(path) {
+const exec = __importStar(__nccwpck_require__(1514));
+async function checkPath(path, withSudo = false) {
     try {
-        const stats = await fs_1.promises.stat(path);
-        if (stats.isFile()) {
-            return { exists: true, isFile: true };
-        }
-        else if (stats.isDirectory()) {
-            return { exists: true, isFile: false };
+        if (withSudo) {
+            let isFile = false;
+            const opts = {
+                silent: true,
+                listeners: {
+                    stdout: (data) => {
+                        const res = data.toString().trim();
+                        isFile = res.startsWith('-') || res.includes('File:');
+                    },
+                    stderr: () => {
+                        throw new Error(`couldn't check "${path.toString()}" path with sudo`);
+                    }
+                }
+            };
+            await exec.exec('sudo', ['stat', path.toString()], opts);
+            return { exists: true, isFile: isFile };
         }
         else {
-            // Handle other types (unlikely in most cases)
-            return { exists: true, isFile: undefined };
+            const stats = await fs_1.promises.stat(path);
+            if (stats.isFile()) {
+                return { exists: true, isFile: true };
+            }
+            else if (stats.isDirectory()) {
+                return { exists: true, isFile: false };
+            }
+            else {
+                // Handle other types (unlikely in most cases)
+                return { exists: true, isFile: undefined };
+            }
         }
     }
     catch (error) {
