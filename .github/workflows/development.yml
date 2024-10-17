@@ -23,6 +23,10 @@ jobs:
           ci: true
           jwt: ${{ secrets.LISTENDEV_TOKEN }}
 
+      - name: Debug
+        run: |
+          sudo cat /var/run/argus/default
+
       - name: Setup Node.JS
         uses: actions/setup-node@v4
         with:
