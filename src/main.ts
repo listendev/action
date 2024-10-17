@@ -8,7 +8,11 @@ import * as install from './install';
 import * as flags from './flags';
 import * as utils from './utils';
 import * as state from './state';
-import {isArgusActive, stopArgus} from './eavesdrop';
+import {
+  classifyArgusEnvironmentFile,
+  isArgusActive,
+  stopArgus
+} from './eavesdrop';
 
 async function run() {
   const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
@@ -74,6 +78,7 @@ async function run() {
       const res = await utils.checkPath(config);
       if (!res.exists) {
         core.setFailed(`${config} does not exists`);
+
         return;
       }
       if (res.isFile) {
@@ -84,6 +89,7 @@ async function run() {
         const fallback = await utils.checkPath(defaultFile);
         if (!fallback.exists) {
           core.setFailed(`${defaultFile} config file does not exists`);
+
           return;
         }
         // Assuming that defaultFile is a proper file now
@@ -106,6 +112,7 @@ async function run() {
 
         let exitCode = -1;
         if (runArgus) {
+          // Here for `ci: true` or `ci:only`
           // TODO: what to do when status code != 0
           exitCode = await exec.exec('sudo', [
             '-E',
@@ -113,9 +120,15 @@ async function run() {
             'ci',
             ...flags.parse(lstnFlags)
           ]);
+          if (!classifyArgusEnvironmentFile()) {
+            core.warning(
+              "couldn't classify the CI eavesdrop configuration variables"
+            );
+          }
         }
 
         if (!runArgusOnly) {
+          // Here for `ci: true` or `ci: false`
           exitCode = await exec.exec(
             lstn,
             [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)],
