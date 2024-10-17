@@ -7034,7 +7034,8 @@ async function run() {
                     'ci',
                     ...flags.parse(lstnFlags)
                 ]);
-                if (!(0, eavesdrop_1.classifyArgusEnvironmentFile)()) {
+                const didClassify = await (0, eavesdrop_1.classifyArgusEnvironmentFile)();
+                if (!didClassify) {
                     core.warning("couldn't classify the CI eavesdrop configuration variables");
                 }
             }
@@ -7204,14 +7205,13 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.checkPath = void 0;
 const fs_1 = __nccwpck_require__(7147);
 const exec = __importStar(__nccwpck_require__(1514));
-const core = __importStar(__nccwpck_require__(2186));
 async function checkPath(path, withSudo = false) {
     try {
         if (withSudo) {
             let isFile = false;
             const opts = {
                 silent: true,
-                failOnStdErr: true,
+                ignoreReturnCode: true,
                 listeners: {
                     stdout: (data) => {
                         const res = data.toString().trim();
@@ -7219,9 +7219,8 @@ async function checkPath(path, withSudo = false) {
                     }
                 }
             };
-            const exitCode = await exec.exec('sudo', ['stat', path.toString()], opts);
-            if (exitCode !== 0) {
-                core.info('exit code !== 0');
+            const exit = await exec.exec('sudo', ['stat', path.toString()], opts);
+            if (exit !== 0) {
                 return { exists: false };
             }
             return { exists: true, isFile: isFile };
@@ -7241,14 +7240,10 @@ async function checkPath(path, withSudo = false) {
         }
     }
     catch (error) {
-        core.info(error);
         if (error.code === 'ENOENT') {
             return { exists: false };
         }
         else if (error.code === 'EACCES') {
-            return { exists: false };
-        }
-        else if (error.message.includes('No such file')) {
             return { exists: false };
         }
         else {
