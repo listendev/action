@@ -6565,6 +6565,90 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 5364:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.stopArgus = exports.daemonsReload = exports.doesArgusNeedReload = exports.isArgusActive = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const exec = __importStar(__nccwpck_require__(1514));
+async function isArgusActive() {
+    return await core.group('Check whether the CI eavesdrop tool is active', async () => {
+        return await exec.exec('sudo', ['systemctl', 'is-active', 'argus'], {
+            ignoreReturnCode: true
+        });
+    });
+}
+exports.isArgusActive = isArgusActive;
+async function doesArgusNeedReload() {
+    return await core.group('Check whether the CI eavesdrop tool needs reload', async () => {
+        const opts = {
+            ignoreReturnCode: true
+        };
+        const { stderr, stdout, exitCode } = await exec.getExecOutput('sudo', ['systemctl', 'show', 'argus', '--property=NeedDaemonReload'], opts);
+        if (exitCode !== 0) {
+            core.warning(stderr);
+            return false;
+        }
+        return stdout.trim().endsWith('=yes');
+    });
+}
+exports.doesArgusNeedReload = doesArgusNeedReload;
+async function daemonsReload() {
+    return await core.group('Reload daemons', async () => {
+        const opts = {
+            ignoreReturnCode: true
+        };
+        const { stderr, exitCode } = await exec.getExecOutput('sudo', ['systemctl', 'daemon-reload'], opts);
+        if (exitCode !== 0) {
+            // Handle error case, you can log stderr or throw an error
+            core.warning(stderr);
+        }
+        else {
+            core.info('Successfull reload');
+        }
+    });
+}
+exports.daemonsReload = daemonsReload;
+async function stopArgus() {
+    const needsReload = await doesArgusNeedReload();
+    if (needsReload) {
+        await daemonsReload();
+    }
+    return await core.group('Stopping the CI eavesdrop tool', async () => {
+        return await exec.exec('sudo', ['systemctl', 'stop', 'argus']);
+    });
+}
+exports.stopArgus = stopArgus;
+
+
+/***/ }),
+
 /***/ 3252:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -6806,6 +6890,7 @@ const install = __importStar(__nccwpck_require__(1649));
 const flags = __importStar(__nccwpck_require__(3252));
 const utils = __importStar(__nccwpck_require__(1314));
 const state = __importStar(__nccwpck_require__(9738));
+const eavesdrop_1 = __nccwpck_require__(5364);
 async function run() {
     const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
     const tmpdir = await fs_1.promises.mkdtemp(path.join(runnertmp, 'lstn-'));
@@ -6924,20 +7009,14 @@ async function run() {
     }
 }
 async function post() {
-    const runArgus = core.getInput('ci') == 'true' || core.getInput('ci') == 'only';
-    if (runArgus) {
-        const isActive = await core.group('Check whether the CI eavesdrop tool is active', async () => {
-            return await exec.exec('sudo', ['systemctl', 'is-active', 'argus'], {
-                ignoreReturnCode: true
-            });
-        });
+    const didArgusRun = core.getInput('ci') == 'true' || core.getInput('ci') == 'only';
+    if (didArgusRun) {
+        const isActive = await (0, eavesdrop_1.isArgusActive)();
         if (isActive !== 0) {
             core.info(`Moving on since the CI eavesdrop tool isn't active`);
             return;
         }
-        const exit = await core.group('Stopping the CI eavesdrop tool', async () => {
-            return await exec.exec('sudo', ['systemctl', 'stop', 'argus']);
-        });
+        const exit = await (0, eavesdrop_1.stopArgus)();
         if (exit !== 0) {
             core.warning(`Couldn't properly stop the CI eavesdrop tool`);
         }
