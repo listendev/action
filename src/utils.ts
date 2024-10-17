@@ -7,20 +7,19 @@ export async function checkPath(path: PathLike, withSudo = false) {
       let isFile = false;
       const opts: exec.ExecOptions = {
         silent: true,
+        ignoreReturnCode: true,
         listeners: {
           stdout: (data: Buffer) => {
             const res = data.toString().trim();
             isFile = res.startsWith('-') || res.includes('File:');
-          },
-          stderr: () => {
-            throw new Error(
-              `couldn't check "${path.toString()}" path with sudo`
-            );
           }
         }
       };
 
-      await exec.exec('sudo', ['stat', path.toString()], opts);
+      const exit = await exec.exec('sudo', ['stat', path.toString()], opts);
+      if (exit !== 0) {
+        return {exists: false};
+      }
 
       return {exists: true, isFile: isFile};
     } else {
@@ -36,6 +35,8 @@ export async function checkPath(path: PathLike, withSudo = false) {
     }
   } catch (error: any) {
     if (error.code === 'ENOENT') {
+      return {exists: false};
+    } else if (error.code === 'EACCES') {
       return {exists: false};
     } else {
       throw error; // Re-throw other errors
