@@ -103,3 +103,42 @@ async function getArgusEnvironmentFile() {
 
   return {exists: true, content: file};
 }
+
+export async function classifyArgusEnvironmentFile() {
+  const {exists, content} = await getArgusEnvironmentFile();
+  if (!exists) {
+    return false;
+  }
+  if (content.length == 0) {
+    return false;
+  }
+  const lines = content.split('\n');
+
+  const secrets = new Set(['OPENAI_TOKEN']);
+
+  for (const line of lines) {
+    const l = line.trim();
+    if (!l || l.startsWith('#')) continue;
+
+    const match = l.match(/^([a-zA-Z_][a-zA-Z0-9_]*)=(.*)$/);
+    if (match) {
+      const name = match[1].trim();
+      let value = match[2].trim();
+
+      // Handle quoted values
+      if (value.startsWith('"') && value.endsWith('"')) {
+        // Remove quotes and handle escaped quotes
+        value = value.slice(1, -1).replace(/\\"/g, '"');
+      } else if (value.startsWith("'") && value.endsWith("'")) {
+        // Remove quotes and handle escaped quotes
+        value = value.slice(1, -1).replace(/\\'/g, "'");
+      }
+
+      if (secrets.has(name)) {
+        core.setSecret(value);
+      }
+    }
+  }
+
+  return true;
+}
