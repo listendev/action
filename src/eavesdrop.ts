@@ -1,5 +1,7 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import {checkPath} from './utils';
+import {Writable} from 'stream';
 
 export async function isArgusActive() {
   return await core.group(
@@ -70,4 +72,34 @@ export async function stopArgus() {
       return await exec.exec('sudo', ['systemctl', 'stop', 'argus']);
     }
   );
+}
+
+async function getArgusEnvironmentFile() {
+  const argusEnvironmentFile = `/var/run/argus/default`;
+  const res = await checkPath(argusEnvironmentFile, true);
+  if (!res.exists) {
+    return {exists: false, content: ''};
+  }
+
+  if (!res.isFile) {
+    return {exists: false, content: ''};
+  }
+
+  let file = '';
+  const options: exec.ExecOptions = {
+    // Redirect stdout to the writable stream
+    outStream: new Writable({
+      write(chunk, encoding, callback) {
+        file += chunk.toString();
+        callback();
+      }
+    })
+  };
+  try {
+    await exec.exec('sudo', ['cat', argusEnvironmentFile], options);
+  } catch (error) {
+    return {exists: true, content: ''};
+  }
+
+  return {exists: true, content: file};
 }
