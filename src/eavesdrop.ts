@@ -11,3 +11,28 @@ export async function isArgusActive() {
     }
   );
 }
+
+export async function doesArgusNeedReload() {
+  return await core.group(
+    'Check whether the CI eavesdrop tool needs reload',
+    async (): Promise<boolean> => {
+      const opts: exec.ExecOptions = {
+        ignoreReturnCode: true
+      };
+
+      const {stderr, stdout, exitCode} = await exec.getExecOutput(
+        'sudo',
+        ['systemctl', 'show', 'argus', '--property=NeedDaemonReload'],
+        opts
+      );
+
+      if (exitCode !== 0) {
+        core.warning(stderr);
+
+        return false;
+      }
+
+      return stdout.trim().endsWith('=yes');
+    }
+  );
+}
