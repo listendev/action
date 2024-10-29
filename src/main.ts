@@ -22,7 +22,7 @@ async function run() {
     const runArgusOnly = core.getInput('ci') == 'only';
     const runArgus = core.getInput('ci') == 'true' || runArgusOnly;
     const customArgusVersion = core.getInput('argus_version');
-    const jwt = core.getInput('jwt');
+    const jwt = core.getInput('jwt', {required: runArgus || runArgusOnly});
     const version = core.getInput('lstn');
     const workdir = core.getInput('workdir');
     const config = core.getInput('config');
