@@ -163,7 +163,9 @@ describe('installer', () => {
           return data[name];
         });
 
-      expect(() => new eavesdrop.Tool()).toThrow(`missing eavesdrop tool version (v0.2)`);
+      expect(() => new eavesdrop.Tool()).toThrow(
+        `missing eavesdrop tool version (v0.2)`
+      );
     },
     5 * 60 * 1000
   );
