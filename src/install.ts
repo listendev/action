@@ -3,6 +3,9 @@ import * as core from '@actions/core';
 import * as http from '@actions/http-client';
 import * as tc from '@actions/tool-cache';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+const packageJSON = require('../package.json');
+
 export async function lstn(tag: string, directory: string): Promise<string> {
   const owner = 'listendev';
   const repo = 'lstn';
@@ -98,7 +101,8 @@ export async function tagToVersion(
     tag_name: string;
   }
 
-  const version = process.env.npm_package_version || 'unknown'; // FIXME: ...
+  const version =
+    process.env.npm_package_version || packageJSON.version || 'unknown';
   const ua = `listendev-action/${version}; ${repo}/${tag}`;
   const url = `https://github.com/${owner}/${repo}/releases/${tag}`;
   const client = new http.HttpClient(ua);
