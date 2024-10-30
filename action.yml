@@ -38,8 +38,8 @@ inputs:
     description: "Additional lstn CLI flags"
     required: false
     default: ""
-  argus_version:
-    description: "Custom argus version"
+  eavesdrop_version:
+    description: "Use a custom version of our CI eavesdrop tool"
     required: false
     default: ""
 
