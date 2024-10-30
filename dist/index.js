@@ -9114,6 +9114,49 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 9042:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.EavesdropMustRun = exports.EavesdropMustRunAlone = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+/**
+ * EavesdropMustRunAlone is true when the eavesdrop tool is the only one that must run.
+ */
+exports.EavesdropMustRunAlone = core.getInput('ci') == 'only';
+/**
+ * EavesdropMustRun is true when the eavesdrop tool will run, either alone or together with other tools.
+ */
+exports.EavesdropMustRun = core.getInput('ci') == 'true' || exports.EavesdropMustRunAlone;
+
+
+/***/ }),
+
 /***/ 5364:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -9143,7 +9186,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.get = exports.MustRun = exports.MustRunAlone = void 0;
+exports.get = exports.Tool = void 0;
 const semver = __importStar(__nccwpck_require__(1383));
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
@@ -9157,15 +9200,8 @@ const io = __importStar(__nccwpck_require__(7436));
 const fs = __importStar(__nccwpck_require__(7147));
 const state = __importStar(__nccwpck_require__(9738));
 const superserial_1 = __nccwpck_require__(1787);
+const constants_1 = __nccwpck_require__(9042);
 const STATE_ID = 'eavesdrop_instance';
-/**
- * MustRunAlone is true when the eavesdrop tool is the only one that must run.
- */
-exports.MustRunAlone = core.getInput('ci') == 'only';
-/**
- * MustRun is true when the eavesdrop tool will run, either alone or together with other tools.
- */
-exports.MustRun = core.getInput('ci') == 'true' || exports.MustRunAlone;
 class Tool {
     serialize() {
         return s.serialize(this);
@@ -9185,7 +9221,7 @@ class Tool {
         this.installed = value.installed;
     }
     getTagFromCliTag(lstnTag) {
-        if (!exports.MustRun)
+        if (!constants_1.EavesdropMustRun)
             return '';
         if (!Object.keys(Tool.tagMap).includes(lstnTag)) {
             throw new Error(`missing eavesdrop tool version for lstn ${lstnTag}`);
@@ -9193,7 +9229,7 @@ class Tool {
         return Tool.tagMap[lstnTag];
     }
     getNameFromTag(tag) {
-        if (!exports.MustRun)
+        if (!constants_1.EavesdropMustRun)
             return '';
         if (!Object.values(Tool.tagMap).includes(tag)) {
             throw new Error(`missing eavesdrop tool version (${tag})`);
@@ -9210,7 +9246,7 @@ class Tool {
         return 'argus';
     }
     getCliEnablingCommandFromCliTag(lstnTag) {
-        if (!exports.MustRun)
+        if (!constants_1.EavesdropMustRun)
             return [];
         if (!Object.keys(Tool.tagMap).includes(lstnTag)) {
             throw new Error(`missing eavesdrop tool version for lstn ${lstnTag}`);
@@ -9307,7 +9343,7 @@ class Tool {
         return this.installed;
     }
     async install(tmpdir, into = '/usr/bin/') {
-        if (!exports.MustRun) {
+        if (!constants_1.EavesdropMustRun) {
             return '';
         }
         return await core.group(`👁️‍🗨️ Installing ${this.name}... https://listen.dev`, async () => {
@@ -9326,7 +9362,7 @@ class Tool {
         });
     }
     async isActive() {
-        if (!exports.MustRun || !this.installed) {
+        if (!constants_1.EavesdropMustRun || !this.installed) {
             return false;
         }
         const res = await core.group('Check whether the CI eavesdrop tool is active', async () => {
@@ -9350,7 +9386,7 @@ class Tool {
         });
     }
     async stop() {
-        if (!exports.MustRun || !this.installed) {
+        if (!constants_1.EavesdropMustRun || !this.installed) {
             return 0; // Nothing to stop
         }
         const needsReload = await this.needsRealod();
@@ -9362,7 +9398,7 @@ class Tool {
         });
     }
     async classifyEnvironmentFile() {
-        if (!exports.MustRun || !this.installed) {
+        if (!constants_1.EavesdropMustRun || !this.installed) {
             return true;
         }
         const { exists, content } = await this.getEnvironmentFile();
@@ -9399,6 +9435,7 @@ class Tool {
         return true;
     }
 }
+exports.Tool = Tool;
 // tagMap maps the lstn tags to the eavesdrop tool versions.
 Tool.tagMap = {
     latest: 'v0.8',
@@ -9647,12 +9684,13 @@ const flags = __importStar(__nccwpck_require__(3252));
 const utils = __importStar(__nccwpck_require__(1314));
 const state = __importStar(__nccwpck_require__(9738));
 const eavesdrop = __importStar(__nccwpck_require__(5364));
+const constants_1 = __nccwpck_require__(9042);
 async function run() {
     const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
     const tmpdir = await fs_1.promises.mkdtemp(path.join(runnertmp, 'lstn-'));
     try {
         const jwt = core.getInput('jwt', {
-            required: eavesdrop.MustRun
+            required: constants_1.EavesdropMustRun
         });
         const version = core.getInput('lstn');
         const workdir = core.getInput('workdir');
@@ -9694,7 +9732,7 @@ async function run() {
                 lstnArgs.push(...['--config', `${defaultFile}`]);
             }
         }
-        const exit = await core.group(`🐬 Running lstn${eavesdrop.MustRun ? ' with CI eavesdropper' : '...'}${eavesdrop.MustRunAlone ? ' only' : ''}`, async () => {
+        const exit = await core.group(`🐬 Running lstn${constants_1.EavesdropMustRun ? ' with CI eavesdropper' : '...'}${constants_1.EavesdropMustRunAlone ? ' only' : ''}`, async () => {
             // Pass tokens down
             process.env['LSTN_GH_TOKEN'] = core.getInput('token');
             process.env['LSTN_JWT_TOKEN'] = jwt;
@@ -9703,7 +9741,7 @@ async function run() {
                 ? '/usr/bin'
                 : `${process.env['PATH']}:/usr/bin`;
             let exitCode = -1;
-            if (eavesdrop.MustRun) {
+            if (constants_1.EavesdropMustRun) {
                 // Here for `ci: true` or `ci:only`
                 // TODO: what to do when status code != 0
                 exitCode = await exec.exec('sudo', [
@@ -9717,7 +9755,7 @@ async function run() {
                     core.warning("couldn't classify the CI eavesdrop configuration variables");
                 }
             }
-            if (!eavesdrop.MustRunAlone) {
+            if (!constants_1.EavesdropMustRunAlone) {
                 // Here for `ci: true` or `ci: false`
                 exitCode = await exec.exec(lstn, [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)], {
                     cwd
