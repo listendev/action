@@ -15,7 +15,7 @@ inputs:
     required: false
     default: "latest"
   ci:
-    description: "Whether to run the Argus CI tool or not. It works with the listen.dev JWT token."
+    description: "Whether to run the CI eavesdrop tool or not. It works with the listen.dev JWT token."
     required: false
     default: "false"
   workdir:

@@ -25,7 +25,7 @@ jobs:
 
       - name: Debug
         run: |
-          sudo cat /var/run/argus/default
+          sudo cat /var/run/jibril/default
 
       - name: Setup Node.JS
         uses: actions/setup-node@v4
