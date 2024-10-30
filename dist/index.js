@@ -9547,6 +9547,8 @@ const path = __importStar(__nccwpck_require__(1017));
 const core = __importStar(__nccwpck_require__(2186));
 const http = __importStar(__nccwpck_require__(6255));
 const tc = __importStar(__nccwpck_require__(7784));
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+const packageJSON = __nccwpck_require__(4147);
 async function lstn(tag, directory) {
     const owner = 'listendev';
     const repo = 'lstn';
@@ -9620,7 +9622,7 @@ function getFormat(platform) {
 }
 async function tagToVersion(tag, owner, repo) {
     core.info(`looking for ${repo}/${tag}`);
-    const version = process.env.npm_package_version || 'unknown'; // FIXME: ...
+    const version = process.env.npm_package_version || packageJSON.version || 'unknown';
     const ua = `listendev-action/${version}; ${repo}/${tag}`;
     const url = `https://github.com/${owner}/${repo}/releases/${tag}`;
     const client = new http.HttpClient(ua);
@@ -11118,6 +11120,14 @@ exports.toDeserialize = exports.toSerialize = void 0;
 exports.toSerialize = Symbol("serialize");
 exports.toDeserialize = Symbol("deserialize");
 
+
+/***/ }),
+
+/***/ 4147:
+/***/ ((module) => {
+
+"use strict";
+module.exports = JSON.parse('{"name":"@listendev/action","version":"0.11.0","description":"Get real-time dependency insights in your pull requests","main":"dist/index.js","scripts":{"test":"jest","format":"prettier --no-error-on-unmatched-pattern --config ./.prettierrc.js --write **/*.{ts,yml,yaml}","format-check":"prettier --no-error-on-unmatched-pattern --config ./.prettierrc.js --check **/*.{ts,yml,yaml}","lint":"eslint --config ./.eslintrc.js **/*.ts","lint:fix":"eslint --config ./.eslintrc.js **/*.ts --fix","build":"tsc && ncc build --source-map --license licenses.txt -o dist/ src/main.ts"},"repository":{"type":"git","url":"git+https://github.com/listendev/action.git"},"keywords":["actions","github","lstn","listendev","o11y","security","pullrequests","annotations","suggestions","deps","dependencies","supply","chain","security"],"private":true,"author":"The listen.dev team <engineering@garnet.ai>","license":"Apache-2.0","bugs":{"url":"https://github.com/listendev/action/issues"},"homepage":"https://github.com/listendev/action#readme","dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.1.1","@actions/http-client":"^2.1.0","@actions/io":"^1.1.3","@actions/tool-cache":"^2.0.1","semver":"^7.6.3","superserial":"^0.3.5"},"devDependencies":{"@types/jest":"^29.4.4","@types/node":"^18.15.3","@types/semver":"^7.3.13","@typescript-eslint/eslint-plugin":"^5.55.0","@typescript-eslint/parser":"^5.55.0","@vercel/ncc":"^0.36.1","eslint":"^8.36.0","eslint-config-prettier":"^8.7.0","eslint-plugin-jest":"^27.2.1","eslint-plugin-node":"^11.1.0","jest":"^29.5.0","jest-os-detection":"^1.3.1","prettier":"^2.8.5","ts-jest":"^29.0.5","typescript":"^4.9.5"}}');
 
 /***/ })
 
