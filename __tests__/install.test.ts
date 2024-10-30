@@ -80,25 +80,72 @@ describe('installer', () => {
     5 * 60 * 1000
   );
 
-  // it.onLinux(
-  //   'installs argus for the latest lstn',
-  //   async () => {
-  //     const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
-  //     const argus = await installer.argusFor('latest', dir);
-  //     const code = await exec.exec(argus, ['--version']);
-  //     expect(code).toBe(0);
-  //   },
-  //   5 * 60 * 1000
-  // );
+  it.onLinux(
+    'installs eavesdrop tool for the latest lstn',
+    async () => {
+      const getInputSpy = jest
+        .spyOn(core, 'getInput')
+        .mockImplementation((name: string) => {
+          const data: {[key: string]: string} = {
+            lstn: 'latest'
+          };
 
-  // it.onLinux(
-  //   'installs custom argus version',
-  //   async () => {
-  //     const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
-  //     const argus = await installer.argusFor('latest', dir, 'v0.2');
-  //     const code = await exec.exec(argus, ['-v']);
-  //     expect(code).toBe(0);
-  //   },
-  //   5 * 60 * 1000
-  // );
+          return data[name];
+        });
+
+      const tool = new eavesdrop.Tool();
+
+      expect(getInputSpy).toHaveBeenCalledWith('lstn');
+      expect(getInputSpy).toHaveBeenCalledWith('argus_version');
+
+      expect(tool.getVersion()).toEqual('v0.8');
+      expect(tool.getCliEnablingCommand()).toEqual(['ci', 'enable']);
+      expect(tool.getName()).toEqual('jibril');
+
+      const fileDir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
+      const destDir = await fs.mkdtemp(path.join(tmpdir, 'eavesdrop-'));
+      const toolPath = await tool.install(fileDir, destDir);
+
+      expect(tool.isInstalled()).toBe(true);
+
+      const code = await exec.exec(toolPath, ['--version']);
+      expect(code).toBe(0);
+    },
+    5 * 60 * 1000
+  );
+
+  it.onLinux(
+    'installs custom eavesdrop tool version',
+    async () => {
+      const getInputSpy = jest
+        .spyOn(core, 'getInput')
+        .mockImplementation((name: string) => {
+          const data: {[key: string]: string} = {
+            lstn: 'latest',
+            argus_version: 'v0.3'
+          };
+
+          return data[name];
+        });
+
+      const tool = new eavesdrop.Tool();
+
+      expect(getInputSpy).toHaveBeenCalledWith('lstn');
+      expect(getInputSpy).toHaveBeenCalledWith('argus_version');
+
+      expect(tool.getVersion()).toEqual('v0.3');
+      expect(tool.getCliEnablingCommand()).toEqual(['ci', 'enable']);
+      expect(tool.getName()).toEqual('argus');
+
+      const fileDir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
+      const destDir = await fs.mkdtemp(path.join(tmpdir, 'eavesdrop-'));
+      const toolPath = await tool.install(fileDir, destDir);
+
+      expect(tool.isInstalled()).toBe(true);
+
+      const code = await exec.exec(toolPath, ['--version']);
+      expect(code).toBe(0);
+    },
+    5 * 60 * 1000
+  );
 });
