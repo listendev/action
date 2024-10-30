@@ -148,4 +148,23 @@ describe('installer', () => {
     },
     5 * 60 * 1000
   );
+
+  it.skipWindows(
+    'installs unsupported eavesdrop tool version throws',
+    async () => {
+      const getInputSpy = jest
+        .spyOn(core, 'getInput')
+        .mockImplementation((name: string) => {
+          const data: {[key: string]: string} = {
+            lstn: 'latest',
+            argus_version: 'v0.2'
+          };
+
+          return data[name];
+        });
+
+      expect(() => new eavesdrop.Tool()).toThrow(`missing eavesdrop tool version (v0.2)`);
+    },
+    5 * 60 * 1000
+  );
 });
