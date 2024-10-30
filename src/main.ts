@@ -9,6 +9,7 @@ import * as flags from './flags';
 import * as utils from './utils';
 import * as state from './state';
 import * as eavesdrop from './eavesdrop';
+import {EavesdropMustRun, EavesdropMustRunAlone} from './constants';
 
 async function run() {
   const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
@@ -16,7 +17,7 @@ async function run() {
 
   try {
     const jwt = core.getInput('jwt', {
-      required: eavesdrop.MustRun
+      required: EavesdropMustRun
     });
     const version = core.getInput('lstn');
     const workdir = core.getInput('workdir');
@@ -72,8 +73,8 @@ async function run() {
     }
 
     const exit = await core.group(
-      `🐬 Running lstn${eavesdrop.MustRun ? ' with CI eavesdropper' : '...'}${
-        eavesdrop.MustRunAlone ? ' only' : ''
+      `🐬 Running lstn${EavesdropMustRun ? ' with CI eavesdropper' : '...'}${
+        EavesdropMustRunAlone ? ' only' : ''
       }`,
       async (): Promise<number> => {
         // Pass tokens down
@@ -85,7 +86,7 @@ async function run() {
           : `${process.env['PATH']}:/usr/bin`;
 
         let exitCode = -1;
-        if (eavesdrop.MustRun) {
+        if (EavesdropMustRun) {
           // Here for `ci: true` or `ci:only`
           // TODO: what to do when status code != 0
           exitCode = await exec.exec('sudo', [
@@ -102,7 +103,7 @@ async function run() {
           }
         }
 
-        if (!eavesdrop.MustRunAlone) {
+        if (!EavesdropMustRunAlone) {
           // Here for `ci: true` or `ci: false`
           exitCode = await exec.exec(
             lstn,
