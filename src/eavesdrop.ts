@@ -12,7 +12,7 @@ import * as fs from 'fs';
 import * as state from './state';
 import {Serializer, toSerialize, toDeserialize} from 'superserial';
 
-const STATE_ID = 'eavesdrop_instance'
+const STATE_ID = 'eavesdrop_instance';
 
 /**
  * MustRunAlone is true when the eavesdrop tool is the only one that must run.
@@ -22,8 +22,7 @@ export const MustRunAlone: boolean = core.getInput('ci') == 'only';
 /**
  * MustRun is true when the eavesdrop tool will run, either alone or together with other tools.
  */
-export const MustRun: boolean =
-  core.getInput('ci') == 'true' || MustRunAlone;
+export const MustRun: boolean = core.getInput('ci') == 'true' || MustRunAlone;
 
 class Tool {
   private version: string;
@@ -32,7 +31,7 @@ class Tool {
   private installed = false;
 
   serialize() {
-    return s.serialize(this)
+    return s.serialize(this);
   }
 
   [toSerialize]() {
@@ -353,20 +352,18 @@ function deserialize(data: string): Tool {
 }
 
 function store(instance: Tool) {
-  core.saveState(STATE_ID, instance.serialize())
+  core.saveState(STATE_ID, instance.serialize());
 }
 
 export function get(): Tool {
   if (!state.IsPost) {
     try {
       const i = new Tool();
-      store(i)
+      store(i);
 
       return i;
     } catch (error: any) {
-      core.setFailed(
-        `Could not instantiate the eavesdrop tool.`
-      );
+      core.setFailed(`Could not instantiate the eavesdrop tool.`);
       throw new Error(error.message);
     }
   }
