@@ -11,20 +11,11 @@ import * as io from '@actions/io';
 import * as fs from 'fs';
 import * as state from './state';
 import {Serializer, toSerialize, toDeserialize} from 'superserial';
+import {EavesdropMustRun} from './constants';
 
 const STATE_ID = 'eavesdrop_instance';
 
-/**
- * MustRunAlone is true when the eavesdrop tool is the only one that must run.
- */
-export const MustRunAlone: boolean = core.getInput('ci') == 'only';
-
-/**
- * MustRun is true when the eavesdrop tool will run, either alone or together with other tools.
- */
-export const MustRun: boolean = core.getInput('ci') == 'true' || MustRunAlone;
-
-class Tool {
+export class Tool {
   private version: string;
   private name: string;
   private cliEnablingCommand: string[];
@@ -67,7 +58,7 @@ class Tool {
   } as const;
 
   private getTagFromCliTag(lstnTag: string): string {
-    if (!MustRun) return '';
+    if (!EavesdropMustRun) return '';
 
     if (!Object.keys(Tool.tagMap).includes(lstnTag)) {
       throw new Error(`missing eavesdrop tool version for lstn ${lstnTag}`);
@@ -77,7 +68,7 @@ class Tool {
   }
 
   private getNameFromTag(tag: string): string {
-    if (!MustRun) return '';
+    if (!EavesdropMustRun) return '';
 
     if (!Object.values(Tool.tagMap).includes(tag)) {
       throw new Error(`missing eavesdrop tool version (${tag})`);
@@ -98,7 +89,7 @@ class Tool {
   }
 
   private getCliEnablingCommandFromCliTag(lstnTag: string): string[] {
-    if (!MustRun) return [];
+    if (!EavesdropMustRun) return [];
 
     if (!Object.keys(Tool.tagMap).includes(lstnTag)) {
       throw new Error(`missing eavesdrop tool version for lstn ${lstnTag}`);
@@ -215,7 +206,7 @@ class Tool {
   }
 
   public async install(tmpdir: string, into = '/usr/bin/') {
-    if (!MustRun) {
+    if (!EavesdropMustRun) {
       return '';
     }
 
@@ -242,7 +233,7 @@ class Tool {
   }
 
   public async isActive() {
-    if (!MustRun || !this.installed) {
+    if (!EavesdropMustRun || !this.installed) {
       return false;
     }
 
@@ -284,7 +275,7 @@ class Tool {
   }
 
   public async stop() {
-    if (!MustRun || !this.installed) {
+    if (!EavesdropMustRun || !this.installed) {
       return 0; // Nothing to stop
     }
 
@@ -302,7 +293,7 @@ class Tool {
   }
 
   public async classifyEnvironmentFile() {
-    if (!MustRun || !this.installed) {
+    if (!EavesdropMustRun || !this.installed) {
       return true;
     }
 
