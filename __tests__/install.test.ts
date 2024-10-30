@@ -62,7 +62,7 @@ describe('installer', () => {
       const tool = new eavesdrop.Tool();
 
       expect(getInputSpy).toHaveBeenCalledWith('lstn');
-      expect(getInputSpy).toHaveBeenCalledWith('argus_version');
+      expect(getInputSpy).toHaveBeenCalledWith('eavesdrop_version');
 
       expect(tool.getName()).toEqual('argus');
       expect(tool.getVersion()).toEqual('v0.1');
@@ -96,7 +96,7 @@ describe('installer', () => {
       const tool = new eavesdrop.Tool();
 
       expect(getInputSpy).toHaveBeenCalledWith('lstn');
-      expect(getInputSpy).toHaveBeenCalledWith('argus_version');
+      expect(getInputSpy).toHaveBeenCalledWith('eavesdrop_version');
 
       expect(tool.getVersion()).toEqual('v0.8');
       expect(tool.getCliEnablingCommand()).toEqual(['ci', 'enable']);
@@ -122,7 +122,7 @@ describe('installer', () => {
         .mockImplementation((name: string) => {
           const data: {[key: string]: string} = {
             lstn: 'latest',
-            argus_version: 'v0.3'
+            eavesdrop_version: 'v0.3'
           };
 
           return data[name];
@@ -131,7 +131,7 @@ describe('installer', () => {
       const tool = new eavesdrop.Tool();
 
       expect(getInputSpy).toHaveBeenCalledWith('lstn');
-      expect(getInputSpy).toHaveBeenCalledWith('argus_version');
+      expect(getInputSpy).toHaveBeenCalledWith('eavesdrop_version');
 
       expect(tool.getVersion()).toEqual('v0.3');
       expect(tool.getCliEnablingCommand()).toEqual(['ci', 'enable']);
@@ -157,7 +157,7 @@ describe('installer', () => {
         .mockImplementation((name: string) => {
           const data: {[key: string]: string} = {
             lstn: 'latest',
-            argus_version: 'v0.2'
+            eavesdrop_version: 'v0.2'
           };
 
           return data[name];

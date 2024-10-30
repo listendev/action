@@ -9323,7 +9323,7 @@ class Tool {
     constructor() {
         this.installed = false;
         const lstnTag = core.getInput('lstn');
-        const explicitEavesdropToolTag = core.getInput('argus_version'); // FIXME: ...
+        const explicitEavesdropToolTag = core.getInput('eavesdrop_version');
         this.version = !explicitEavesdropToolTag
             ? this.getTagFromCliTag(lstnTag)
             : explicitEavesdropToolTag;
