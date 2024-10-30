@@ -8,21 +8,16 @@ import * as install from './install';
 import * as flags from './flags';
 import * as utils from './utils';
 import * as state from './state';
-import {
-  classifyArgusEnvironmentFile,
-  isArgusActive,
-  stopArgus
-} from './eavesdrop';
+import * as eavesdrop from './eavesdrop';
 
 async function run() {
   const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
   const tmpdir = await fs.mkdtemp(path.join(runnertmp, 'lstn-'));
 
   try {
-    const runArgusOnly = core.getInput('ci') == 'only';
-    const runArgus = core.getInput('ci') == 'true' || runArgusOnly;
-    const customArgusVersion = core.getInput('argus_version');
-    const jwt = core.getInput('jwt', {required: runArgus || runArgusOnly});
+    const jwt = core.getInput('jwt', {
+      required: eavesdrop.MustRun
+    });
     const version = core.getInput('lstn');
     const workdir = core.getInput('workdir');
     const config = core.getInput('config');
@@ -32,8 +27,7 @@ async function run() {
       process.env['GITHUB_WORKSPACE'] || process.cwd(),
       workdir
     );
-    // This option is only meant for exper users and tests.
-    // We are assuming that only flags common to lstn in|ci|scan can go here.
+    // This option is only meant for expert users and tests.
     const lstnFlags = core.getInput('lstn_flags');
 
     const lstn = await core.group(
@@ -43,28 +37,8 @@ async function run() {
       }
     );
 
-    if (runArgus) {
-      await core.group(
-        '👁️‍🗨️ Installing argus... https://listen.dev',
-        async () => {
-          // Install argus for lstn
-          const location = await install.argusFor(
-            version,
-            tmpdir,
-            customArgusVersion
-          );
-          // Moving argus to /usr/bin
-          const dest = '/usr/bin/argus';
-          core.info(`moving argus to ${path.dirname(dest)}`);
-          const code = await exec.exec('sudo', ['mv', location, dest]);
-          if (code !== 0) {
-            throw new Error(`couldn't move argus to ${path.dirname(dest)}`);
-          }
-
-          return dest;
-        }
-      );
-    }
+    const eavesdropTool = eavesdrop.get();
+    await eavesdropTool.install(tmpdir);
 
     // TODO: restore cache here
 
@@ -98,8 +72,8 @@ async function run() {
     }
 
     const exit = await core.group(
-      `🐬 Running lstn${runArgus ? ' with CI eavesdropper' : '...'}${
-        runArgusOnly ? ' only' : ''
+      `🐬 Running lstn${eavesdrop.MustRun ? ' with CI eavesdropper' : '...'}${
+        eavesdrop.MustRunAlone ? ' only' : ''
       }`,
       async (): Promise<number> => {
         // Pass tokens down
@@ -111,16 +85,16 @@ async function run() {
           : `${process.env['PATH']}:/usr/bin`;
 
         let exitCode = -1;
-        if (runArgus) {
+        if (eavesdrop.MustRun) {
           // Here for `ci: true` or `ci:only`
           // TODO: what to do when status code != 0
           exitCode = await exec.exec('sudo', [
             '-E',
             lstn,
-            'ci',
+            ...eavesdropTool.getCliEnablingCommand(),
             ...flags.parse(lstnFlags)
           ]);
-          const didClassify = await classifyArgusEnvironmentFile();
+          const didClassify = await eavesdropTool.classifyEnvironmentFile();
           if (!didClassify) {
             core.warning(
               "couldn't classify the CI eavesdrop configuration variables"
@@ -128,7 +102,7 @@ async function run() {
           }
         }
 
-        if (!runArgusOnly) {
+        if (!eavesdrop.MustRunAlone) {
           // Here for `ci: true` or `ci: false`
           exitCode = await exec.exec(
             lstn,
@@ -150,12 +124,8 @@ async function run() {
     if (exit !== 0) {
       core.setFailed(`status code: ${exit}`);
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      core.setFailed(error);
-    } else {
-      core.setFailed(`${error}`);
-    }
+  } catch (error: any) {
+    core.setFailed(error);
   } finally {
     // Cleanup
     try {
@@ -172,20 +142,21 @@ async function run() {
 }
 
 async function post() {
-  const didArgusRun =
-    core.getInput('ci') == 'true' || core.getInput('ci') == 'only';
-  if (didArgusRun) {
-    const isActive = await isArgusActive();
-    if (isActive !== 0) {
+  try {
+    const eavesdropTool = eavesdrop.get();
+    const isActive = await eavesdropTool.isActive();
+    if (!isActive) {
       core.info(`Moving on since the CI eavesdrop tool isn't active`);
 
       return;
     }
 
-    const exit = await stopArgus();
+    const exit = await eavesdropTool.stop();
     if (exit !== 0) {
       core.warning(`Couldn't properly stop the CI eavesdrop tool`);
     }
+  } catch (error: any) {
+    core.setFailed(error);
   }
 }
 
