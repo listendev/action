@@ -346,3 +346,30 @@ class Tool {
   }
 }
 
+const s = new Serializer({classes: {Tool}});
+
+function deserialize(data: string): Tool {
+  return s.deserialize<Tool>(data);
+}
+
+function store(instance: Tool) {
+  core.saveState(STATE_ID, instance.serialize())
+}
+
+export function get(): Tool {
+  if (!state.IsPost) {
+    try {
+      const i = new Tool();
+      store(i)
+
+      return i;
+    } catch (error: any) {
+      core.setFailed(
+        `Could not instantiate the eavesdrop tool.`
+      );
+      throw new Error(error.message);
+    }
+  }
+
+  return deserialize(core.getState(STATE_ID));
+}
