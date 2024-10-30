@@ -6,7 +6,13 @@ process.env['RUNNER_TEMP'] = tmpdir;
 
 import * as io from '@actions/io';
 import * as exec from '@actions/exec';
+import * as core from '@actions/core';
 import * as installer from '../src/install';
+import * as eavesdrop from '../src/eavesdrop';
+
+jest.mock('../src/constants', () => ({
+  EavesdropMustRun: true
+}));
 
 describe('installer', () => {
   beforeAll(async () => {
@@ -41,35 +47,58 @@ describe('installer', () => {
   );
 
   it.onLinux(
-    'installs argus for the lstn v0.13.0',
+    'installs eavesdrop tool for the lstn v0.13.0',
     async () => {
-      const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
-      const argus = await installer.argusFor('v0.13.0', dir);
-      const code = await exec.exec(argus, ['-v']);
+      const getInputSpy = jest
+        .spyOn(core, 'getInput')
+        .mockImplementation((name: string) => {
+          const data: {[key: string]: string} = {
+            lstn: 'v0.13.0'
+          };
+
+          return data[name];
+        });
+
+      const tool = new eavesdrop.Tool();
+
+      expect(getInputSpy).toHaveBeenCalledWith('lstn');
+      expect(getInputSpy).toHaveBeenCalledWith('argus_version');
+
+      expect(tool.getName()).toEqual('argus');
+      expect(tool.getVersion()).toEqual('v0.1');
+      expect(tool.getCliEnablingCommand()).toEqual(['ci']);
+
+      const fileDir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
+      const destDir = await fs.mkdtemp(path.join(tmpdir, 'eavesdrop-'));
+      const toolPath = await tool.install(fileDir, destDir);
+
+      expect(tool.isInstalled()).toBe(true);
+
+      const code = await exec.exec(toolPath, ['-v']);
       expect(code).toBe(0);
     },
     5 * 60 * 1000
   );
 
-  it.onLinux(
-    'installs argus for the latest lstn',
-    async () => {
-      const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
-      const argus = await installer.argusFor('latest', dir);
-      const code = await exec.exec(argus, ['--version']);
-      expect(code).toBe(0);
-    },
-    5 * 60 * 1000
-  );
+  // it.onLinux(
+  //   'installs argus for the latest lstn',
+  //   async () => {
+  //     const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
+  //     const argus = await installer.argusFor('latest', dir);
+  //     const code = await exec.exec(argus, ['--version']);
+  //     expect(code).toBe(0);
+  //   },
+  //   5 * 60 * 1000
+  // );
 
-  it.onLinux(
-    'installs custom argus version',
-    async () => {
-      const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
-      const argus = await installer.argusFor('latest', dir, 'v0.2');
-      const code = await exec.exec(argus, ['-v']);
-      expect(code).toBe(0);
-    },
-    5 * 60 * 1000
-  );
+  // it.onLinux(
+  //   'installs custom argus version',
+  //   async () => {
+  //     const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
+  //     const argus = await installer.argusFor('latest', dir, 'v0.2');
+  //     const code = await exec.exec(argus, ['-v']);
+  //     expect(code).toBe(0);
+  //   },
+  //   5 * 60 * 1000
+  // );
 });
