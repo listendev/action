@@ -1,10 +1,7 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import * as core from '@actions/core';
 import * as http from '@actions/http-client';
 import * as tc from '@actions/tool-cache';
-import * as io from '@actions/io';
-import {getArgusTagFromListenTag} from './mappings';
 
 export async function lstn(tag: string, directory: string): Promise<string> {
   const owner = 'listendev';
@@ -34,48 +31,7 @@ export async function lstn(tag: string, directory: string): Promise<string> {
   return path.join(res, name, `lstn${ext}`);
 }
 
-export async function argusFor(
-  tag: string,
-  directory: string,
-  explicitTag?: string
-): Promise<string> {
-  // Argus only runs on linux amd64
-  const plat = getPlat(process.platform.toString());
-  switch (plat) {
-    case 'linux':
-      break;
-    default:
-      throw new Error(`unsupported platform: ${plat}`);
-  }
-  const arch = getArch(process.arch.toString());
-  switch (arch) {
-    case 'amd64':
-      break;
-    default:
-      throw new Error(`unsupported arch: ${arch}`);
-  }
-
-  const argusTag = !explicitTag ? getArgusTagFromListenTag(tag) : explicitTag;
-  const owner = 'listendev';
-  const repo = 'argus-releases';
-  const vers = await tagToVersion(argusTag, owner, repo);
-
-  const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/loader`;
-
-  core.info(`downloading from ${url}`);
-
-  const download = await tc.downloadTool(url);
-
-  core.info(`preparing binary...`);
-
-  const dest = path.join(directory, 'argus');
-  await io.mv(download, dest);
-  fs.chmodSync(dest, 0o755);
-
-  return dest;
-}
-
-function getPlat(os: string): string {
+export function getPlat(os: string): string {
   os = os.trim().toLowerCase();
 
   if (
@@ -103,7 +59,7 @@ function getPlat(os: string): string {
   return os;
 }
 
-function getArch(arch: string): string {
+export function getArch(arch: string): string {
   arch = arch.trim().toLowerCase();
 
   switch (arch) {
@@ -131,7 +87,7 @@ function getFormat(platform: string): string {
   return 'tar.gz';
 }
 
-async function tagToVersion(
+export async function tagToVersion(
   tag: string,
   owner: string,
   repo: string
@@ -142,7 +98,7 @@ async function tagToVersion(
     tag_name: string;
   }
 
-  const version = process.env.npm_package_version || 'unknown';
+  const version = process.env.npm_package_version || 'unknown'; // FIXME: ...
   const ua = `listendev-action/${version}; ${repo}/${tag}`;
   const url = `https://github.com/${owner}/${repo}/releases/${tag}`;
   const client = new http.HttpClient(ua);
