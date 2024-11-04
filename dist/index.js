@@ -9462,10 +9462,15 @@ function get() {
         }
         catch (error) {
             core.setFailed(`Could not instantiate the eavesdrop tool.`);
-            throw new Error(error.message);
+            throw error;
         }
     }
-    return deserialize(core.getState(STATE_ID));
+    try {
+        return deserialize(core.getState(STATE_ID));
+    }
+    catch (error) {
+        throw new Error(`Could not deserialize the eavesdrop tool instance.`);
+    }
 }
 exports.get = get;
 
@@ -9542,37 +9547,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.tagToVersion = exports.getArch = exports.getPlat = exports.lstn = void 0;
-const path = __importStar(__nccwpck_require__(1017));
+exports.tagToVersion = exports.getFormat = exports.getArch = exports.getPlat = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const http = __importStar(__nccwpck_require__(6255));
-const tc = __importStar(__nccwpck_require__(7784));
 // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
 const packageJSON = __nccwpck_require__(4147);
-async function lstn(tag, directory) {
-    const owner = 'listendev';
-    const repo = 'lstn';
-    const vers = await tagToVersion(tag, owner, repo);
-    const plat = getPlat(process.platform.toString());
-    const arch = getArch(process.arch.toString());
-    const archive = getFormat(plat);
-    const name = `lstn_${vers}_${plat}_${arch}`;
-    const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
-    core.info(`downloading from ${url}`);
-    const download = await tc.downloadTool(url);
-    core.info(`extracting...`);
-    let ext = '';
-    let res = '';
-    if (archive == 'zip') {
-        res = await tc.extractZip(download, directory);
-        ext = '.exe';
-    }
-    else {
-        res = await tc.extractTar(download, directory);
-    }
-    return path.join(res, name, `lstn${ext}`);
-}
-exports.lstn = lstn;
 function getPlat(os) {
     os = os.trim().toLowerCase();
     if (os.startsWith('win') ||
@@ -9620,6 +9599,7 @@ function getFormat(platform) {
     }
     return 'tar.gz';
 }
+exports.getFormat = getFormat;
 async function tagToVersion(tag, owner, repo) {
     core.info(`looking for ${repo}/${tag}`);
     const version = process.env.npm_package_version || packageJSON.version || 'unknown';
@@ -9642,6 +9622,199 @@ async function tagToVersion(tag, owner, repo) {
     return realTag;
 }
 exports.tagToVersion = tagToVersion;
+
+
+/***/ }),
+
+/***/ 6611:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.get = exports.Tool = void 0;
+const superserial_1 = __nccwpck_require__(1787);
+const state = __importStar(__nccwpck_require__(9738));
+const core = __importStar(__nccwpck_require__(2186));
+const constants_1 = __nccwpck_require__(9042);
+const install_1 = __nccwpck_require__(1649);
+const tc = __importStar(__nccwpck_require__(7784));
+const path = __importStar(__nccwpck_require__(1017));
+const exec = __importStar(__nccwpck_require__(1514));
+const flags = __importStar(__nccwpck_require__(3252));
+const STATE_ID = 'lstn';
+class Tool {
+    serialize() {
+        return s.serialize(this);
+    }
+    [superserial_1.toSerialize]() {
+        return {
+            version: this.version,
+            jwt: this.jwt,
+            path: this.path,
+            command: this.command,
+            args: this.args,
+            cwd: this.cwd,
+            extraFlags: this.extraFlags
+        };
+    }
+    [superserial_1.toDeserialize](value) {
+        this.version = value.version;
+        this.jwt = value.jwt;
+        this.path = value.path;
+        this.command = value.command;
+        this.args = value.args;
+        this.cwd = value.cwd;
+        this.extraFlags = value.extraFlags;
+    }
+    constructor() {
+        this.path = '';
+        this.version = core.getInput('lstn');
+        this.jwt = core.getInput('jwt', { required: constants_1.EavesdropMustRun });
+        this.command = this.jwt !== '' ? 'in' : 'scan';
+        const reporter = core.getInput('reporter');
+        const select = core.getInput('select');
+        this.args = ['--reporter', `${this.jwt != '' ? 'pro' : reporter}`]; // There's always a reporter (default)
+        if (select != '') {
+            this.args.push(...['--select', `${select}`]);
+        }
+        this.cwd = path.relative(process.env['GITHUB_WORKSPACE'] || process.cwd(), core.getInput('workdir'));
+        // The `lstn_flags` option is only meant for expert users and tests.
+        this.extraFlags = flags.parse(core.getInput('lstn_flags'));
+    }
+    setConfig(file) {
+        this.args.push(...['--config', file]);
+        store(this);
+    }
+    getVersion() {
+        return this.version;
+    }
+    isInstalled() {
+        return this.path !== '';
+    }
+    async install(tmpdir) {
+        const where = await core.group('🐬 Installing lstn... https://github.com/listendev/lstn', async () => {
+            const owner = 'listendev';
+            const repo = 'lstn';
+            const vers = await (0, install_1.tagToVersion)(this.version, owner, repo);
+            const plat = (0, install_1.getPlat)(process.platform.toString());
+            const arch = (0, install_1.getArch)(process.arch.toString());
+            const archive = (0, install_1.getFormat)(plat);
+            const name = `lstn_${vers}_${plat}_${arch}`;
+            const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
+            core.info(`downloading from ${url}`);
+            const download = await tc.downloadTool(url);
+            core.info(`extracting...`);
+            let ext = '';
+            let res = '';
+            if (archive == 'zip') {
+                res = await tc.extractZip(download, tmpdir);
+                ext = '.exe';
+            }
+            else {
+                res = await tc.extractTar(download, tmpdir);
+            }
+            return path.join(res, name, `lstn${ext}`);
+        });
+        this.path = where;
+        store(this);
+        return where;
+    }
+    async exec() {
+        if (constants_1.EavesdropMustRunAlone || !this.isInstalled()) {
+            return 0;
+        }
+        this.setEnv();
+        return await exec.exec(this.path, [this.command, ...this.args, ...this.extraFlags], {
+            cwd: this.cwd
+            // TODO: ignoreReturnCode
+            // TODO: outStream
+        });
+    }
+    async eavesdrop(eavesdrop) {
+        if (!constants_1.EavesdropMustRun) {
+            return 0;
+        }
+        if (!this.isInstalled()) {
+            core.warning('missing lstn CLI installation');
+            return 0;
+        }
+        this.setEnv();
+        const exit = await exec.exec('sudo', [
+            '-E',
+            this.path,
+            ...eavesdrop.getCliEnablingCommand(),
+            ...this.extraFlags
+        ]);
+        if (exit === 0) {
+            const didClassify = await eavesdrop.classifyEnvironmentFile();
+            if (!didClassify) {
+                core.warning("couldn't classify the CI eavesdrop configuration variables");
+            }
+        }
+        return exit;
+    }
+    setEnv() {
+        // Pass tokens down
+        process.env['LSTN_GH_TOKEN'] = core.getInput('token');
+        process.env['LSTN_JWT_TOKEN'] = this.jwt;
+        // Ensure $PATH contains /usr/bin
+        process.env['PATH'] = !process.env['PATH']
+            ? '/usr/bin'
+            : `${process.env['PATH']}:/usr/bin`;
+    }
+}
+exports.Tool = Tool;
+const s = new superserial_1.Serializer({ classes: { Tool } });
+function deserialize(data) {
+    return s.deserialize(data);
+}
+function store(instance) {
+    core.saveState(STATE_ID, instance.serialize());
+}
+function get() {
+    if (!state.IsPost) {
+        try {
+            const i = new Tool();
+            store(i);
+            return i;
+        }
+        catch (error) {
+            core.setFailed(`Could not instantiate the lstn tool.`);
+            throw error;
+        }
+    }
+    try {
+        return deserialize(core.getState(STATE_ID));
+    }
+    catch (error) {
+        throw new Error(`Could not deserialize the lstn tool instance.`);
+    }
+}
+exports.get = get;
 
 
 /***/ }),
@@ -9679,40 +9852,23 @@ const os = __importStar(__nccwpck_require__(2037));
 const fs_1 = __nccwpck_require__(7147);
 const path = __importStar(__nccwpck_require__(1017));
 const core = __importStar(__nccwpck_require__(2186));
-const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
-const install = __importStar(__nccwpck_require__(1649));
-const flags = __importStar(__nccwpck_require__(3252));
 const utils = __importStar(__nccwpck_require__(1314));
 const state = __importStar(__nccwpck_require__(9738));
-const eavesdrop = __importStar(__nccwpck_require__(5364));
+const eavesdropcli = __importStar(__nccwpck_require__(5364));
+const lstncli = __importStar(__nccwpck_require__(6611));
 const constants_1 = __nccwpck_require__(9042);
 async function run() {
     const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
     const tmpdir = await fs_1.promises.mkdtemp(path.join(runnertmp, 'lstn-'));
     try {
-        const jwt = core.getInput('jwt', {
-            required: constants_1.EavesdropMustRun
-        });
-        const version = core.getInput('lstn');
-        const workdir = core.getInput('workdir');
-        const config = core.getInput('config');
-        const reporter = core.getInput('reporter');
-        const select = core.getInput('select');
-        const cwd = path.relative(process.env['GITHUB_WORKSPACE'] || process.cwd(), workdir);
-        // This option is only meant for expert users and tests.
-        const lstnFlags = core.getInput('lstn_flags');
-        const lstn = await core.group('🐬 Installing lstn... https://github.com/listendev/lstn', async () => {
-            return await install.lstn(version, tmpdir);
-        });
-        const eavesdropTool = eavesdrop.get();
-        await eavesdropTool.install(tmpdir);
+        const lstn = lstncli.get();
+        await lstn.install(tmpdir);
+        const eavesdrop = eavesdropcli.get();
+        await eavesdrop.install(tmpdir);
         // TODO: restore cache here
-        const lstnCommand = jwt != '' ? 'in' : 'scan';
-        const lstnArgs = ['--reporter', `${jwt != '' ? 'pro' : reporter}`]; // There's always a reporter (default)
-        if (select != '') {
-            lstnArgs.push(...['--select', `${select}`]);
-        }
+        // Handle lstn config
+        const config = core.getInput('config');
         if (config != '') {
             const res = await utils.checkPath(config);
             if (!res.exists) {
@@ -9720,7 +9876,7 @@ async function run() {
                 return;
             }
             if (res.isFile) {
-                lstnArgs.push(...['--config', `${config}`]);
+                lstn.setConfig(config);
             }
             else {
                 // The input config is a directory
@@ -9731,41 +9887,14 @@ async function run() {
                     return;
                 }
                 // Assuming that defaultFile is a proper file now
-                lstnArgs.push(...['--config', `${defaultFile}`]);
+                lstn.setConfig(defaultFile);
             }
         }
         const exit = await core.group(`🐬 Running lstn${constants_1.EavesdropMustRun ? ' with CI eavesdropper' : '...'}${constants_1.EavesdropMustRunAlone ? ' only' : ''}`, async () => {
-            // Pass tokens down
-            process.env['LSTN_GH_TOKEN'] = core.getInput('token');
-            process.env['LSTN_JWT_TOKEN'] = jwt;
-            // Ensure $PATH contains /usr/bin
-            process.env['PATH'] = !process.env['PATH']
-                ? '/usr/bin'
-                : `${process.env['PATH']}:/usr/bin`;
-            let exitCode = -1;
-            if (constants_1.EavesdropMustRun) {
-                // Here for `ci: true` or `ci:only`
-                // TODO: what to do when status code != 0
-                exitCode = await exec.exec('sudo', [
-                    '-E',
-                    lstn,
-                    ...eavesdropTool.getCliEnablingCommand(),
-                    ...flags.parse(lstnFlags)
-                ]);
-                const didClassify = await eavesdropTool.classifyEnvironmentFile();
-                if (!didClassify) {
-                    core.warning("couldn't classify the CI eavesdrop configuration variables");
-                }
-            }
-            if (!constants_1.EavesdropMustRunAlone) {
-                // Here for `ci: true` or `ci: false`
-                exitCode = await exec.exec(lstn, [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)], {
-                    cwd
-                    // TODO: ignoreReturnCode
-                    // TODO: outStream
-                });
-            }
-            return exitCode;
+            // TODO: what to do when status code != 0
+            let code = await lstn.eavesdrop(eavesdrop);
+            code = await lstn.exec();
+            return code;
         });
         // TODO: save cache here
         if (exit !== 0) {
@@ -9793,16 +9922,17 @@ async function run() {
 }
 async function post() {
     try {
-        const eavesdropTool = eavesdrop.get();
-        const isActive = await eavesdropTool.isActive();
+        const eavesdrop = eavesdropcli.get();
+        const isActive = await eavesdrop.isActive();
         if (!isActive) {
             core.info(`Moving on since the CI eavesdrop tool isn't active`);
             return;
         }
-        const exit = await eavesdropTool.stop();
+        const exit = await eavesdrop.stop();
         if (exit !== 0) {
             core.warning(`Couldn't properly stop the CI eavesdrop tool`);
         }
+        // TODO: report
     }
     catch (error) {
         core.setFailed(error);
