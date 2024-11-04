@@ -2,13 +2,11 @@ import * as os from 'os';
 import {promises as fs} from 'fs';
 import * as path from 'path';
 import * as core from '@actions/core';
-import * as exec from '@actions/exec';
 import * as io from '@actions/io';
-import * as install from './install';
-import * as flags from './flags';
 import * as utils from './utils';
 import * as state from './state';
-import * as eavesdrop from './eavesdrop';
+import * as eavesdropcli from './eavesdrop';
+import * as lstncli from './lstn';
 import {EavesdropMustRun, EavesdropMustRunAlone} from './constants';
 
 async function run() {
@@ -16,39 +14,16 @@ async function run() {
   const tmpdir = await fs.mkdtemp(path.join(runnertmp, 'lstn-'));
 
   try {
-    const jwt = core.getInput('jwt', {
-      required: EavesdropMustRun
-    });
-    const version = core.getInput('lstn');
-    const workdir = core.getInput('workdir');
-    const config = core.getInput('config');
-    const reporter = core.getInput('reporter');
-    const select = core.getInput('select');
-    const cwd = path.relative(
-      process.env['GITHUB_WORKSPACE'] || process.cwd(),
-      workdir
-    );
-    // This option is only meant for expert users and tests.
-    const lstnFlags = core.getInput('lstn_flags');
+    const lstn = lstncli.get();
+    await lstn.install(tmpdir);
 
-    const lstn = await core.group(
-      '🐬 Installing lstn... https://github.com/listendev/lstn',
-      async () => {
-        return await install.lstn(version, tmpdir);
-      }
-    );
-
-    const eavesdropTool = eavesdrop.get();
-    await eavesdropTool.install(tmpdir);
+    const eavesdrop = eavesdropcli.get();
+    await eavesdrop.install(tmpdir);
 
     // TODO: restore cache here
 
-    const lstnCommand = jwt != '' ? 'in' : 'scan';
-
-    const lstnArgs = ['--reporter', `${jwt != '' ? 'pro' : reporter}`]; // There's always a reporter (default)
-    if (select != '') {
-      lstnArgs.push(...['--select', `${select}`]);
-    }
+    // Handle lstn config
+    const config = core.getInput('config');
     if (config != '') {
       const res = await utils.checkPath(config);
       if (!res.exists) {
@@ -57,7 +32,7 @@ async function run() {
         return;
       }
       if (res.isFile) {
-        lstnArgs.push(...['--config', `${config}`]);
+        lstn.setConfig(config);
       } else {
         // The input config is a directory
         const defaultFile = path.join(config, '.lstn.yaml');
@@ -68,7 +43,7 @@ async function run() {
           return;
         }
         // Assuming that defaultFile is a proper file now
-        lstnArgs.push(...['--config', `${defaultFile}`]);
+        lstn.setConfig(defaultFile);
       }
     }
 
@@ -77,46 +52,11 @@ async function run() {
         EavesdropMustRunAlone ? ' only' : ''
       }`,
       async (): Promise<number> => {
-        // Pass tokens down
-        process.env['LSTN_GH_TOKEN'] = core.getInput('token');
-        process.env['LSTN_JWT_TOKEN'] = jwt;
-        // Ensure $PATH contains /usr/bin
-        process.env['PATH'] = !process.env['PATH']
-          ? '/usr/bin'
-          : `${process.env['PATH']}:/usr/bin`;
+        // TODO: what to do when status code != 0
+        let code = await lstn.eavesdrop(eavesdrop);
+        code = await lstn.exec();
 
-        let exitCode = -1;
-        if (EavesdropMustRun) {
-          // Here for `ci: true` or `ci:only`
-          // TODO: what to do when status code != 0
-          exitCode = await exec.exec('sudo', [
-            '-E',
-            lstn,
-            ...eavesdropTool.getCliEnablingCommand(),
-            ...flags.parse(lstnFlags)
-          ]);
-          const didClassify = await eavesdropTool.classifyEnvironmentFile();
-          if (!didClassify) {
-            core.warning(
-              "couldn't classify the CI eavesdrop configuration variables"
-            );
-          }
-        }
-
-        if (!EavesdropMustRunAlone) {
-          // Here for `ci: true` or `ci: false`
-          exitCode = await exec.exec(
-            lstn,
-            [lstnCommand, ...lstnArgs, ...flags.parse(lstnFlags)],
-            {
-              cwd
-              // TODO: ignoreReturnCode
-              // TODO: outStream
-            }
-          );
-        }
-
-        return exitCode;
+        return code;
       }
     );
 
@@ -144,18 +84,20 @@ async function run() {
 
 async function post() {
   try {
-    const eavesdropTool = eavesdrop.get();
-    const isActive = await eavesdropTool.isActive();
+    const eavesdrop = eavesdropcli.get();
+    const isActive = await eavesdrop.isActive();
     if (!isActive) {
       core.info(`Moving on since the CI eavesdrop tool isn't active`);
 
       return;
     }
 
-    const exit = await eavesdropTool.stop();
+    const exit = await eavesdrop.stop();
     if (exit !== 0) {
       core.warning(`Couldn't properly stop the CI eavesdrop tool`);
     }
+
+    // TODO: report
   } catch (error: any) {
     core.setFailed(error);
   }
