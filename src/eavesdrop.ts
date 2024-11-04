@@ -355,9 +355,13 @@ export function get(): Tool {
       return i;
     } catch (error: any) {
       core.setFailed(`Could not instantiate the eavesdrop tool.`);
-      throw new Error(error.message);
+      throw error;
     }
   }
 
-  return deserialize(core.getState(STATE_ID));
+  try {
+    return deserialize(core.getState(STATE_ID));
+  } catch (error: any) {
+    throw new Error(`Could not deserialize the eavesdrop tool instance.`);
+  }
 }
