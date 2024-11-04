@@ -1,38 +1,8 @@
-import * as path from 'path';
 import * as core from '@actions/core';
 import * as http from '@actions/http-client';
-import * as tc from '@actions/tool-cache';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
 const packageJSON = require('../package.json');
-
-export async function lstn(tag: string, directory: string): Promise<string> {
-  const owner = 'listendev';
-  const repo = 'lstn';
-  const vers = await tagToVersion(tag, owner, repo);
-  const plat = getPlat(process.platform.toString());
-  const arch = getArch(process.arch.toString());
-  const archive = getFormat(plat);
-  const name = `lstn_${vers}_${plat}_${arch}`;
-  const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
-
-  core.info(`downloading from ${url}`);
-
-  const download = await tc.downloadTool(url);
-
-  core.info(`extracting...`);
-
-  let ext = '';
-  let res = '';
-  if (archive == 'zip') {
-    res = await tc.extractZip(download, directory);
-    ext = '.exe';
-  } else {
-    res = await tc.extractTar(download, directory);
-  }
-
-  return path.join(res, name, `lstn${ext}`);
-}
 
 export function getPlat(os: string): string {
   os = os.trim().toLowerCase();
@@ -83,7 +53,7 @@ export function getArch(arch: string): string {
   return arch;
 }
 
-function getFormat(platform: string): string {
+export function getFormat(platform: string): string {
   if (platform == 'windows') {
     return 'zip';
   }
