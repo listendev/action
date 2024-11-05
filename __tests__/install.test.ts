@@ -210,6 +210,27 @@ describe('installer', () => {
   );
 
   it.skipWindows(
+    'installs custom eavesdrop tool version lt v0.8 with lstn gte v0.16.0 should error',
+    async () => {
+      const getInputSpy = jest
+        .spyOn(core, 'getInput')
+        .mockImplementation((name: string) => {
+          const data: {[key: string]: string} = {
+            lstn: 'v0.16.0',
+            eavesdrop_version: 'v0.3'
+          };
+
+          return data[name];
+        });
+
+      expect(() => new eavesdrop.Tool()).toThrow(
+        'custom eavesdrop tool version (v0.3) cannot work with lstn versions >= v0.16.0'
+      );
+    },
+    5 * 60 * 1000
+  );
+
+  it.skipWindows(
     'installs unsupported eavesdrop tool version throws',
     async () => {
       const getInputSpy = jest
