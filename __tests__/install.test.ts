@@ -7,8 +7,8 @@ process.env['RUNNER_TEMP'] = tmpdir;
 import * as io from '@actions/io';
 import * as exec from '@actions/exec';
 import * as core from '@actions/core';
-import * as installer from '../src/install';
 import * as eavesdrop from '../src/eavesdrop';
+import * as lstn from '../src/lstn';
 
 jest.mock('../src/constants', () => ({
   EavesdropMustRun: true
@@ -26,9 +26,39 @@ describe('installer', () => {
   it.skipWindows(
     'installs specific lstn version',
     async () => {
+      const getInputSpy = jest
+        .spyOn(core, 'getInput')
+        .mockImplementation((name: string) => {
+          const data: {[key: string]: string} = {
+            lstn: 'v0.3.1',
+            workdir: '.',
+            reporter: 'gh-pull-comment',
+            lstn_flags: '',
+            jwt: '12345'
+          };
+
+          return data[name];
+        });
+
+      const tool = new lstn.Tool();
+
+      expect(getInputSpy).toHaveBeenCalledWith('lstn');
+      expect(getInputSpy).toHaveBeenCalledWith('jwt', {required: true});
+      expect(getInputSpy).toHaveBeenCalledWith('reporter');
+      expect(getInputSpy).toHaveBeenCalledWith('select');
+      expect(getInputSpy).toHaveBeenCalledWith('workdir');
+      expect(getInputSpy).toHaveBeenCalledWith('lstn_flags');
+
+      expect(tool.getVersion()).toEqual('v0.3.1');
+
       const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
-      const lstn = await installer.lstn('v0.3.1', dir);
-      const out = await exec.getExecOutput(lstn, ['version']);
+
+      const res = await tool.install(dir);
+
+      expect(res.startsWith(dir)).toBe(true);
+      expect(tool.isInstalled()).toBe(true);
+
+      const out = await exec.getExecOutput(res, ['version']);
       expect(out.exitCode).toBe(0);
       expect(out.stderr.trim()).toEqual('lstn v0.3.1');
     },
@@ -38,9 +68,39 @@ describe('installer', () => {
   it.skipWindows(
     'installs the latest version of lstn',
     async () => {
+      const getInputSpy = jest
+        .spyOn(core, 'getInput')
+        .mockImplementation((name: string) => {
+          const data: {[key: string]: string} = {
+            lstn: 'latest',
+            workdir: '.',
+            reporter: 'gh-pull-comment',
+            lstn_flags: '',
+            jwt: '12345'
+          };
+
+          return data[name];
+        });
+
+      const tool = new lstn.Tool();
+
+      expect(getInputSpy).toHaveBeenCalledWith('lstn');
+      expect(getInputSpy).toHaveBeenCalledWith('jwt', {required: true});
+      expect(getInputSpy).toHaveBeenCalledWith('reporter');
+      expect(getInputSpy).toHaveBeenCalledWith('select');
+      expect(getInputSpy).toHaveBeenCalledWith('workdir');
+      expect(getInputSpy).toHaveBeenCalledWith('lstn_flags');
+
+      expect(tool.getVersion()).toEqual('latest');
+
       const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
-      const lstn = await installer.lstn('latest', dir);
-      const code = await exec.exec(lstn, ['version']);
+
+      const res = await tool.install(dir);
+
+      expect(res.startsWith(dir)).toBe(true);
+      expect(tool.isInstalled()).toBe(true);
+
+      const code = await exec.exec(res, ['version']);
       expect(code).toBe(0);
     },
     5 * 60 * 1000
