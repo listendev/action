@@ -16,7 +16,7 @@ import {EavesdropMustRun} from './constants';
 const STATE_ID = 'eavesdrop_instance';
 
 export class Tool {
-  private lstn: semver.SemVer;
+  private lstn: string;
   private version: string;
   private name: string;
   private cliEnablingCommand: string[];
@@ -37,7 +37,7 @@ export class Tool {
   }
 
   [toDeserialize](value: {
-    lstn: semver.SemVer;
+    lstn: string;
     version: string;
     name: string;
     cliEnablingCommand: string[];
@@ -60,7 +60,7 @@ export class Tool {
     'v0.13.0': 'v0.1'
   } as const;
 
-  private initCliVersion(): semver.SemVer {
+  private initCliVersion(): string {
     const versions = Object.keys(Tool.tagMap);
     const tag =
       core.getInput('lstn') == 'latest' ? versions[0] : core.getInput('lstn');
@@ -73,17 +73,16 @@ export class Tool {
       throw new Error(`unsupported lstn version (${tag})`);
     }
 
-    return version;
+    return version.format();
   }
 
   private initVersion(): string {
     if (!EavesdropMustRun) return '';
 
-    const lstnString = this.lstn.format();
     const explicit = core.getInput('eavesdrop_version');
     if (!explicit) {
       return Tool.tagMap[
-        lstnString.startsWith('v') ? lstnString : `v${lstnString}`
+        this.lstn.startsWith('v') ? this.lstn : `v${this.lstn}`
       ];
     }
     const v = explicit.startsWith('v') ? explicit : `v${explicit}`;
@@ -100,9 +99,14 @@ export class Tool {
       throw new Error(`unsupported custom eavesdrop tool version (${v})`);
     }
 
+    const lstnv = semver.coerce(this.lstn);
+    if (!lstnv || !semver.valid(lstnv)) {
+      throw new Error(`invalid lstn version (${this.lstn})`);
+    }
+
     // Check that the explicit version is compatible with the current lstn version
     if (!semver.eq(custom, 'v0.0.0')) {
-      if (semver.gte(this.lstn, 'v0.16.0')) {
+      if (semver.gte(lstnv, 'v0.16.0')) {
         // At least lstn v0.16.0 for eavesdrop tool versions >= v0.8
         if (semver.lt(custom, 'v0.8.0')) {
           throw new Error(
@@ -119,7 +123,7 @@ export class Tool {
       }
     } else {
       // Nightly (v0.0) only works with lstn >= v0.16.0
-      if (semver.lt(this.lstn, 'v0.16.0')) {
+      if (semver.lt(lstnv, 'v0.16.0')) {
         throw new Error(
           `nightly eavesdrop tool version (${v}) cannot work with lstn versions < v0.16.0`
         );
@@ -151,8 +155,13 @@ export class Tool {
   private initCliEnablingCommand(): string[] {
     if (!EavesdropMustRun) return [];
 
+    const lstnv = semver.coerce(this.lstn);
+    if (!lstnv || !semver.valid(lstnv)) {
+      throw new Error(`invalid lstn version (${this.lstn})`);
+    }
+
     // Switch to `ci enable` from lstn v0.16.0 onwards
-    if (semver.gte(this.lstn, 'v0.16.0')) {
+    if (semver.gte(lstnv, 'v0.16.0')) {
       return ['ci', 'enable'];
     }
 
