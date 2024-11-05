@@ -11,7 +11,7 @@ import * as io from '@actions/io';
 import * as fs from 'fs';
 import * as state from './state';
 import {Serializer, toSerialize, toDeserialize} from 'superserial';
-import {EavesdropMustRun} from './constants';
+import {EavesdropMustRun, TagMap} from './constants';
 
 const STATE_ID = 'eavesdrop_instance';
 
@@ -50,18 +50,8 @@ export class Tool {
     this.installed = value.installed;
   }
 
-  // tagMap maps the lstn tags to the eavesdrop tool versions.
-  private static tagMap: Record<string, string> = {
-    'v0.16.0': 'v0.8',
-    'v0.15.0': 'v0.6',
-    'v0.14.0': 'v0.4',
-    'v0.13.2': 'v0.3',
-    'v0.13.1': 'v0.1',
-    'v0.13.0': 'v0.1'
-  } as const;
-
   private initCliVersion(): string {
-    const versions = Object.keys(Tool.tagMap);
+    const versions = Object.keys(TagMap);
     const tag =
       core.getInput('lstn') == 'latest' ? versions[0] : core.getInput('lstn');
     const version = semver.coerce(tag);
@@ -81,9 +71,7 @@ export class Tool {
 
     const explicit = core.getInput('eavesdrop_version');
     if (!explicit) {
-      return Tool.tagMap[
-        this.lstn.startsWith('v') ? this.lstn : `v${this.lstn}`
-      ];
+      return TagMap[this.lstn.startsWith('v') ? this.lstn : `v${this.lstn}`];
     }
     const v = explicit.startsWith('v') ? explicit : `v${explicit}`;
 
@@ -92,10 +80,7 @@ export class Tool {
       throw new Error(`invalid custom eavesdrop tool version (${custom})`);
     }
 
-    if (
-      !semver.eq(custom, 'v0.0.0') &&
-      !Object.values(Tool.tagMap).includes(v)
-    ) {
+    if (!semver.eq(custom, 'v0.0.0') && !Object.values(TagMap).includes(v)) {
       throw new Error(`unsupported custom eavesdrop tool version (${v})`);
     }
 
