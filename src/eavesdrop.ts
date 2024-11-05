@@ -121,7 +121,7 @@ export class Tool {
       // Nightly (v0.0) only works with lstn >= v0.16.0
       if (semver.lt(this.lstn, 'v0.16.0')) {
         throw new Error(
-          `custom eavesdrop tool version (${v}) cannot work with lstn versions < v0.16.0`
+          `nightly eavesdrop tool version (${v}) cannot work with lstn versions < v0.16.0`
         );
       }
     }
