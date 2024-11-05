@@ -1,18 +1,14 @@
-import * as os from 'os';
-import {promises as fs} from 'fs';
-import * as path from 'path';
 import * as core from '@actions/core';
-import * as io from '@actions/io';
 import * as utils from './utils';
 import * as state from './state';
 import * as eavesdropcli from './eavesdrop';
 import * as lstncli from './lstn';
 import {EavesdropMustRun, EavesdropMustRunAlone} from './constants';
+import * as path from 'path';
+import * as io from '@actions/io';
 
 async function run() {
-  const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
-  const tmpdir = await fs.mkdtemp(path.join(runnertmp, 'lstn-'));
-
+  const tmpdir = await state.tmpdir();
   try {
     const lstn = lstncli.get();
     await lstn.install(tmpdir);
@@ -67,22 +63,11 @@ async function run() {
     }
   } catch (error: any) {
     core.setFailed(error);
-  } finally {
-    // Cleanup
-    try {
-      await io.rmRF(tmpdir);
-    } catch (error) {
-      // Suppress these errors
-      if (error instanceof Error) {
-        core.info(`Couldn't clean up: ${error.message}`);
-      } else {
-        core.info(`Couldn't clean up: ${error}`);
-      }
-    }
   }
 }
 
 async function post() {
+  const tmpdir = await state.tmpdir();
   try {
     const eavesdrop = eavesdropcli.get();
     const isActive = await eavesdrop.isActive();
@@ -100,6 +85,19 @@ async function post() {
     // TODO: report
   } catch (error: any) {
     core.setFailed(error);
+  } finally {
+    // Cleanup
+    try {
+      core.info('Cleaning up');
+      await io.rmRF(tmpdir);
+    } catch (error) {
+      // Suppress these errors
+      if (error instanceof Error) {
+        core.warning(`Couldn't clean up: ${error.message}`);
+      } else {
+        core.warning(`Couldn't clean up: ${error}`);
+      }
+    }
   }
 }
 
