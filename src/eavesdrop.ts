@@ -16,6 +16,7 @@ import {EavesdropMustRun} from './constants';
 const STATE_ID = 'eavesdrop_instance';
 
 export class Tool {
+  private lstn: semver.SemVer;
   private version: string;
   private name: string;
   private cliEnablingCommand: string[];
@@ -27,6 +28,7 @@ export class Tool {
 
   [toSerialize]() {
     return {
+      lstn: this.lstn,
       version: this.version,
       name: this.name,
       cliEnablingCommand: this.cliEnablingCommand,
@@ -35,11 +37,13 @@ export class Tool {
   }
 
   [toDeserialize](value: {
+    lstn: semver.SemVer;
     version: string;
     name: string;
     cliEnablingCommand: string[];
     installed: boolean;
   }) {
+    this.lstn = value.lstn;
     this.version = value.version;
     this.name = value.name;
     this.cliEnablingCommand = value.cliEnablingCommand;
@@ -48,7 +52,6 @@ export class Tool {
 
   // tagMap maps the lstn tags to the eavesdrop tool versions.
   private static tagMap: Record<string, string> = {
-    latest: 'v0.8',
     'v0.16.0': 'v0.8',
     'v0.15.0': 'v0.6',
     'v0.14.0': 'v0.4',
@@ -57,26 +60,83 @@ export class Tool {
     'v0.13.0': 'v0.1'
   } as const;
 
-  private getTagFromCliTag(lstnTag: string): string {
-    if (!EavesdropMustRun) return '';
-
-    if (!Object.keys(Tool.tagMap).includes(lstnTag)) {
-      throw new Error(`missing eavesdrop tool version for lstn ${lstnTag}`);
-    }
-
-    return Tool.tagMap[lstnTag];
-  }
-
-  private getNameFromTag(tag: string): string {
-    if (!EavesdropMustRun) return '';
-
-    if (!Object.values(Tool.tagMap).includes(tag)) {
-      throw new Error(`missing eavesdrop tool version (${tag})`);
-    }
-
+  private initCliVersion(): semver.SemVer {
+    const versions = Object.keys(Tool.tagMap);
+    const tag =
+      core.getInput('lstn') == 'latest' ? versions[0] : core.getInput('lstn');
     const version = semver.coerce(tag);
     if (!version || !semver.valid(version)) {
-      throw new Error(`invalid eavesdrop tool version (${tag})`);
+      throw new Error(`invalid lstn version (${tag})`);
+    }
+
+    if (!versions.includes(tag.startsWith('v') ? tag : `v${tag}`)) {
+      throw new Error(`unsupported lstn version (${tag})`);
+    }
+
+    return version;
+  }
+
+  private initVersion(): string {
+    if (!EavesdropMustRun) return '';
+
+    const lstnString = this.lstn.format();
+    const explicit = core.getInput('eavesdrop_version');
+    if (!explicit) {
+      return Tool.tagMap[
+        lstnString.startsWith('v') ? lstnString : `v${lstnString}`
+      ];
+    }
+    const v = explicit.startsWith('v') ? explicit : `v${explicit}`;
+
+    const custom = semver.coerce(v);
+    if (!custom || !semver.valid(custom)) {
+      throw new Error(`invalid custom eavesdrop tool version (${custom})`);
+    }
+
+    if (
+      !semver.eq(custom, 'v0.0.0') &&
+      !Object.values(Tool.tagMap).includes(v)
+    ) {
+      throw new Error(`unsupported custom eavesdrop tool version (${v})`);
+    }
+
+    // Check that the explicit version is compatible with the current lstn version
+    if (!semver.eq(custom, 'v0.0.0')) {
+      if (semver.gte(this.lstn, 'v0.16.0')) {
+        // At least lstn v0.16.0 for eavesdrop tool versions >= v0.8
+        if (semver.lt(custom, 'v0.8.0')) {
+          throw new Error(
+            `custom eavesdrop tool version (${v}) cannot work with lstn versions >= v0.16.0`
+          );
+        }
+      } else {
+        // Max lstn v0.15.0 for custom eavesdrop versions up to v0.6
+        if (semver.gte(custom, 'v0.8.0')) {
+          throw new Error(
+            `custom eavesdrop tool version (${v}) cannot work with lstn versions < v0.16.0`
+          );
+        }
+      }
+    } else {
+      // Nightly (v0.0) only works with lstn >= v0.16.0
+      if (semver.lt(this.lstn, 'v0.16.0')) {
+        throw new Error(
+          `custom eavesdrop tool version (${v}) cannot work with lstn versions < v0.16.0`
+        );
+      }
+    }
+
+    const res = custom.format();
+
+    return res.startsWith('v') ? res : `v${res}`;
+  }
+
+  private initName(): string {
+    if (!EavesdropMustRun) return '';
+
+    const version = semver.coerce(this.version);
+    if (!version || !semver.valid(version)) {
+      throw new Error(`invalid eavesdrop tool version (${this.version})`);
     }
 
     // Switch to jibril from v0.8 onwards
@@ -88,25 +148,11 @@ export class Tool {
     return 'argus';
   }
 
-  private getCliEnablingCommandFromCliTag(lstnTag: string): string[] {
+  private initCliEnablingCommand(): string[] {
     if (!EavesdropMustRun) return [];
 
-    if (!Object.keys(Tool.tagMap).includes(lstnTag)) {
-      throw new Error(`missing eavesdrop tool version for lstn ${lstnTag}`);
-    }
-
-    // Use `ci enable` for latest CLI
-    if (lstnTag == 'latest') {
-      return ['ci', 'enable'];
-    }
-
-    const version = semver.coerce(lstnTag);
-    if (!version || !semver.valid(version)) {
-      throw new Error(`invalid lstn version (${lstnTag})`);
-    }
-
     // Switch to `ci enable` from lstn v0.16.0 onwards
-    if (semver.gte(version, 'v0.16.0')) {
+    if (semver.gte(this.lstn, 'v0.16.0')) {
       return ['ci', 'enable'];
     }
 
@@ -160,9 +206,18 @@ export class Tool {
         throw new Error(`unsupported arch: ${arch}`);
     }
 
+    const tag = semver.coerce(this.version);
+    if (!tag || !semver.valid(tag)) {
+      throw new Error(`invalid eavesdrop version to download (${tag})`);
+    }
+
     const owner = 'listendev';
     const repo = `${this.name}-releases`;
-    const vers = await tagToVersion(this.version, owner, repo);
+    const vers = await tagToVersion(
+      `v${semver.major(tag)}.${semver.minor(tag)}`,
+      owner,
+      repo
+    );
     const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/loader`;
 
     core.info(`downloading from ${url}`);
@@ -179,14 +234,10 @@ export class Tool {
   }
 
   constructor() {
-    const lstnTag = core.getInput('lstn');
-    const explicitEavesdropToolTag = core.getInput('eavesdrop_version');
-
-    this.version = !explicitEavesdropToolTag
-      ? this.getTagFromCliTag(lstnTag)
-      : explicitEavesdropToolTag;
-    this.name = this.getNameFromTag(this.version);
-    this.cliEnablingCommand = this.getCliEnablingCommandFromCliTag(lstnTag);
+    this.lstn = this.initCliVersion();
+    this.version = this.initVersion();
+    this.name = this.initName();
+    this.cliEnablingCommand = this.initCliEnablingCommand();
   }
 
   public getVersion(): string {
