@@ -194,7 +194,7 @@ describe('installer', () => {
       expect(getInputSpy).toHaveBeenCalledWith('eavesdrop_version');
 
       expect(tool.getVersion()).toEqual('v0.3.0');
-      expect(tool.getCliEnablingCommand()).toEqual(['ci', 'enable']);
+      expect(tool.getCliEnablingCommand()).toEqual(['ci']);
       expect(tool.getName()).toEqual('argus');
 
       const fileDir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
@@ -209,7 +209,7 @@ describe('installer', () => {
     5 * 60 * 1000
   );
 
-  it.skipWindows(
+  it.onLinux(
     'installs nightly eavesdrop tool version with lstn gte v0.16.0',
     async () => {
       const getInputSpy = jest
