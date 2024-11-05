@@ -9143,7 +9143,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.TagMap = exports.EavesdropMustRun = exports.EavesdropMustRunAlone = void 0;
+exports.EavesdropMustRun = exports.EavesdropMustRunAlone = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 /**
  * EavesdropMustRunAlone is true when the eavesdrop tool is the only one that must run.
@@ -9153,17 +9153,6 @@ exports.EavesdropMustRunAlone = core.getInput('ci') == 'only';
  * EavesdropMustRun is true when the eavesdrop tool will run, either alone or together with other tools.
  */
 exports.EavesdropMustRun = core.getInput('ci') == 'true' || exports.EavesdropMustRunAlone;
-/**
- * TagMap maps the lstn tags to the eavesdrop tool versions.
- */
-exports.TagMap = {
-    'v0.16.0': 'v0.8',
-    'v0.15.0': 'v0.6',
-    'v0.14.0': 'v0.4',
-    'v0.13.2': 'v0.3',
-    'v0.13.1': 'v0.1',
-    'v0.13.0': 'v0.1'
-};
 
 
 /***/ }),
@@ -9234,7 +9223,7 @@ class Tool {
         this.installed = value.installed;
     }
     initCliVersion() {
-        const versions = Object.keys(constants_1.TagMap);
+        const versions = Object.keys(Tool.tagMap);
         const tag = core.getInput('lstn') == 'latest' ? versions[0] : core.getInput('lstn');
         const version = semver.coerce(tag);
         if (!version || !semver.valid(version)) {
@@ -9250,14 +9239,15 @@ class Tool {
             return '';
         const explicit = core.getInput('eavesdrop_version');
         if (!explicit) {
-            return constants_1.TagMap[this.lstn.startsWith('v') ? this.lstn : `v${this.lstn}`];
+            return Tool.tagMap[this.lstn.startsWith('v') ? this.lstn : `v${this.lstn}`];
         }
         const v = explicit.startsWith('v') ? explicit : `v${explicit}`;
         const custom = semver.coerce(v);
         if (!custom || !semver.valid(custom)) {
             throw new Error(`invalid custom eavesdrop tool version (${custom})`);
         }
-        if (!semver.eq(custom, 'v0.0.0') && !Object.values(constants_1.TagMap).includes(v)) {
+        if (!semver.eq(custom, 'v0.0.0') &&
+            !Object.values(Tool.tagMap).includes(v)) {
             throw new Error(`unsupported custom eavesdrop tool version (${v})`);
         }
         const lstnv = semver.coerce(this.lstn);
@@ -9487,6 +9477,15 @@ class Tool {
     }
 }
 exports.Tool = Tool;
+// tagMap maps the lstn tags to the eavesdrop tool versions.
+Tool.tagMap = {
+    'v0.16.0': 'v0.8',
+    'v0.15.0': 'v0.6',
+    'v0.14.0': 'v0.4',
+    'v0.13.2': 'v0.3',
+    'v0.13.1': 'v0.1',
+    'v0.13.0': 'v0.1'
+};
 const s = new superserial_1.Serializer({ classes: { Tool } });
 function deserialize(data) {
     return s.deserialize(data);
@@ -9706,6 +9705,7 @@ const tc = __importStar(__nccwpck_require__(7784));
 const path = __importStar(__nccwpck_require__(1017));
 const exec = __importStar(__nccwpck_require__(1514));
 const flags = __importStar(__nccwpck_require__(3252));
+const eavesdrop_1 = __nccwpck_require__(5364);
 const STATE_ID = 'lstn';
 class Tool {
     serialize() {
@@ -9733,7 +9733,7 @@ class Tool {
     }
     constructor() {
         this.path = '';
-        const versions = Object.keys(constants_1.TagMap);
+        const versions = Object.keys(eavesdrop_1.Tool.tagMap);
         this.version =
             core.getInput('lstn') == 'latest' ? versions[0] : core.getInput('lstn');
         this.jwt = core.getInput('jwt', { required: constants_1.EavesdropMustRun });

@@ -1,14 +1,13 @@
 import {Serializer, toSerialize, toDeserialize} from 'superserial';
 import * as state from './state';
 import * as core from '@actions/core';
-import {EavesdropMustRun, EavesdropMustRunAlone, TagMap} from './constants';
+import {EavesdropMustRun, EavesdropMustRunAlone} from './constants';
 import {getArch, getFormat, getPlat, tagToVersion} from './install';
 import * as tc from '@actions/tool-cache';
 import * as path from 'path';
 import * as exec from '@actions/exec';
 import * as flags from './flags';
 import {Tool as Eavesdrop} from './eavesdrop';
-import * as semver from 'semver';
 
 const STATE_ID = 'lstn';
 
@@ -56,7 +55,7 @@ export class Tool {
   }
 
   constructor() {
-    const versions = Object.keys(TagMap);
+    const versions = Object.keys(Eavesdrop.tagMap);
     this.version =
       core.getInput('lstn') == 'latest' ? versions[0] : core.getInput('lstn');
 
