@@ -91,7 +91,7 @@ describe('installer', () => {
       expect(getInputSpy).toHaveBeenCalledWith('workdir');
       expect(getInputSpy).toHaveBeenCalledWith('lstn_flags');
 
-      expect(tool.getVersion()).toEqual('latest');
+      expect(tool.getVersion()).toEqual(Object.keys(eavesdrop.Tool.tagMap)[0]);
 
       const dir = await fs.mkdtemp(path.join(tmpdir, 'lstn-'));
 
