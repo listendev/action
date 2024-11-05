@@ -175,13 +175,13 @@ describe('installer', () => {
   );
 
   it.onLinux(
-    'installs custom eavesdrop tool version',
+    'installs custom eavesdrop tool version lt v0.8',
     async () => {
       const getInputSpy = jest
         .spyOn(core, 'getInput')
         .mockImplementation((name: string) => {
           const data: {[key: string]: string} = {
-            lstn: 'latest',
+            lstn: 'v0.15.0',
             eavesdrop_version: 'v0.3'
           };
 
@@ -224,7 +224,7 @@ describe('installer', () => {
         });
 
       expect(() => new eavesdrop.Tool()).toThrow(
-        `missing eavesdrop tool version (v0.2)`
+        `unsupported custom eavesdrop tool version (v0.2)`
       );
     },
     5 * 60 * 1000
