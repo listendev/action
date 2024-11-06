@@ -9706,6 +9706,7 @@ const path = __importStar(__nccwpck_require__(1017));
 const exec = __importStar(__nccwpck_require__(1514));
 const flags = __importStar(__nccwpck_require__(3252));
 const eavesdrop_1 = __nccwpck_require__(5364);
+const semver = __importStar(__nccwpck_require__(1383));
 const STATE_ID = 'lstn';
 class Tool {
     serialize() {
@@ -9796,6 +9797,29 @@ class Tool {
             // TODO: ignoreReturnCode
             // TODO: outStream
         });
+    }
+    async report() {
+        if (!constants_1.EavesdropMustRun) {
+            return 0;
+        }
+        if (!this.isInstalled()) {
+            core.warning('missing lstn CLI installation');
+            return 0;
+        }
+        // Check CLI version >= 0.16.0
+        const version = semver.coerce(this.version);
+        if (!version || !semver.valid(version)) {
+            throw new Error(`invalid lstn version (${this.version})`);
+        }
+        if (semver.lt(version, 'v0.16.0')) {
+            core.warning(`Coulnd't report because lstn ${this.version} lacks this ability`);
+            return 0;
+        }
+        this.setEnv();
+        const res = await core.group('Report runtime threats if possible', async () => {
+            return await exec.exec(this.path, ['ci', 'report']);
+        });
+        return res;
     }
     async eavesdrop(eavesdrop) {
         if (!constants_1.EavesdropMustRun) {
@@ -9958,7 +9982,11 @@ async function post() {
         if (exit !== 0) {
             core.warning(`Couldn't properly stop the CI eavesdrop tool`);
         }
-        // TODO: report
+        const lstn = lstncli.get();
+        const reportExitCode = await lstn.report();
+        if (reportExitCode !== 0) {
+            core.warning(`Couldn't comment on the pull request`);
+        }
     }
     catch (error) {
         core.setFailed(error);
