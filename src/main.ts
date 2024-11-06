@@ -82,7 +82,11 @@ async function post() {
       core.warning(`Couldn't properly stop the CI eavesdrop tool`);
     }
 
-    // TODO: report
+    const lstn = lstncli.get();
+    const reportExitCode = await lstn.report();
+    if (reportExitCode !== 0) {
+      core.warning(`Couldn't comment on the pull request`)
+    }
   } catch (error: any) {
     core.setFailed(error);
   } finally {
