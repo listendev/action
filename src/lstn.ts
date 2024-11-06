@@ -8,6 +8,7 @@ import * as path from 'path';
 import * as exec from '@actions/exec';
 import * as flags from './flags';
 import {Tool as Eavesdrop} from './eavesdrop';
+import * as semver from 'semver';
 
 const STATE_ID = 'lstn';
 
@@ -145,6 +146,40 @@ export class Tool {
         // TODO: outStream
       }
     );
+  }
+
+  public async report() {
+    if (!EavesdropMustRun) {
+      return 0;
+    }
+
+    if (!this.isInstalled()) {
+      core.warning('missing lstn CLI installation');
+      return 0;
+    }
+
+    // Check CLI version >= 0.16.0
+    const version = semver.coerce(this.version);
+    if (!version || !semver.valid(version)) {
+      throw new Error(`invalid lstn version (${this.version})`);
+    }
+    if (semver.lt(version, 'v0.16.0')) {
+      core.warning(
+        `Coulnd't report because lstn ${this.version} lacks this ability`
+      );
+      return 0;
+    }
+
+    this.setEnv();
+
+    const res = await core.group(
+      'Report runtime threats if possible',
+      async (): Promise<number> => {
+        return await exec.exec(this.path, ['ci', 'report']);
+      }
+    );
+
+    return res;
   }
 
   public async eavesdrop(eavesdrop: Eavesdrop) {
