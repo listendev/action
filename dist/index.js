@@ -9891,19 +9891,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const os = __importStar(__nccwpck_require__(2037));
-const fs_1 = __nccwpck_require__(7147);
-const path = __importStar(__nccwpck_require__(1017));
 const core = __importStar(__nccwpck_require__(2186));
-const io = __importStar(__nccwpck_require__(7436));
 const utils = __importStar(__nccwpck_require__(1314));
 const state = __importStar(__nccwpck_require__(9738));
 const eavesdropcli = __importStar(__nccwpck_require__(5364));
 const lstncli = __importStar(__nccwpck_require__(6611));
 const constants_1 = __nccwpck_require__(9042);
+const path = __importStar(__nccwpck_require__(1017));
+const io = __importStar(__nccwpck_require__(7436));
 async function run() {
-    const runnertmp = process.env['RUNNER_TEMP'] || os.tmpdir();
-    const tmpdir = await fs_1.promises.mkdtemp(path.join(runnertmp, 'lstn-'));
+    const tmpdir = await state.tmpdir();
     try {
         const lstn = lstncli.get();
         await lstn.install(tmpdir);
@@ -9947,23 +9944,9 @@ async function run() {
     catch (error) {
         core.setFailed(error);
     }
-    finally {
-        // Cleanup
-        try {
-            await io.rmRF(tmpdir);
-        }
-        catch (error) {
-            // Suppress these errors
-            if (error instanceof Error) {
-                core.info(`Couldn't clean up: ${error.message}`);
-            }
-            else {
-                core.info(`Couldn't clean up: ${error}`);
-            }
-        }
-    }
 }
 async function post() {
+    const tmpdir = await state.tmpdir();
     try {
         const eavesdrop = eavesdropcli.get();
         const isActive = await eavesdrop.isActive();
@@ -9979,6 +9962,22 @@ async function post() {
     }
     catch (error) {
         core.setFailed(error);
+    }
+    finally {
+        // Cleanup
+        try {
+            core.info('Cleaning up');
+            await io.rmRF(tmpdir);
+        }
+        catch (error) {
+            // Suppress these errors
+            if (error instanceof Error) {
+                core.warning(`Couldn't clean up: ${error.message}`);
+            }
+            else {
+                core.warning(`Couldn't clean up: ${error}`);
+            }
+        }
     }
 }
 if (!state.IsPost) {
@@ -10020,8 +10019,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.IsPost = void 0;
+exports.tmpdir = exports.IsPost = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const os = __importStar(__nccwpck_require__(2037));
+const fs_1 = __nccwpck_require__(7147);
+const path = __importStar(__nccwpck_require__(1017));
 /**
  * Indicates whether the POST action is running
  */
@@ -10031,6 +10033,15 @@ exports.IsPost = !!core.getState('isPost');
 if (!exports.IsPost) {
     core.saveState('isPost', 'true');
 }
+async function tmpdir() {
+    if (!exports.IsPost) {
+        const tmpdir = await fs_1.promises.mkdtemp(path.join(process.env['RUNNER_TEMP'] || os.tmpdir(), 'lstn-'));
+        core.saveState('LSTN_ACTION_TMPDIR', tmpdir);
+        return tmpdir;
+    }
+    return core.getState('LSTN_ACTION_TMPDIR');
+}
+exports.tmpdir = tmpdir;
 
 
 /***/ }),
