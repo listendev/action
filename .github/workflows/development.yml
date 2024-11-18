@@ -20,7 +20,7 @@ jobs:
       # Self inspect ourselves
       - uses: ./
         with:
-          ci: true
+          runtime: true
           jwt: ${{ secrets.LISTENDEV_TOKEN }}
 
       - name: Debug

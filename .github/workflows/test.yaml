@@ -108,7 +108,7 @@ jobs:
         uses: ./
         with:
           jwt: 'xxx.yyy.zzz' #  NOTE: do not do this, use a secret
-          ci: true
+          runtime: true
           lstn_flags: '--debug-options'
 
       # We wanna point the action to a directory that DOES NOT contain any lock file
@@ -118,7 +118,7 @@ jobs:
         with:
           jwt: 'xxx.yyy.zzz' #  NOTE: do not do this, use a secret
           workdir: '__tests__/testdata/nolockfiles'
-          ci: only
+          runtime: only
           lstn_flags: '--debug-options'
 
       - name: Self run (custom reporter)
