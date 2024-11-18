@@ -9148,11 +9148,11 @@ const core = __importStar(__nccwpck_require__(2186));
 /**
  * EavesdropMustRunAlone is true when the eavesdrop tool is the only one that must run.
  */
-exports.EavesdropMustRunAlone = core.getInput('ci') == 'only';
+exports.EavesdropMustRunAlone = core.getInput('runtime') == 'only';
 /**
  * EavesdropMustRun is true when the eavesdrop tool will run, either alone or together with other tools.
  */
-exports.EavesdropMustRun = core.getInput('ci') == 'true' || exports.EavesdropMustRunAlone;
+exports.EavesdropMustRun = core.getInput('runtime') == 'true' || exports.EavesdropMustRunAlone;
 
 
 /***/ }),
