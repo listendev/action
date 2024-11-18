@@ -14,8 +14,8 @@ inputs:
     description: "The lstn CLI version."
     required: false
     default: "latest"
-  ci:
-    description: "Whether to run the CI eavesdrop tool or not. It works with the listen.dev JWT token."
+  runtime:
+    description: "Whether to only or also use our eavesdrop tool to inspect the runtime threats in your CI. A listen.dev JWT token is mandatory."
     required: false
     default: "false"
   workdir:
