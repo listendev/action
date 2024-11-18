@@ -14,7 +14,7 @@ See [action.yml](action.yml).
 steps:
   - uses: listendev/action@v0.12
     with:
-      ci: only
+      runtime: only
       jwt: ${{ secrets.LSTN_API_KEY }}
 ```
 
@@ -30,10 +30,10 @@ steps:
       # The listen.dev JWT token.
       # Defaults to empty string.
       jwt: ${{ secrets.MY_JWT_TOKEN }}
-      # Whether to enable the CI eavesdrop tool or not.
+      # Whether to enable the eavesdrop tool or not to inspect the runtime threats in your CI.
       # Works only on linux runners. Requires a valid `jwt` option.
       # Defaults to false.
-      ci: "true|false|only"
+      runtime: "true|false|only"
       # The lstn version.
       # Defaults to the latest lstn release tag (recommended).
       lstn: "vX.Y.Z"
@@ -59,13 +59,13 @@ Just [create a secret](https://docs.github.com/en/actions/security-guides/using-
 steps:
   - uses: listendev/action@v0.12
     with:
-      ci: true
+      runtime: true
       jwt: ${{ secrets.MY_LISTENDEV_JWT }}
 ```
 
 When the action notices that the [listen.dev](https://listen.dev) JWT secret exists, it will automatically override the reporter to the `pro` one.
 
-Because of the `ci` option set to `true`, it will also start the CI eavesdrop tool under the hoods.
+Because of the `runtime` option set to `true`, it will also start the CI eavesdrop tool under the hoods.
 
 Notice it only works on linux runners.
 
@@ -98,7 +98,7 @@ So, you only want it to eavesdrop for runtime threats...
 steps:
   - uses: listendev/action@v0.12
     with:
-      ci: only
+      runtime: only
       jwt: ${{ secrets.MY_JWT }}
 ```
 
