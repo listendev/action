@@ -9239,16 +9239,21 @@ class Tool {
             return '';
         const explicit = core.getInput('eavesdrop_version');
         if (!explicit) {
-            return Tool.tagMap[this.lstn.startsWith('v') ? this.lstn : `v${this.lstn}`];
+            const versions = Tool.tagMap[this.lstn.startsWith('v') ? this.lstn : `v${this.lstn}`];
+            if (versions.length === 0) {
+                throw new Error(`no eavesdrop tool versions found for lstn version (${this.lstn})`);
+            }
+            return versions.at(-1);
         }
+        // Handle custom eavesdrop versions
         const v = explicit.startsWith('v') ? explicit : `v${explicit}`;
         const custom = semver.coerce(v);
         if (!custom || !semver.valid(custom)) {
             throw new Error(`invalid custom eavesdrop tool version (${custom})`);
         }
-        if (!semver.eq(custom, 'v0.0.0') &&
-            !Object.values(Tool.tagMap).includes(v)) {
-            throw new Error(`unsupported custom eavesdrop tool version (${v})`);
+        const allEavesdropVersions = Object.values(Tool.tagMap).reduce((acc, val) => acc.concat(val), []);
+        if (!semver.eq(custom, 'v0.0.0') && !allEavesdropVersions.includes(v)) {
+            throw new Error(`unsupported custom eavesdrop tool version (${v}): available versions are [${allEavesdropVersions.join(', ')}]`);
         }
         const lstnv = semver.coerce(this.lstn);
         if (!lstnv || !semver.valid(lstnv)) {
@@ -9479,12 +9484,12 @@ class Tool {
 exports.Tool = Tool;
 // tagMap maps the lstn tags to the eavesdrop tool versions.
 Tool.tagMap = {
-    'v0.16.0': 'v0.8',
-    'v0.15.0': 'v0.6',
-    'v0.14.0': 'v0.4',
-    'v0.13.2': 'v0.3',
-    'v0.13.1': 'v0.1',
-    'v0.13.0': 'v0.1'
+    'v0.16.0': ['v0.8', 'v0.9'],
+    'v0.15.0': ['v0.6'],
+    'v0.14.0': ['v0.4'],
+    'v0.13.2': ['v0.3'],
+    'v0.13.1': ['v0.1'],
+    'v0.13.0': ['v0.1']
 };
 const s = new superserial_1.Serializer({ classes: { Tool } });
 function deserialize(data) {
