@@ -60,7 +60,7 @@ steps:
   - uses: listendev/action@v0.12
     with:
       runtime: true
-      jwt: ${{ secrets.MY_LISTENDEV_JWT }}
+      jwt: ${{ secrets.LSTN_API_KEY }}
 ```
 
 When the action notices that the [listen.dev](https://listen.dev) JWT secret exists, it will automatically override the reporter to the `pro` one.
@@ -82,7 +82,7 @@ It's _recommended_ to regenerate the JWT token for every release, until we will 
 steps:
   - uses: listendev/action@v0.12
     with:
-      jwt: ${{ secrets.MY_JWT }}
+      jwt: ${{ secrets.LSTN_API_KEY }}
       lstn_flags: "--reporter gh-pull-comment"
 ```
 </details>
@@ -99,7 +99,7 @@ steps:
   - uses: listendev/action@v0.12
     with:
       runtime: only
-      jwt: ${{ secrets.MY_JWT }}
+      jwt: ${{ secrets.LSTN_API_KEY }}
 ```
 
 Let's say you want the verdicts in JSON format...
@@ -137,7 +137,7 @@ steps:
 To develop this GitHub action you first need to install its dependencies:
 
 ```bash
-npm run i
+npm install
 ```
 
 You can then use `npm run build` to compile it. Also, remember that we check on every pull request that you've run this command, as to avoid the `dist/` directory to be out of sync.
