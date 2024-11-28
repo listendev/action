@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: '27 15 * * 1'
+    - cron: '0 8 * * 1' # every Monday at 8am
 
 jobs:
   call-codeql-analysis:
