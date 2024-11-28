@@ -1,7 +1,7 @@
 name: distribution
 
-# This workflow ensures that the generated contents of the dist directory match what they are expected to be. 
-# For actions that follow our TypeScript or JavaScript templates, dist contains the packaged script that is executed by the runner. 
+# This workflow ensures that the generated contents of the dist directory match what they are expected to be.
+# For actions that follow our TypeScript or JavaScript templates, dist contains the packaged script that is executed by the runner.
 # Whenever you update the source code, the dist files must be regenerated for the changes to take effect.
 
 on:
