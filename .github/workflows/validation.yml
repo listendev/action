@@ -1,6 +1,6 @@
 name: validation
 
-# This workflow compiles and tests the code in the repo. It also checks that it passes linting and formatting rules. 
+# This workflow compiles and tests the code in the repo. It also checks that it passes linting and formatting rules.
 # Optionally, it can run npm audit on the packages in the repo.
 
 on:
