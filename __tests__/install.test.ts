@@ -158,7 +158,7 @@ describe('installer', () => {
       expect(getInputSpy).toHaveBeenCalledWith('lstn');
       expect(getInputSpy).toHaveBeenCalledWith('eavesdrop_version');
 
-      expect(tool.getVersion()).toEqual('v0.8');
+      expect(tool.getVersion()).toEqual('v1.0');
       expect(tool.getCliEnablingCommand()).toEqual(['ci', 'enable']);
       expect(tool.getName()).toEqual('jibril');
 
@@ -273,14 +273,14 @@ describe('installer', () => {
         .mockImplementation((name: string) => {
           const data: {[key: string]: string} = {
             lstn: 'v0.15.0',
-            eavesdrop_version: 'v0.8'
+            eavesdrop_version: 'v1.0'
           };
 
           return data[name];
         });
 
       expect(() => new eavesdrop.Tool()).toThrow(
-        'custom eavesdrop tool version (v0.8) cannot work with lstn versions < v0.16.0'
+        'custom eavesdrop tool version (v1.0) cannot work with lstn versions < v0.16.0'
       );
     },
     5 * 60 * 1000
