@@ -9,6 +9,8 @@ import * as exec from '@actions/exec';
 import * as flags from './flags';
 import {Tool as Eavesdrop} from './eavesdrop';
 import * as semver from 'semver';
+import axios from 'axios';
+import * as fs from 'fs';
 
 const STATE_ID = 'lstn';
 
@@ -104,22 +106,50 @@ export class Tool {
         const arch = getArch(process.arch.toString());
         const archive = getFormat(plat);
         const name = `lstn_${vers}_${plat}_${arch}`;
-        const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
+        // const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
+        const url = `https://github.com/listendev/lstn/actions/runs/12201849875/artifacts/2285619210`;
 
         core.info(`downloading from ${url}`);
 
-        const download = await tc.downloadTool(url);
+        const filePath = path.resolve(__dirname, 'lstn.zip'); // Change the filename as needed
+        const downloadFile = async (url: string, destination: string) => {
+          const writer = fs.createWriteStream(destination);
+
+          const response = await axios.get(url, {
+            headers: {Authorization: `Bearer ${process.env.GITHUB_TOKEN}`},
+            responseType: 'stream'
+          });
+
+          return new Promise<void>((resolve, reject) => {
+            response.data.pipe(writer);
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+          });
+        };
+
+        downloadFile(url, filePath)
+          .then(() =>
+            console.log(`File downloaded successfully to ${filePath}`)
+          )
+          .catch(error =>
+            console.error(`Error downloading file: ${error.message}`)
+          );
+        // const download = await tc.downloadTool(url);
 
         core.info(`extracting...`);
 
+        const res = await tc.extractZip(filePath, tmpdir);
         let ext = '';
-        let res = '';
-        if (archive == 'zip') {
-          res = await tc.extractZip(download, tmpdir);
-          ext = '.exe';
-        } else {
-          res = await tc.extractTar(download, tmpdir);
-        }
+
+        core.info(`extracted to ${res}`);
+
+        // let res = '';
+        // if (archive == 'zip') {
+        //   res = await tc.extractZip(filePath, tmpdir);
+        //   // ext = '.exe';
+        // } else {
+        //   res = await tc.extractTar(download, tmpdir);
+        // }
 
         return path.join(res, name, `lstn${ext}`);
       }

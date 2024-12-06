@@ -9768,7 +9768,8 @@ class Tool {
             const arch = (0, install_1.getArch)(process.arch.toString());
             const archive = (0, install_1.getFormat)(plat);
             const name = `lstn_${vers}_${plat}_${arch}`;
-            const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
+            // const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
+            const url = ` https://github.com/listendev/lstn/actions/runs/12201849875/artifacts/2285619210`;
             core.info(`downloading from ${url}`);
             const download = await tc.downloadTool(url);
             core.info(`extracting...`);
@@ -9776,7 +9777,7 @@ class Tool {
             let res = '';
             if (archive == 'zip') {
                 res = await tc.extractZip(download, tmpdir);
-                ext = '.exe';
+                // ext = '.exe';
             }
             else {
                 res = await tc.extractTar(download, tmpdir);
