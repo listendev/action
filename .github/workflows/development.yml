@@ -23,6 +23,7 @@ jobs:
           runtime: true
           jwt: ${{ secrets.LISTENDEV_TOKEN }}
 
+<<<<<<< HEAD
       - name: Self inspect with nightly (private) CLI
         uses: ./
         with:
@@ -32,6 +33,18 @@ jobs:
         env:
           PAT_PVT_REPO: ${{ secrets.PAT_PVT_REPO }}
 
+||||||| parent of fd51b95 (ci: Run with nightly CLI)
+=======
+      - name: Self inspect with nightly (private) CLI
+        uses: ./
+        with:
+          runtime: only
+          jwt: ${{ secrets.LISTENDEV_TOKEN }}
+          lstn: dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+>>>>>>> fd51b95 (ci: Run with nightly CLI)
       - name: Debug
         run: |
           sudo cat /var/run/jibril/default

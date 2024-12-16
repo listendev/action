@@ -9707,6 +9707,7 @@ const exec = __importStar(__nccwpck_require__(1514));
 const flags = __importStar(__nccwpck_require__(3252));
 const eavesdrop_1 = __nccwpck_require__(5364);
 const semver = __importStar(__nccwpck_require__(1383));
+const child_process_1 = __nccwpck_require__(2081);
 const STATE_ID = 'lstn';
 class Tool {
     serialize() {
@@ -9791,6 +9792,8 @@ class Tool {
 <<<<<<< HEAD
             core.info(`downloading from ${url}`);
 <<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
             const download = await tc.downloadTool(url);
             core.info(`extracting...`);
 ||||||| parent of 5c4b4d8 (fixup! feat: Use private nightly CLI)
@@ -9819,6 +9822,74 @@ class Tool {
                     core.info(`Download completed: ${OUTPUT_FILE}`);
                     download = path.join(tmpdir, OUTPUT_FILE);
                 });
+||||||| parent of 8fe0758 (fixup! ci: Run with nightly CLI)
+            const download = await tc.downloadTool(url);
+            core.info(`extracting...`);
+            let ext = '';
+            let res = '';
+            if (archive == 'zip') {
+                res = await tc.extractZip(download, tmpdir);
+                ext = '.exe';
+=======
+            const patPvtRepo = process.env.PAT_PVT_REPO;
+            if (patPvtRepo !== undefined) {
+                core.info(`found private repo PAT`);
+            }
+            else {
+                core.warning(`missing private repo PAT`);
+            }
+            const auth = 'Authorization: Bearer ' + patPvtRepo;
+||||||| parent of 5ebcc2b (fixup! ci: Run with nightly CLI)
+            const patPvtRepo = process.env.PAT_PVT_REPO;
+            if (patPvtRepo !== undefined) {
+                core.info(`found private repo PAT`);
+            }
+            else {
+                core.warning(`missing private repo PAT`);
+            }
+            const auth = 'Authorization: Bearer ' + patPvtRepo;
+=======
+>>>>>>> 5ebcc2b (fixup! ci: Run with nightly CLI)
+            var download = '';
+            if (this.version == 'dev') {
+                const patPvtRepo = process.env.PAT_PVT_REPO;
+                if (patPvtRepo !== undefined) {
+                    core.info(`found private repo PAT`);
+                }
+                else {
+                    core.warning(`missing private repo PAT`);
+                }
+                const OUTPUT_FILE = './lstn_0.0.0_linux_amd64.tar.gz';
+                const curlCommand = `curl -L -o ${OUTPUT_FILE} -H "Authorization: Bearer ${patPvtRepo}" -H "Accept: application/octet-stream" ${url}`;
+                core.info('Executing command: ' + curlCommand);
+                (0, child_process_1.exec)(curlCommand, (error, stdout, stderr) => {
+                    if (error) {
+                        core.error(`Error executing curl: ${error.message}`);
+                        return;
+                    }
+                    if (stderr) {
+                        core.error(`Curl stderr: ${stderr}`);
+                        return;
+                    }
+                    core.info(`curl stdout: ${stdout}`);
+                    core.info(`Download completed: ${OUTPUT_FILE}`);
+                    download = path.join(tmpdir, OUTPUT_FILE);
+                });
+                // Wait for the download to complete
+                while (download === '') {
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                }
+            }
+            else {
+                download = await tc.downloadTool(url);
+            }
+            core.info(`extracting ${download}...`);
+            let ext = '';
+            let res = '';
+            if (archive == 'zip') {
+                res = await tc.extractZip(download, tmpdir);
+                ext = '.exe';
+>>>>>>> 8fe0758 (fixup! ci: Run with nightly CLI)
             }
             else {
                 download = await tc.downloadTool(url);
@@ -9847,7 +9918,15 @@ class Tool {
                 const curlCommand = `curl -L -o ${OUTPUT_FILE} -H "Authorization: Bearer ${patPvtRepo}" -H "Accept: application/octet-stream" ${url}`;
                 core.info(`Executing command: ${curlCommand}`);
                 try {
-                    (0, child_process_1.exec)(curlCommand);
+                    let c = (0, child_process_1.exec)(curlCommand);
+                    c.stdout?.on('data', (data) => {
+                        core.info(`stdout: ${data}`);
+                    });
+                    c.stderr?.on('data', (data) => {
+                        core.error(`stderr: ${data}`);
+                    });
+                    // wait 4 seconds for the download to complete
+                    await new Promise(resolve => setTimeout(resolve, 4000));
                     core.info(`Download completed: ${OUTPUT_FILE}`);
                     download = OUTPUT_FILE;
 <<<<<<< HEAD
