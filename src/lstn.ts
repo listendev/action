@@ -9,7 +9,8 @@ import * as exec from '@actions/exec';
 import * as flags from './flags';
 import {Tool as Eavesdrop} from './eavesdrop';
 import * as semver from 'semver';
-import {exec as execLinux} from 'child_process';
+import * as fs from 'fs';
+import fetch from 'node-fetch';
 
 const STATE_ID = 'lstn';
 
@@ -138,13 +139,14 @@ export class Tool {
 
         if (core.getInput('lstn') === 'dev') {
           const patPvtRepo = core.getInput('pat_pvt_repo');
-          if (patPvtRepo) {
+          if (patPvtRepo !== '') {
             core.info(`Found private repo PAT`);
           } else {
             core.warning(`Missing private repo PAT`);
           }
 
           const OUTPUT_FILE = './lstn_0.0.0_linux_amd64.tar.gz';
+<<<<<<< HEAD
           const curlCommand = `curl -L -o ${OUTPUT_FILE} -H "Authorization: Bearer ${patPvtRepo}" -H "Accept: application/octet-stream" ${url}`;
 
 <<<<<<< HEAD
@@ -174,8 +176,16 @@ export class Tool {
             core.info(`curl stdout: ${stdout}`);
 =======
           core.info(`Executing command: ${curlCommand}`);
+||||||| parent of 35adfe7 (try this way)
+          const curlCommand = `curl -L -o ${OUTPUT_FILE} -H "Authorization: Bearer ${patPvtRepo}" -H "Accept: application/octet-stream" ${url}`;
+
+          core.info(`Executing command: ${curlCommand}`);
+=======
+          core.info(`Executing download using node-fetch`);
+>>>>>>> 35adfe7 (try this way)
 
           try {
+<<<<<<< HEAD
 <<<<<<< HEAD
             execLinux(curlCommand);
 >>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)
@@ -188,13 +198,52 @@ export class Tool {
             });
             c.stderr?.on('data', (data) => {
               core.error(`stderr: ${data}`);
+||||||| parent of 35adfe7 (try this way)
+            let c = execLinux(curlCommand);
+            c.stdout?.on('data', (data) => {
+              core.info(`stdout: ${data}`);
+            });
+            c.stderr?.on('data', (data) => {
+              core.error(`stderr: ${data}`);
+=======
+            const response = await fetch(url, {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${patPvtRepo}`,
+                Accept: 'application/octet-stream'
+              }
+>>>>>>> 35adfe7 (try this way)
             });
 
-            // wait 4 seconds for the download to complete
-            await new Promise(resolve => setTimeout(resolve, 4000));
+            if (!response.ok) {
+              throw new Error(`Failed to download: ${response.statusText}`);
+            }
 
+            // Create a writable stream to save the file
+            const fileStream = fs.createWriteStream(OUTPUT_FILE);
+            if (response.body) {
+              response.body.pipe(fileStream);
+            } else {
+              throw new Error('Response body is null');
+            }
+
+            fileStream.on('finish', () => {
+              core.info(`Download completed: ${OUTPUT_FILE}`);
+            });
+
+            // Wait for the file to be fully downloaded
+            await new Promise((resolve, reject) => {
+              fileStream.on('close', resolve);
+              fileStream.on('error', reject);
+            });
+
+<<<<<<< HEAD
 >>>>>>> 0c7bc60 (fixup! ci: Run with nightly CLI)
             core.info(`Download completed: ${OUTPUT_FILE}`);
+||||||| parent of 35adfe7 (try this way)
+            core.info(`Download completed: ${OUTPUT_FILE}`);
+=======
+>>>>>>> 35adfe7 (try this way)
             download = OUTPUT_FILE;
 <<<<<<< HEAD
           });
@@ -208,7 +257,7 @@ export class Tool {
           
 =======
           } catch (error) {
-            core.error(`Error executing curl: ${error}`);
+            core.error(`Error downloading file: ${error}`);
             throw error;
           }
 >>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)

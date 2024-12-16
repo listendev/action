@@ -44,6 +44,7 @@
     "@actions/http-client": "^2.1.0",
     "@actions/io": "^1.1.3",
     "@actions/tool-cache": "^2.0.1",
+    "node-fetch": "^3.3.2",
     "semver": "^7.6.3",
     "superserial": "^0.3.5"
   },
