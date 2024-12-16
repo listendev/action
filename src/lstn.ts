@@ -9,7 +9,8 @@ import * as exec from '@actions/exec';
 import * as flags from './flags';
 import {Tool as Eavesdrop} from './eavesdrop';
 import * as semver from 'semver';
-import {exec as execLinux} from 'child_process';
+import * as fs from 'fs';
+import axios from 'axios';
 
 const STATE_ID = 'lstn';
 
@@ -125,16 +126,16 @@ export class Tool {
           core.getInput('lstn') === 'dev'
             ? '0.0.0'
             : await tagToVersion(this.version, owner, repo);
-
+  
         const plat = getPlat(process.platform.toString());
         const arch = getArch(process.arch.toString());
         const archive = getFormat(plat);
-
+  
         const url = await this.buildURL();
         core.info(`Downloading from ${url}`);
-
+  
         let download: string = '';
-
+  
         if (core.getInput('lstn') === 'dev') {
           const patPvtRepo = core.getInput('pat_pvt_repo');
           if (patPvtRepo !== '') {
@@ -142,29 +143,38 @@ export class Tool {
           } else {
             core.warning(`Missing private repo PAT`);
           }
-
+  
           const OUTPUT_FILE = './lstn_0.0.0_linux_amd64.tar.gz';
-          const curlCommand = `curl -L -o ${OUTPUT_FILE} -H "Authorization: Bearer ${patPvtRepo}" -H "Accept: application/octet-stream" ${url}`;
-
-          core.info(`Executing command: ${curlCommand}`);
-
+  
+          // Using axios instead of curl
+          core.info(`Downloading file using axios: ${url}`);
+  
           try {
-            let c = execLinux(curlCommand);
-            c.stdout?.on('data', (data) => {
-              core.info(`stdout: ${data}`);
+            const response = await axios({
+              method: 'get',
+              url: url,
+              headers: {
+                'Authorization': `Bearer ${patPvtRepo}`,
+                'Accept': 'application/octet-stream',
+              },
+              responseType: 'stream',
             });
-            c.stderr?.on('data', (data) => {
-              core.error(`stderr: ${data}`);
+  
+            const writer = fs.createWriteStream(OUTPUT_FILE);
+  
+            // Pipe the response stream to the file
+            response.data.pipe(writer);
+  
+            // Wait for the download to finish
+            await new Promise((resolve, reject) => {
+              writer.on('finish', resolve);
+              writer.on('error', reject);
             });
-
-            core.info(`Waiting for download to complete...`);
-            await new Promise(resolve => setTimeout(resolve, 15000));
-            core.info(`waited 15 seconds...`);
-
+  
             core.info(`Download completed: ${OUTPUT_FILE}`);
             download = OUTPUT_FILE;
           } catch (error) {
-            core.error(`Error executing curl: ${error}`);
+            core.error(`Error downloading file with axios: ${error}`);
             throw error;
           }
         } else {
@@ -176,9 +186,9 @@ export class Tool {
             throw error;
           }
         }
-
+  
         core.info(`Extracting ${download}...`);
-
+  
         let res = '';
         try {
           if (archive === 'zip') {
@@ -190,7 +200,7 @@ export class Tool {
           core.error(`Error extracting archive: ${error}`);
           throw error;
         }
-
+  
         const name = `lstn_${vers}_${plat}_${arch}`;
         const extractedPath = path.join(
           res,
@@ -200,10 +210,10 @@ export class Tool {
         return extractedPath;
       }
     );
-
+  
     this.path = where;
     store(this);
-
+  
     return where;
   }
 
