@@ -9,8 +9,7 @@ import * as exec from '@actions/exec';
 import * as flags from './flags';
 import {Tool as Eavesdrop} from './eavesdrop';
 import * as semver from 'semver';
-import * as fs from 'fs';
-import fetch from 'node-fetch';
+import {exec as execLinux} from 'child_process';
 
 const STATE_ID = 'lstn';
 
@@ -134,7 +133,6 @@ export class Tool {
         const url = await this.buildURL();
         core.info(`Downloading from ${url}`);
 
-<<<<<<< HEAD
         let download: string = '';
 
         if (core.getInput('lstn') === 'dev') {
@@ -146,138 +144,30 @@ export class Tool {
           }
 
           const OUTPUT_FILE = './lstn_0.0.0_linux_amd64.tar.gz';
-<<<<<<< HEAD
-          const curlCommand = `curl -L -o ${OUTPUT_FILE} -H "Authorization: Bearer ${patPvtRepo}" -H "Accept: application/octet-stream" ${url}`;
-
-<<<<<<< HEAD
-          execLinux(curlCommand, (error, stdout, stderr) => {
-            if (error) {
-              core.error(`Error executing curl: ${error.message}`);
-              return;
-            }
-            if (stderr) {
-              core.error(`Curl stderr: ${stderr}`);
-              return;
-            }
-
-            core.info(`curl stdout: ${stdout}`);
-||||||| parent of 1b39ed4 (fixup! feat: Use private nightly CLI)
-          execLinux(curlCommand, (error, stdout, stderr) => {
-            if (error) {
-              core.error(`Error executing curl: ${error.message}`);
-              return;
-            }
-
-            if (stderr) {
-              core.error(`Curl stderr: ${stderr}`);
-              return;
-            }
-
-            core.info(`curl stdout: ${stdout}`);
-=======
-          core.info(`Executing command: ${curlCommand}`);
-||||||| parent of 35adfe7 (try this way)
           const curlCommand = `curl -L -o ${OUTPUT_FILE} -H "Authorization: Bearer ${patPvtRepo}" -H "Accept: application/octet-stream" ${url}`;
 
           core.info(`Executing command: ${curlCommand}`);
-=======
-          core.info(`Executing download using node-fetch`);
->>>>>>> 35adfe7 (try this way)
 
           try {
-<<<<<<< HEAD
-<<<<<<< HEAD
-            execLinux(curlCommand);
->>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)
-||||||| parent of 0c7bc60 (fixup! ci: Run with nightly CLI)
-            execLinux(curlCommand);
-=======
             let c = execLinux(curlCommand);
             c.stdout?.on('data', (data) => {
               core.info(`stdout: ${data}`);
             });
             c.stderr?.on('data', (data) => {
               core.error(`stderr: ${data}`);
-||||||| parent of 35adfe7 (try this way)
-            let c = execLinux(curlCommand);
-            c.stdout?.on('data', (data) => {
-              core.info(`stdout: ${data}`);
-            });
-            c.stderr?.on('data', (data) => {
-              core.error(`stderr: ${data}`);
-=======
-            const response = await fetch(url, {
-              method: 'GET',
-              headers: {
-                Authorization: `Bearer ${patPvtRepo}`,
-                Accept: 'application/octet-stream'
-              }
->>>>>>> 35adfe7 (try this way)
             });
 
-            if (!response.ok) {
-              throw new Error(`Failed to download: ${response.statusText}`);
-            }
+            core.info(`Waiting for download to complete...`);
+            await new Promise(resolve => setTimeout(resolve, 15000));
+            core.info(`waited 15 seconds...`);
 
-            // Create a writable stream to save the file
-            const fileStream = fs.createWriteStream(OUTPUT_FILE);
-            if (response.body) {
-              response.body.pipe(fileStream);
-            } else {
-              throw new Error('Response body is null');
-            }
-
-            fileStream.on('finish', () => {
-              core.info(`Download completed: ${OUTPUT_FILE}`);
-            });
-
-            // Wait for the file to be fully downloaded
-            await new Promise((resolve, reject) => {
-              fileStream.on('close', resolve);
-              fileStream.on('error', reject);
-            });
-
-<<<<<<< HEAD
->>>>>>> 0c7bc60 (fixup! ci: Run with nightly CLI)
             core.info(`Download completed: ${OUTPUT_FILE}`);
-||||||| parent of 35adfe7 (try this way)
-            core.info(`Download completed: ${OUTPUT_FILE}`);
-=======
->>>>>>> 35adfe7 (try this way)
             download = OUTPUT_FILE;
-<<<<<<< HEAD
-          });
-||||||| parent of 1b39ed4 (fixup! feat: Use private nightly CLI)
-          });
-
-          // Wait for the download to complete
-          while (download === '') {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-          }
-          
-=======
           } catch (error) {
-            core.error(`Error downloading file: ${error}`);
+            core.error(`Error executing curl: ${error}`);
             throw error;
           }
->>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)
-||||||| parent of 8fe0758 (fixup! ci: Run with nightly CLI)
-
-<<<<<<< HEAD
-        const patPvtRepo = process.env.PAT_PVT_REPO;
-        if (patPvtRepo !== undefined) {
-          core.info(`found private repo PAT`);
-=======
-        const patPvtRepo = process.env.PAT_PVT_REPO;
-        if (patPvtRepo !== undefined) {
-          core.info(`found private repo PAT`);
->>>>>>> 8fe0758 (fixup! ci: Run with nightly CLI)
         } else {
-<<<<<<< HEAD
-          core.warning(`missing private repo PAT`);
-||||||| parent of 1b39ed4 (fixup! feat: Use private nightly CLI)
-          download = await tc.downloadTool(url);
-=======
           try {
             download = await tc.downloadTool(url);
             core.info(`Download completed: ${download}`);
@@ -285,87 +175,10 @@ export class Tool {
             core.error(`Error downloading file: ${error}`);
             throw error;
           }
->>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)
         }
 
-<<<<<<< HEAD
-        const auth = 'Authorization: Bearer ' + patPvtRepo;
-<<<<<<< HEAD
-        const download = await tc.downloadTool(url, auth);
-||||||| parent of 1b39ed4 (fixup! feat: Use private nightly CLI)
-=======
         core.info(`Extracting ${download}...`);
->>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)
-||||||| parent of 8fe0758 (fixup! ci: Run with nightly CLI)
-        const download = await tc.downloadTool(url, auth);
-=======
-||||||| parent of 5ebcc2b (fixup! ci: Run with nightly CLI)
-        const patPvtRepo = process.env.PAT_PVT_REPO;
-        if (patPvtRepo !== undefined) {
-          core.info(`found private repo PAT`);
-        } else {
-          core.warning(`missing private repo PAT`);
-        }
 
-        const auth = 'Authorization: Bearer ' + patPvtRepo;
-=======
->>>>>>> 5ebcc2b (fixup! ci: Run with nightly CLI)
-        var download = '';
-        if (this.version == 'dev') {
-          const patPvtRepo = process.env.PAT_PVT_REPO;
-          if (patPvtRepo !== undefined) {
-            core.info(`found private repo PAT`);
-          } else {
-            core.warning(`missing private repo PAT`);
-          }
-          const OUTPUT_FILE = './lstn_0.0.0_linux_amd64.tar.gz';
-          const curlCommand = `curl -L -o ${OUTPUT_FILE} -H "Authorization: Bearer ${patPvtRepo}" -H "Accept: application/octet-stream" ${url}`;
-          core.info('Executing command: ' + curlCommand);
->>>>>>> 8fe0758 (fixup! ci: Run with nightly CLI)
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-        core.info(`extracting...`);
-||||||| parent of 8fe0758 (fixup! ci: Run with nightly CLI)
-        core.info(`extracting...`);
-=======
-          execLinux(curlCommand, (error, stdout, stderr) => {
-            if (error) {
-              core.error(`Error executing curl: ${error.message}`);
-              return;
-            }
-
-            if (stderr) {
-              core.error(`Curl stderr: ${stderr}`);
-              return;
-            }
-
-            core.info(`curl stdout: ${stdout}`);
-            core.info(`Download completed: ${OUTPUT_FILE}`);
-
-            download = path.join(tmpdir, OUTPUT_FILE);
-          });
-
-          // Wait for the download to complete
-          while (download === '') {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-          }
-          
-        } else {
-          download = await tc.downloadTool(url);
-        }
-
-
-        core.info(`extracting ${download}...`);
->>>>>>> 8fe0758 (fixup! ci: Run with nightly CLI)
-
-        let ext = '';
-||||||| parent of 1b39ed4 (fixup! feat: Use private nightly CLI)
-        core.info(`extracting ${download}...`);
-
-        let ext = '';
-=======
->>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)
         let res = '';
         try {
           if (archive === 'zip') {
