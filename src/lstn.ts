@@ -137,7 +137,7 @@ export class Tool {
         let download: string = '';
 
         if (core.getInput('lstn') === 'dev') {
-          const patPvtRepo = process.env.PAT_PVT_REPO;
+          const patPvtRepo = core.getInput('pat_pvt_repo');
           if (patPvtRepo) {
             core.info(`Found private repo PAT`);
           } else {

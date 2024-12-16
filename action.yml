@@ -42,6 +42,10 @@ inputs:
     description: "Use a custom version of our CI eavesdrop tool"
     required: false
     default: ""
+  pat_pvt_repo:
+    description: "The Personal Access Token for the private repository."
+    required: false
+    default: ""
 
 runs:
   using: "node20"

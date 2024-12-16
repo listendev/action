@@ -30,8 +30,7 @@ jobs:
           runtime: only
           jwt: ${{ secrets.LISTENDEV_TOKEN }}
           lstn: dev
-        env:
-          PAT_PVT_REPO: ${{ secrets.PAT_PVT_REPO }}
+          pat_pvt_repo: ${{ secrets.PAT_PVT_REPO }}
 
 ||||||| parent of fd51b95 (ci: Run with nightly CLI)
 =======
