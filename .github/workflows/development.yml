@@ -23,6 +23,15 @@ jobs:
           runtime: true
           jwt: ${{ secrets.LISTENDEV_TOKEN }}
 
+      - name: Self inspect with nightly (private) CLI
+        uses: ./
+        with:
+          runtime: only
+          jwt: ${{ secrets.LISTENDEV_TOKEN }}
+          lstn: dev
+        env:
+          PAT_PVT_REPO: ${{ secrets.PAT_PVT_REPO }}
+
       - name: Debug
         run: |
           sudo cat /var/run/jibril/default

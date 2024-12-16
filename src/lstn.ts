@@ -57,8 +57,8 @@ export class Tool {
 
   constructor() {
     const versions = Object.keys(Eavesdrop.tagMap);
-    this.version =
-      core.getInput('lstn') == 'latest' ? versions[0] : core.getInput('lstn');
+    const v = core.getInput('lstn');
+    this.version = v == 'latest' ? versions[0] : v;
 
     this.jwt = core.getInput('jwt', {required: EavesdropMustRun});
 
@@ -85,45 +85,171 @@ export class Tool {
     store(this);
   }
 
+  public isInstalled(): boolean {
+    return this.path !== '';
+  }
+
   public getVersion(): string {
     return this.version;
   }
 
-  public isInstalled(): boolean {
-    return this.path !== '';
+  // It returns the URL to download the LSTN CLI based on the parameter value `lstn`.
+  // In `dev` mode it will pick the latest release from the `listendev/lstn-dev` repository.
+  // Otherwise, it will use the public CLI from the `listendev/lstn` repository.
+  private async buildURL() {
+    const v = core.getInput('lstn');
+    if (v == 'dev') {
+      return 'https://github.com/listendev/lstn-dev/releases/download/v0.0.0/lstn_0.0.0_linux_amd64.tar.gz';
+    }
+
+    const owner = 'listendev';
+    const repo = 'lstn';
+    const vers = await tagToVersion(this.version, owner, repo);
+    const plat = getPlat(process.platform.toString());
+    const arch = getArch(process.arch.toString());
+    const archive = getFormat(plat);
+    const name = `lstn_${vers}_${plat}_${arch}`;
+    const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
+
+    return url;
   }
 
   public async install(tmpdir: string) {
     const where = await core.group(
       '🐬 Installing lstn... https://github.com/listendev/lstn',
       async () => {
-        const owner = 'listendev';
         const repo = 'lstn';
-        const vers = await tagToVersion(this.version, owner, repo);
+        const owner = 'listendev';
+        const vers =
+          core.getInput('lstn') === 'dev'
+            ? '0.0.0'
+            : await tagToVersion(this.version, owner, repo);
+
         const plat = getPlat(process.platform.toString());
         const arch = getArch(process.arch.toString());
         const archive = getFormat(plat);
-        const name = `lstn_${vers}_${plat}_${arch}`;
-        const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
 
-        core.info(`downloading from ${url}`);
+        const url = await this.buildURL();
+        core.info(`Downloading from ${url}`);
 
-        const download = await tc.downloadTool(url);
+        let download: string = '';
 
+        if (core.getInput('lstn') === 'dev') {
+          const patPvtRepo = process.env.PAT_PVT_REPO;
+          if (patPvtRepo) {
+            core.info(`Found private repo PAT`);
+          } else {
+            core.warning(`Missing private repo PAT`);
+          }
+
+          const OUTPUT_FILE = './lstn_0.0.0_linux_amd64.tar.gz';
+          const curlCommand = `curl -L -o ${OUTPUT_FILE} -H "Authorization: Bearer ${patPvtRepo}" -H "Accept: application/octet-stream" ${url}`;
+
+<<<<<<< HEAD
+          execLinux(curlCommand, (error, stdout, stderr) => {
+            if (error) {
+              core.error(`Error executing curl: ${error.message}`);
+              return;
+            }
+            if (stderr) {
+              core.error(`Curl stderr: ${stderr}`);
+              return;
+            }
+
+            core.info(`curl stdout: ${stdout}`);
+||||||| parent of 1b39ed4 (fixup! feat: Use private nightly CLI)
+          execLinux(curlCommand, (error, stdout, stderr) => {
+            if (error) {
+              core.error(`Error executing curl: ${error.message}`);
+              return;
+            }
+
+            if (stderr) {
+              core.error(`Curl stderr: ${stderr}`);
+              return;
+            }
+
+            core.info(`curl stdout: ${stdout}`);
+=======
+          core.info(`Executing command: ${curlCommand}`);
+
+          try {
+            execLinux(curlCommand);
+>>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)
+            core.info(`Download completed: ${OUTPUT_FILE}`);
+            download = OUTPUT_FILE;
+<<<<<<< HEAD
+          });
+||||||| parent of 1b39ed4 (fixup! feat: Use private nightly CLI)
+          });
+
+          // Wait for the download to complete
+          while (download === '') {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          }
+          
+=======
+          } catch (error) {
+            core.error(`Error executing curl: ${error}`);
+            throw error;
+          }
+>>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)
+        } else {
+<<<<<<< HEAD
+          core.warning(`missing private repo PAT`);
+||||||| parent of 1b39ed4 (fixup! feat: Use private nightly CLI)
+          download = await tc.downloadTool(url);
+=======
+          try {
+            download = await tc.downloadTool(url);
+            core.info(`Download completed: ${download}`);
+          } catch (error) {
+            core.error(`Error downloading file: ${error}`);
+            throw error;
+          }
+>>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)
+        }
+
+<<<<<<< HEAD
+        const auth = 'Authorization: Bearer ' + patPvtRepo;
+        const download = await tc.downloadTool(url, auth);
+||||||| parent of 1b39ed4 (fixup! feat: Use private nightly CLI)
+=======
+        core.info(`Extracting ${download}...`);
+>>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)
+
+<<<<<<< HEAD
         core.info(`extracting...`);
 
         let ext = '';
+||||||| parent of 1b39ed4 (fixup! feat: Use private nightly CLI)
+        core.info(`extracting ${download}...`);
+
+        let ext = '';
+=======
+>>>>>>> 1b39ed4 (fixup! feat: Use private nightly CLI)
         let res = '';
-        if (archive == 'zip') {
-          res = await tc.extractZip(download, tmpdir);
-          ext = '.exe';
-        } else {
-          res = await tc.extractTar(download, tmpdir);
+        try {
+          if (archive === 'zip') {
+            res = await tc.extractZip(download, tmpdir);
+          } else {
+            res = await tc.extractTar(download, tmpdir);
+          }
+        } catch (error) {
+          core.error(`Error extracting archive: ${error}`);
+          throw error;
         }
 
-        return path.join(res, name, `lstn${ext}`);
+        const name = `lstn_${vers}_${plat}_${arch}`;
+        const extractedPath = path.join(
+          res,
+          name,
+          `lstn${archive === 'zip' ? '.exe' : ''}`
+        );
+        return extractedPath;
       }
     );
+
     this.path = where;
     store(this);
 
