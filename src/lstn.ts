@@ -9,6 +9,9 @@ import * as exec from '@actions/exec';
 import * as flags from './flags';
 import {Tool as Eavesdrop} from './eavesdrop';
 import * as semver from 'semver';
+import axios, {AxiosResponse} from 'axios';
+import {Octokit} from '@octokit/rest';
+import fs from 'fs';
 
 const STATE_ID = 'lstn';
 
@@ -57,8 +60,8 @@ export class Tool {
 
   constructor() {
     const versions = Object.keys(Eavesdrop.tagMap);
-    this.version =
-      core.getInput('lstn') == 'latest' ? versions[0] : core.getInput('lstn');
+    const v = core.getInput('lstn');
+    this.version = v == 'latest' ? versions[0] : v;
 
     this.jwt = core.getInput('jwt', {required: EavesdropMustRun});
 
@@ -85,45 +88,170 @@ export class Tool {
     store(this);
   }
 
+  public isInstalled(): boolean {
+    return this.path !== '';
+  }
+
   public getVersion(): string {
     return this.version;
   }
 
-  public isInstalled(): boolean {
-    return this.path !== '';
+  // It returns the URL to download the LSTN CLI based on the parameter value `lstn`.
+  // In `dev` mode it will pick the latest release from the `listendev/lstn-dev` repository.
+  // Otherwise, it will use the public CLI from the `listendev/lstn` repository.
+  private async buildURL() {
+    const v = core.getInput('lstn');
+    if (v == 'dev') {
+      return 'https://github.com/listendev/lstn-dev/releases/download/v0.0.0/lstn_0.0.0_linux_amd64.tar.gz';
+    }
+
+    const owner = 'listendev';
+    const repo = 'lstn';
+    const vers = await tagToVersion(this.version, owner, repo);
+    const plat = getPlat(process.platform.toString());
+    const arch = getArch(process.arch.toString());
+    const archive = getFormat(plat);
+    const name = `lstn_${vers}_${plat}_${arch}`;
+    const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
+
+    return url;
   }
 
   public async install(tmpdir: string) {
     const where = await core.group(
       '🐬 Installing lstn... https://github.com/listendev/lstn',
       async () => {
-        const owner = 'listendev';
+        const v = core.getInput('lstn');
         const repo = 'lstn';
-        const vers = await tagToVersion(this.version, owner, repo);
+        const owner = 'listendev';
+        const vers =
+          v === 'dev' ? '0.0.0' : await tagToVersion(this.version, owner, repo);
+
         const plat = getPlat(process.platform.toString());
         const arch = getArch(process.arch.toString());
         const archive = getFormat(plat);
-        const name = `lstn_${vers}_${plat}_${arch}`;
-        const url = `https://github.com/${owner}/${repo}/releases/download/v${vers}/${name}.${archive}`;
 
-        core.info(`downloading from ${url}`);
+        const url = await this.buildURL();
+        core.info(`Downloading from ${url}`);
 
-        const download = await tc.downloadTool(url);
+        let download = '';
 
-        core.info(`extracting...`);
+        if (v === 'dev') {
+          const token = process.env['pat_pvt_repo'];
+          if (!token) {
+            core.warning('Missing private repo PAT');
+          }
 
-        let ext = '';
-        let res = '';
-        if (archive == 'zip') {
-          res = await tc.extractZip(download, tmpdir);
-          ext = '.exe';
+          const octokit = new Octokit({
+            auth: token
+          });
+
+          try {
+            // Request list of assets for release v0.0.0
+            const res = await octokit.rest.repos.getReleaseByTag({
+              owner: 'listendev',
+              repo: 'lstn-dev',
+              tag: 'v0.0.0'
+            });
+
+            // Find asset id for lstn_0.0.0_linux_amd64.tar.gz
+            let asset_id = 0;
+            const name = 'lstn_0.0.0_linux_amd64.tar.gz';
+            for (const asset of res.data.assets) {
+              if (asset.name === name) {
+                asset_id = asset.id;
+                break;
+              }
+            }
+
+            if (asset_id === 0) {
+              core.warning(
+                'Could not find asset id for lstn_0.0.0_linux_amd64.tar.gz'
+              );
+
+              throw new Error(
+                'Could not find asset id for lstn_0.0.0_linux_amd64.tar.gz'
+              );
+            }
+
+            // Find URL to download asset
+            const resp = await octokit.rest.repos.getReleaseAsset({
+              owner: 'listendev',
+              repo: 'lstn-dev',
+              asset_id: asset_id,
+              headers: {
+                Accept: 'application/octet-stream'
+              }
+            });
+
+            // Start downloading the asset (wrap in Promise)
+            const downloadUrl = resp.url;
+            const filePath = path.resolve(__dirname, name);
+            const writer = fs.createWriteStream(filePath);
+
+            download = await new Promise((resolve, reject) => {
+              // Use axios to download the file
+              axios({
+                method: 'get',
+                url: downloadUrl,
+                responseType: 'stream'
+              })
+                .then((downloadResponse: AxiosResponse) => {
+                  downloadResponse.data.pipe(writer);
+
+                  writer.on('finish', () => {
+                    core.info(`Download completed: ${filePath}`);
+                    resolve(filePath); // Resolve the Promise when the download is complete
+                  });
+
+                  writer.on('error', (e: any) => {
+                    core.warning('Error downloading file:', e);
+                    reject(e); // Reject the Promise if there's an error
+                  });
+                })
+                .catch((error: any) => {
+                  core.warning('Error downloading file with axios:', error);
+                  reject(error); // Reject if axios request fails
+                });
+            });
+          } catch {
+            core.error('Error downloading file');
+            throw new Error('Error downloading file');
+          }
         } else {
-          res = await tc.extractTar(download, tmpdir);
+          try {
+            download = await tc.downloadTool(url);
+            core.info(`Download completed: ${download}`);
+          } catch (error) {
+            core.error(`Error downloading file: ${error}`);
+            throw error;
+          }
         }
 
-        return path.join(res, name, `lstn${ext}`);
+        core.info(`Extracting ${download}...`);
+
+        let res = '';
+        try {
+          if (archive === 'zip') {
+            res = await tc.extractZip(download, tmpdir);
+          } else {
+            res = await tc.extractTar(download, tmpdir);
+          }
+        } catch (error) {
+          core.error(`Error extracting archive: ${error}`);
+          throw error;
+        }
+
+        const name = `lstn_${vers}_${plat}_${arch}`;
+        const extractedPath = path.join(
+          res,
+          name,
+          `lstn${archive === 'zip' ? '.exe' : ''}`
+        );
+        return extractedPath;
       }
     );
+
     this.path = where;
     store(this);
 
@@ -160,14 +288,16 @@ export class Tool {
 
     // Check CLI version >= 0.16.0
     const version = semver.coerce(this.version);
-    if (!version || !semver.valid(version)) {
-      throw new Error(`invalid lstn version (${this.version})`);
-    }
-    if (semver.lt(version, 'v0.16.0')) {
-      core.warning(
-        `Coulnd't report because lstn ${this.version} lacks this ability`
-      );
-      return 0;
+    if (this.version !== 'dev') {
+      if (!version || !semver.valid(version)) {
+        throw new Error(`invalid lstn version (${this.version})`);
+      }
+      if (semver.lt(version, 'v0.16.0')) {
+        core.warning(
+          `Coulnd't report because lstn ${this.version} lacks this ability`
+        );
+        return 0;
+      }
     }
 
     this.setEnv();
