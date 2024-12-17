@@ -34622,6 +34622,7 @@ class Tool {
         this.version = this.initVersion();
         core.info(`eavesdrop version: ${this.version}`);
         this.name = this.initName();
+        core.info(`eavesdrop name: ${this.name}`);
         this.cliEnablingCommand = this.initCliEnablingCommand();
     }
     getVersion() {

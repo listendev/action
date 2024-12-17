@@ -270,7 +270,7 @@ export class Tool {
 
     this.name = this.initName();
     core.info(`eavesdrop name: ${this.name}`);
-    
+
     this.cliEnablingCommand = this.initCliEnablingCommand();
   }
 
