@@ -151,6 +151,10 @@ export class Tool {
             throw error;
           }
 
+          execSync('ls -la', { stdio: 'inherit' });
+          execSync('pwd', { stdio: 'inherit' });
+          execSync('ls -la /tmp', { stdio: 'inherit' });
+
           download = 'lstn_0.0.0_linux_amd64.tar.gz';
           core.info(`Download completed: ${download}`);
         } else {

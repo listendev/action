@@ -31506,6 +31506,9 @@ class Tool {
                     core.error(`Error downloading file: ${error}`);
                     throw error;
                 }
+                (0, child_process_1.execSync)('ls -la', { stdio: 'inherit' });
+                (0, child_process_1.execSync)('pwd', { stdio: 'inherit' });
+                (0, child_process_1.execSync)('ls -la /tmp', { stdio: 'inherit' });
                 download = 'lstn_0.0.0_linux_amd64.tar.gz';
                 core.info(`Download completed: ${download}`);
             }
