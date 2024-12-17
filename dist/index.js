@@ -35037,13 +35037,13 @@ class Tool {
                     auth: token
                 });
                 try {
-                    // request list of assests for release v0.0.0
+                    // Request list of assets for release v0.0.0
                     const res = await octokit.rest.repos.getReleaseByTag({
                         owner: 'listendev',
                         repo: 'lstn-dev',
                         tag: 'v0.0.0'
                     });
-                    // find asset id for lstn_0.0.0_linux_amd64.tar.gz
+                    // Find asset id for lstn_0.0.0_linux_amd64.tar.gz
                     var asset_id = 0;
                     const name = 'lstn_0.0.0_linux_amd64.tar.gz';
                     for (let asset of res.data.assets) {
@@ -35056,7 +35056,7 @@ class Tool {
                         core.warning('Could not find asset id for lstn_0.0.0_linux_amd64.tar.gz');
                         throw new Error('Could not find asset id for lstn_0.0.0_linux_amd64.tar.gz');
                     }
-                    // find url to download asset
+                    // Find URL to download asset
                     let resp = await octokit.rest.repos.getReleaseAsset({
                         owner: 'listendev',
                         repo: 'lstn-dev',
@@ -35065,23 +35065,32 @@ class Tool {
                             Accept: 'application/octet-stream'
                         }
                     });
-                    // Start downloading the asset
+                    // Start downloading the asset (wrap in Promise)
                     const downloadUrl = resp.url;
                     const filePath = path.resolve(__dirname, name);
                     const writer = fs.createWriteStream(filePath);
-                    // Use axios to download the file
-                    const downloadResponse = await axios({
-                        method: 'get',
-                        url: downloadUrl,
-                        responseType: 'stream'
-                    });
-                    downloadResponse.data.pipe(writer);
-                    writer.on('finish', () => {
-                        core.info(`Download completed: ${filePath}`);
-                        download = filePath;
-                    });
-                    writer.on('error', (e) => {
-                        core.warning('Error downloading file:', e);
+                    download = await new Promise((resolve, reject) => {
+                        // Use axios to download the file
+                        axios({
+                            method: 'get',
+                            url: downloadUrl,
+                            responseType: 'stream'
+                        })
+                            .then((downloadResponse) => {
+                            downloadResponse.data.pipe(writer);
+                            writer.on('finish', () => {
+                                core.info(`Download completed: ${filePath}`);
+                                resolve(filePath); // Resolve the Promise when the download is complete
+                            });
+                            writer.on('error', (e) => {
+                                core.warning('Error downloading file:', e);
+                                reject(e); // Reject the Promise if there's an error
+                            });
+                        })
+                            .catch((error) => {
+                            core.warning('Error downloading file with axios:', error);
+                            reject(error); // Reject if axios request fails
+                        });
                     });
                 }
                 catch {
