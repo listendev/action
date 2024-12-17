@@ -35040,6 +35040,7 @@ class Tool {
     async install(tmpdir) {
         const where = await core.group('🐬 Installing lstn... https://github.com/listendev/lstn', async () => {
             const v = core.getInput('lstn');
+            core.info(`Installing version ${v}...`);
             const repo = 'lstn';
             const owner = 'listendev';
             const vers = v === 'dev' ? '0.0.0' : await (0, install_1.tagToVersion)(this.version, owner, repo);
