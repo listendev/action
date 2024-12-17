@@ -9,7 +9,9 @@ import * as exec from '@actions/exec';
 import * as flags from './flags';
 import {Tool as Eavesdrop} from './eavesdrop';
 import * as semver from 'semver';
-import { execSync } from 'child_process';
+const {Octokit} = require('@octokit/rest');
+const axios = require('axios');
+const fs = require('fs');
 
 const STATE_ID = 'lstn';
 
@@ -125,38 +127,91 @@ export class Tool {
           core.getInput('lstn') === 'dev'
             ? '0.0.0'
             : await tagToVersion(this.version, owner, repo);
-  
+
         const plat = getPlat(process.platform.toString());
         const arch = getArch(process.arch.toString());
         const archive = getFormat(plat);
-  
+
         const url = await this.buildURL();
         core.info(`Downloading from ${url}`);
-  
+
         let download: string = '';
-  
+
         if (core.getInput('lstn') === 'dev') {
-          const patPvtRepo = core.getInput('pat_pvt_repo');
-          if (!patPvtRepo) {
+          const token = core.getInput('pat_pvt_repo');
+          if (!token) {
             core.warning('Missing private repo PAT');
           }
-          
-          const curlCommand = `curl -L -o lstn_0.0.0_linux_amd64.tar.gz -H "Authorization: Bearer ${patPvtRepo}" -H "Accept: application/octet-stream" https://github.com/listendev/lstn-dev/releases/download/v0.0.0/lstn_0.0.0_linux_amd64.tar.gz`;
-          
+
+          const octokit = new Octokit({
+            auth: token
+          });
+
           try {
-            execSync(curlCommand, { stdio: 'inherit' });
-            core.info('Download completed successfully.');
-          } catch (error) {
-            core.error(`Error downloading file: ${error}`);
-            throw error;
+            // request list of assests for release v0.0.0
+            const res = await octokit.rest.repos.getReleaseByTag({
+              owner: 'listendev',
+              repo: 'lstn-dev',
+              tag: 'v0.0.0'
+            });
+
+            // find asset id for lstn_0.0.0_linux_amd64.tar.gz
+            var asset_id = 0;
+            const name = 'lstn_0.0.0_linux_amd64.tar.gz';
+            for (let asset of res.data.assets) {
+              if (asset.name === name) {
+                asset_id = asset.id;
+                break;
+              }
+            }
+
+            if (asset_id === 0) {
+              core.warning(
+                'Could not find asset id for lstn_0.0.0_linux_amd64.tar.gz'
+              );
+
+              throw new Error(
+                'Could not find asset id for lstn_0.0.0_linux_amd64.tar.gz'
+              );
+            }
+
+            // find url to download asset
+            let resp = await octokit.rest.repos.getReleaseAsset({
+              owner: 'listendev',
+              repo: 'lstn-dev',
+              asset_id: asset_id,
+              headers: {
+                Accept: 'application/octet-stream'
+              }
+            });
+
+            // Start downloading the asset
+            const downloadUrl = resp.url;
+            const filePath = path.resolve(__dirname, name);
+            const writer = fs.createWriteStream(filePath);
+
+            // Use axios to download the file
+            const downloadResponse = await axios({
+              method: 'get',
+              url: downloadUrl,
+              responseType: 'stream'
+            });
+
+            downloadResponse.data.pipe(writer);
+
+            writer.on('finish', () => {
+              core.info(`Download completed: ${filePath}`);
+
+              download = filePath;
+            });
+
+            writer.on('error', (e: any) => {
+              core.warning('Error downloading file:', e);
+            });
+          } catch {
+            core.error('Error downloading file');
+            throw new Error('Error downloading file');
           }
-
-          execSync('ls -la', { stdio: 'inherit' });
-          execSync('pwd', { stdio: 'inherit' });
-          execSync('ls -la /tmp', { stdio: 'inherit' });
-
-          download = 'lstn_0.0.0_linux_amd64.tar.gz';
-          core.info(`Download completed: ${download}`);
         } else {
           try {
             download = await tc.downloadTool(url);
@@ -166,9 +221,9 @@ export class Tool {
             throw error;
           }
         }
-  
+
         core.info(`Extracting ${download}...`);
-  
+
         let res = '';
         try {
           if (archive === 'zip') {
@@ -180,7 +235,7 @@ export class Tool {
           core.error(`Error extracting archive: ${error}`);
           throw error;
         }
-  
+
         const name = `lstn_${vers}_${plat}_${arch}`;
         const extractedPath = path.join(
           res,
@@ -190,10 +245,10 @@ export class Tool {
         return extractedPath;
       }
     );
-  
+
     this.path = where;
     store(this);
-  
+
     return where;
   }
 
