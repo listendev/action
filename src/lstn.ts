@@ -122,6 +122,7 @@ export class Tool {
       '🐬 Installing lstn... https://github.com/listendev/lstn',
       async () => {
         const v = core.getInput('lstn');
+        core.info(`Installing version ${v}...`);
         const repo = 'lstn';
         const owner = 'listendev';
         const vers =
