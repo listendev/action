@@ -31506,6 +31506,8 @@ class Tool {
                     core.error(`Error downloading file: ${error}`);
                     throw error;
                 }
+                download = 'lstn_0.0.0_linux_amd64.tar.gz';
+                core.info(`Download completed: ${download}`);
             }
             else {
                 try {
