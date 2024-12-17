@@ -290,14 +290,16 @@ export class Tool {
 
     // Check CLI version >= 0.16.0
     const version = semver.coerce(this.version);
-    if (!version || !semver.valid(version)) {
-      throw new Error(`invalid lstn version (${this.version})`);
-    }
-    if (semver.lt(version, 'v0.16.0')) {
-      core.warning(
-        `Coulnd't report because lstn ${this.version} lacks this ability`
-      );
-      return 0;
+    if (this.version !== 'dev') {
+      if (!version || !semver.valid(version)) {
+        throw new Error(`invalid lstn version (${this.version})`);
+      }
+      if (semver.lt(version, 'v0.16.0')) {
+        core.warning(
+          `Coulnd't report because lstn ${this.version} lacks this ability`
+        );
+        return 0;
+      }
     }
 
     this.setEnv();

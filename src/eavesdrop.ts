@@ -62,8 +62,12 @@ export class Tool {
 
   private initCliVersion(): string {
     const versions = Object.keys(Tool.tagMap);
-    const tag =
-      core.getInput('lstn') == 'latest' ? versions[0] : core.getInput('lstn');
+    const v = core.getInput('lstn');
+    if (v === 'dev') {
+      return 'dev';
+    }
+
+    const tag = v == 'latest' ? versions[0] : core.getInput('lstn');
     const version = semver.coerce(tag);
     if (!version || !semver.valid(version)) {
       throw new Error(`invalid lstn version (${tag})`);
@@ -97,6 +101,11 @@ export class Tool {
       !Object.values(Tool.tagMap).includes(v)
     ) {
       throw new Error(`unsupported custom eavesdrop tool version (${v})`);
+    }
+
+    if (this.lstn === 'dev') {
+      // skip check with dev lstn CLI
+      return custom.format();
     }
 
     const lstnv = semver.coerce(this.lstn);
@@ -155,6 +164,11 @@ export class Tool {
   private initCliEnablingCommand(): string[] {
     if (!EavesdropMustRun) return [];
 
+    if (this.lstn === 'dev') {
+      // skip check with dev lstn CLI
+      return ['ci', 'enable'];
+    }
+    
     const lstnv = semver.coerce(this.lstn);
     if (!lstnv || !semver.valid(lstnv)) {
       throw new Error(`invalid lstn version (${this.lstn})`);
