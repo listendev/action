@@ -85,6 +85,11 @@ export class Tool {
 
     const explicit = core.getInput('eavesdrop_version');
     if (!explicit) {
+      if (this.lstn === 'dev') {
+        // if we are using dev CLI we can use the nightly version of the eavesdrop tool
+        return 'v0.0.0';
+      }
+
       return Tool.tagMap[
         this.lstn.startsWith('v') ? this.lstn : `v${this.lstn}`
       ];
@@ -168,7 +173,7 @@ export class Tool {
       // skip check with dev lstn CLI
       return ['ci', 'enable'];
     }
-    
+
     const lstnv = semver.coerce(this.lstn);
     if (!lstnv || !semver.valid(lstnv)) {
       throw new Error(`invalid lstn version (${this.lstn})`);
@@ -258,8 +263,14 @@ export class Tool {
 
   constructor() {
     this.lstn = this.initCliVersion();
+    core.info(`lstn version: ${this.lstn}`);
+
     this.version = this.initVersion();
+    core.info(`eavesdrop version: ${this.version}`);
+
     this.name = this.initName();
+    core.info(`eavesdrop name: ${this.name}`);
+    
     this.cliEnablingCommand = this.initCliEnablingCommand();
   }
 

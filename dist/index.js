@@ -34459,7 +34459,11 @@ class Tool {
     }
     initCliVersion() {
         const versions = Object.keys(Tool.tagMap);
-        const tag = core.getInput('lstn') == 'latest' ? versions[0] : core.getInput('lstn');
+        const v = core.getInput('lstn');
+        if (v === 'dev') {
+            return 'dev';
+        }
+        const tag = v == 'latest' ? versions[0] : core.getInput('lstn');
         const version = semver.coerce(tag);
         if (!version || !semver.valid(version)) {
             throw new Error(`invalid lstn version (${tag})`);
@@ -34474,6 +34478,10 @@ class Tool {
             return '';
         const explicit = core.getInput('eavesdrop_version');
         if (!explicit) {
+            if (this.lstn === 'dev') {
+                // if we are using dev CLI we can use the nightly version of the eavesdrop tool
+                return 'v0.0.0';
+            }
             return Tool.tagMap[this.lstn.startsWith('v') ? this.lstn : `v${this.lstn}`];
         }
         const v = explicit.startsWith('v') ? explicit : `v${explicit}`;
@@ -34484,6 +34492,10 @@ class Tool {
         if (!semver.eq(custom, 'v0.0.0') &&
             !Object.values(Tool.tagMap).includes(v)) {
             throw new Error(`unsupported custom eavesdrop tool version (${v})`);
+        }
+        if (this.lstn === 'dev') {
+            // skip check with dev lstn CLI
+            return custom.format();
         }
         const lstnv = semver.coerce(this.lstn);
         if (!lstnv || !semver.valid(lstnv)) {
@@ -34530,6 +34542,10 @@ class Tool {
     initCliEnablingCommand() {
         if (!constants_1.EavesdropMustRun)
             return [];
+        if (this.lstn === 'dev') {
+            // skip check with dev lstn CLI
+            return ['ci', 'enable'];
+        }
         const lstnv = semver.coerce(this.lstn);
         if (!lstnv || !semver.valid(lstnv)) {
             throw new Error(`invalid lstn version (${this.lstn})`);
@@ -34602,7 +34618,9 @@ class Tool {
     constructor() {
         this.installed = false;
         this.lstn = this.initCliVersion();
+        core.info(`lstn version: ${this.lstn}`);
         this.version = this.initVersion();
+        core.info(`eavesdrop version: ${this.version}`);
         this.name = this.initName();
         this.cliEnablingCommand = this.initCliEnablingCommand();
     }
@@ -35151,12 +35169,14 @@ class Tool {
         }
         // Check CLI version >= 0.16.0
         const version = semver.coerce(this.version);
-        if (!version || !semver.valid(version)) {
-            throw new Error(`invalid lstn version (${this.version})`);
-        }
-        if (semver.lt(version, 'v0.16.0')) {
-            core.warning(`Coulnd't report because lstn ${this.version} lacks this ability`);
-            return 0;
+        if (this.version !== 'dev') {
+            if (!version || !semver.valid(version)) {
+                throw new Error(`invalid lstn version (${this.version})`);
+            }
+            if (semver.lt(version, 'v0.16.0')) {
+                core.warning(`Coulnd't report because lstn ${this.version} lacks this ability`);
+                return 0;
+            }
         }
         this.setEnv();
         const res = await core.group('Report runtime threats if possible', async () => {
