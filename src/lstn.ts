@@ -9,8 +9,7 @@ import * as exec from '@actions/exec';
 import * as flags from './flags';
 import {Tool as Eavesdrop} from './eavesdrop';
 import * as semver from 'semver';
-import * as fs from 'fs';
-import axios from 'axios';
+import { execSync } from 'child_process';
 
 const STATE_ID = 'lstn';
 
@@ -138,43 +137,17 @@ export class Tool {
   
         if (core.getInput('lstn') === 'dev') {
           const patPvtRepo = core.getInput('pat_pvt_repo');
-          if (patPvtRepo !== '') {
-            core.info(`Found private repo PAT`);
-          } else {
-            core.warning(`Missing private repo PAT`);
+          if (!patPvtRepo) {
+            core.warning('Missing private repo PAT');
           }
-  
-          const OUTPUT_FILE = './lstn_0.0.0_linux_amd64.tar.gz';
-  
-          // Using axios instead of curl
-          core.info(`Downloading file using axios: ${url}`);
-  
+          
+          const curlCommand = `curl -L -o lstn_0.0.0_linux_amd64.tar.gz -H "Authorization: Bearer ${patPvtRepo}" -H "Accept: application/octet-stream" https://github.com/listendev/lstn-dev/releases/download/v0.0.0/lstn_0.0.0_linux_amd64.tar.gz`;
+          
           try {
-            const response = await axios({
-              method: 'get',
-              url: url,
-              headers: {
-                'Authorization': `Bearer ${patPvtRepo}`,
-                'Accept': 'application/octet-stream',
-              },
-              responseType: 'stream',
-            });
-  
-            const writer = fs.createWriteStream(OUTPUT_FILE);
-  
-            // Pipe the response stream to the file
-            response.data.pipe(writer);
-  
-            // Wait for the download to finish
-            await new Promise((resolve, reject) => {
-              writer.on('finish', resolve);
-              writer.on('error', reject);
-            });
-  
-            core.info(`Download completed: ${OUTPUT_FILE}`);
-            download = OUTPUT_FILE;
+            execSync(curlCommand, { stdio: 'inherit' });
+            core.info('Download completed successfully.');
           } catch (error) {
-            core.error(`Error downloading file with axios: ${error}`);
+            core.error(`Error downloading file: ${error}`);
             throw error;
           }
         } else {
