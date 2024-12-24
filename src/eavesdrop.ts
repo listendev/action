@@ -24,6 +24,7 @@ export class Tool {
 
   // tagMap maps the lstn tags to the eavesdrop tool versions.
   public static tagMap: Record<string, string> = {
+    'v0.17.0': 'v1.1',
     'v0.16.0': 'v1.0',
     'v0.15.0': 'v0.6',
     'v0.14.0': 'v0.4',
