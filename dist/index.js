@@ -3202,7 +3202,11 @@ function copyFile(srcFile, destFile, force) {
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -3215,7 +3219,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -3245,11 +3249,11 @@ function _findMatch(versionSpec, stable, candidates, archFilter) {
         let file;
         for (const candidate of candidates) {
             const version = candidate.version;
-            core_1.debug(`check ${version} satisfies ${versionSpec}`);
+            (0, core_1.debug)(`check ${version} satisfies ${versionSpec}`);
             if (semver.satisfies(version, versionSpec) &&
                 (!stable || candidate.stable === stable)) {
                 file = candidate.files.find(item => {
-                    core_1.debug(`${item.arch}===${archFilter} && ${item.platform}===${platFilter}`);
+                    (0, core_1.debug)(`${item.arch}===${archFilter} && ${item.platform}===${platFilter}`);
                     let chk = item.arch === archFilter && item.platform === platFilter;
                     if (chk && item.platform_version) {
                         const osVersion = module.exports._getOsVersion();
@@ -3263,7 +3267,7 @@ function _findMatch(versionSpec, stable, candidates, archFilter) {
                     return chk;
                 });
                 if (file) {
-                    core_1.debug(`matched ${candidate.version}`);
+                    (0, core_1.debug)(`matched ${candidate.version}`);
                     match = candidate;
                     break;
                 }
@@ -3301,10 +3305,7 @@ function _getOsVersion() {
                 if (parts.length === 2 &&
                     (parts[0].trim() === 'VERSION_ID' ||
                         parts[0].trim() === 'DISTRIB_RELEASE')) {
-                    version = parts[1]
-                        .trim()
-                        .replace(/^"/, '')
-                        .replace(/"$/, '');
+                    version = parts[1].trim().replace(/^"/, '').replace(/"$/, '');
                     break;
                 }
             }
@@ -3337,7 +3338,11 @@ exports._readLinuxVersionFile = _readLinuxVersionFile;
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -3350,7 +3355,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -3427,7 +3432,11 @@ exports.RetryHelper = RetryHelper;
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -3440,7 +3449,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -3453,13 +3462,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.evaluateVersions = exports.isExplicitVersion = exports.findFromManifest = exports.getManifestFromRepo = exports.findAllVersions = exports.find = exports.cacheFile = exports.cacheDir = exports.extractZip = exports.extractXar = exports.extractTar = exports.extract7z = exports.downloadTool = exports.HTTPError = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const io = __importStar(__nccwpck_require__(7436));
+const crypto = __importStar(__nccwpck_require__(6113));
 const fs = __importStar(__nccwpck_require__(7147));
 const mm = __importStar(__nccwpck_require__(2473));
 const os = __importStar(__nccwpck_require__(2037));
@@ -3469,7 +3476,6 @@ const semver = __importStar(__nccwpck_require__(562));
 const stream = __importStar(__nccwpck_require__(2781));
 const util = __importStar(__nccwpck_require__(3837));
 const assert_1 = __nccwpck_require__(9491);
-const v4_1 = __importDefault(__nccwpck_require__(824));
 const exec_1 = __nccwpck_require__(1514);
 const retry_helper_1 = __nccwpck_require__(8279);
 class HTTPError extends Error {
@@ -3494,7 +3500,7 @@ const userAgent = 'actions/tool-cache';
  */
 function downloadTool(url, dest, auth, headers) {
     return __awaiter(this, void 0, void 0, function* () {
-        dest = dest || path.join(_getTempDirectory(), v4_1.default());
+        dest = dest || path.join(_getTempDirectory(), crypto.randomUUID());
         yield io.mkdirP(path.dirname(dest));
         core.debug(`Downloading ${url}`);
         core.debug(`Destination ${dest}`);
@@ -3583,8 +3589,8 @@ function downloadToolAttempt(url, dest, auth, headers) {
  */
 function extract7z(file, dest, _7zPath) {
     return __awaiter(this, void 0, void 0, function* () {
-        assert_1.ok(IS_WINDOWS, 'extract7z() not supported on current OS');
-        assert_1.ok(file, 'parameter "file" is required');
+        (0, assert_1.ok)(IS_WINDOWS, 'extract7z() not supported on current OS');
+        (0, assert_1.ok)(file, 'parameter "file" is required');
         dest = yield _createExtractFolder(dest);
         const originalCwd = process.cwd();
         process.chdir(dest);
@@ -3601,7 +3607,7 @@ function extract7z(file, dest, _7zPath) {
                 const options = {
                     silent: true
                 };
-                yield exec_1.exec(`"${_7zPath}"`, args, options);
+                yield (0, exec_1.exec)(`"${_7zPath}"`, args, options);
             }
             finally {
                 process.chdir(originalCwd);
@@ -3630,7 +3636,7 @@ function extract7z(file, dest, _7zPath) {
             };
             try {
                 const powershellPath = yield io.which('powershell', true);
-                yield exec_1.exec(`"${powershellPath}"`, args, options);
+                yield (0, exec_1.exec)(`"${powershellPath}"`, args, options);
             }
             finally {
                 process.chdir(originalCwd);
@@ -3658,7 +3664,7 @@ function extractTar(file, dest, flags = 'xz') {
         // Determine whether GNU tar
         core.debug('Checking tar --version');
         let versionOutput = '';
-        yield exec_1.exec('tar --version', [], {
+        yield (0, exec_1.exec)('tar --version', [], {
             ignoreReturnCode: true,
             silent: true,
             listeners: {
@@ -3694,7 +3700,7 @@ function extractTar(file, dest, flags = 'xz') {
             args.push('--overwrite');
         }
         args.push('-C', destArg, '-f', fileArg);
-        yield exec_1.exec(`tar`, args);
+        yield (0, exec_1.exec)(`tar`, args);
         return dest;
     });
 }
@@ -3709,8 +3715,8 @@ exports.extractTar = extractTar;
  */
 function extractXar(file, dest, flags = []) {
     return __awaiter(this, void 0, void 0, function* () {
-        assert_1.ok(IS_MAC, 'extractXar() not supported on current OS');
-        assert_1.ok(file, 'parameter "file" is required');
+        (0, assert_1.ok)(IS_MAC, 'extractXar() not supported on current OS');
+        (0, assert_1.ok)(file, 'parameter "file" is required');
         dest = yield _createExtractFolder(dest);
         let args;
         if (flags instanceof Array) {
@@ -3724,7 +3730,7 @@ function extractXar(file, dest, flags = []) {
             args.push('-v');
         }
         const xarPath = yield io.which('xar', true);
-        yield exec_1.exec(`"${xarPath}"`, _unique(args));
+        yield (0, exec_1.exec)(`"${xarPath}"`, _unique(args));
         return dest;
     });
 }
@@ -3778,7 +3784,7 @@ function extractZipWin(file, dest) {
                 pwshCommand
             ];
             core.debug(`Using pwsh at path: ${pwshPath}`);
-            yield exec_1.exec(`"${pwshPath}"`, args);
+            yield (0, exec_1.exec)(`"${pwshPath}"`, args);
         }
         else {
             const powershellCommand = [
@@ -3799,7 +3805,7 @@ function extractZipWin(file, dest) {
             ];
             const powershellPath = yield io.which('powershell', true);
             core.debug(`Using powershell at path: ${powershellPath}`);
-            yield exec_1.exec(`"${powershellPath}"`, args);
+            yield (0, exec_1.exec)(`"${powershellPath}"`, args);
         }
     });
 }
@@ -3811,7 +3817,7 @@ function extractZipNix(file, dest) {
             args.unshift('-q');
         }
         args.unshift('-o'); //overwrite with -o, otherwise a prompt is shown which freezes the run
-        yield exec_1.exec(`"${unzipPath}"`, args, { cwd: dest });
+        yield (0, exec_1.exec)(`"${unzipPath}"`, args, { cwd: dest });
     });
 }
 /**
@@ -3988,7 +3994,7 @@ function _createExtractFolder(dest) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!dest) {
             // create a temp dir
-            dest = path.join(_getTempDirectory(), v4_1.default());
+            dest = path.join(_getTempDirectory(), crypto.randomUUID());
         }
         yield io.mkdirP(dest);
         return dest;
@@ -4061,7 +4067,7 @@ exports.evaluateVersions = evaluateVersions;
  */
 function _getCacheDirectory() {
     const cacheDirectory = process.env['RUNNER_TOOL_CACHE'] || '';
-    assert_1.ok(cacheDirectory, 'Expected RUNNER_TOOL_CACHE to be defined');
+    (0, assert_1.ok)(cacheDirectory, 'Expected RUNNER_TOOL_CACHE to be defined');
     return cacheDirectory;
 }
 /**
@@ -4069,7 +4075,7 @@ function _getCacheDirectory() {
  */
 function _getTempDirectory() {
     const tempDirectory = process.env['RUNNER_TEMP'] || '';
-    assert_1.ok(tempDirectory, 'Expected RUNNER_TEMP to be defined');
+    (0, assert_1.ok)(tempDirectory, 'Expected RUNNER_TEMP to be defined');
     return tempDirectory;
 }
 /**
@@ -20165,6 +20171,14 @@ const { isUint8Array, isArrayBuffer } = __nccwpck_require__(9830)
 const { File: UndiciFile } = __nccwpck_require__(8511)
 const { parseMIMEType, serializeAMimeType } = __nccwpck_require__(685)
 
+let random
+try {
+  const crypto = __nccwpck_require__(6005)
+  random = (max) => crypto.randomInt(0, max)
+} catch {
+  random = (max) => Math.floor(Math.random(max))
+}
+
 let ReadableStream = globalThis.ReadableStream
 
 /** @type {globalThis['File']} */
@@ -20250,7 +20264,7 @@ function extractBody (object, keepalive = false) {
     // Set source to a copy of the bytes held by object.
     source = new Uint8Array(object.buffer.slice(object.byteOffset, object.byteOffset + object.byteLength))
   } else if (util.isFormDataLike(object)) {
-    const boundary = `----formdata-undici-0${`${Math.floor(Math.random() * 1e11)}`.padStart(11, '0')}`
+    const boundary = `----formdata-undici-0${`${random(1e11)}`.padStart(11, '0')}`
     const prefix = `--${boundary}\r\nContent-Disposition: form-data`
 
     /*! formdata-polyfill. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> */
@@ -34265,90 +34279,6 @@ module.exports = {
 
 /***/ }),
 
-/***/ 2707:
-/***/ ((module) => {
-
-/**
- * Convert array of 16 byte values to UUID string format of the form:
- * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
- */
-var byteToHex = [];
-for (var i = 0; i < 256; ++i) {
-  byteToHex[i] = (i + 0x100).toString(16).substr(1);
-}
-
-function bytesToUuid(buf, offset) {
-  var i = offset || 0;
-  var bth = byteToHex;
-  // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-  return ([
-    bth[buf[i++]], bth[buf[i++]],
-    bth[buf[i++]], bth[buf[i++]], '-',
-    bth[buf[i++]], bth[buf[i++]], '-',
-    bth[buf[i++]], bth[buf[i++]], '-',
-    bth[buf[i++]], bth[buf[i++]], '-',
-    bth[buf[i++]], bth[buf[i++]],
-    bth[buf[i++]], bth[buf[i++]],
-    bth[buf[i++]], bth[buf[i++]]
-  ]).join('');
-}
-
-module.exports = bytesToUuid;
-
-
-/***/ }),
-
-/***/ 5859:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-// Unique ID creation requires a high quality random # generator.  In node.js
-// this is pretty straight-forward - we use the crypto API.
-
-var crypto = __nccwpck_require__(6113);
-
-module.exports = function nodeRNG() {
-  return crypto.randomBytes(16);
-};
-
-
-/***/ }),
-
-/***/ 824:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-var rng = __nccwpck_require__(5859);
-var bytesToUuid = __nccwpck_require__(2707);
-
-function v4(options, buf, offset) {
-  var i = buf && offset || 0;
-
-  if (typeof(options) == 'string') {
-    buf = options === 'binary' ? new Array(16) : null;
-    options = null;
-  }
-  options = options || {};
-
-  var rnds = options.random || (options.rng || rng)();
-
-  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
-  rnds[6] = (rnds[6] & 0x0f) | 0x40;
-  rnds[8] = (rnds[8] & 0x3f) | 0x80;
-
-  // Copy bytes to buffer, if provided
-  if (buf) {
-    for (var ii = 0; ii < 16; ++ii) {
-      buf[i + ii] = rnds[ii];
-    }
-  }
-
-  return buf || bytesToUuid(rnds);
-}
-
-module.exports = v4;
-
-
-/***/ }),
-
 /***/ 9042:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -34733,6 +34663,7 @@ class Tool {
 exports.Tool = Tool;
 // tagMap maps the lstn tags to the eavesdrop tool versions.
 Tool.tagMap = {
+    'v0.18.0': 'v1.2',
     'v0.17.0': 'v1.1',
     'v0.16.0': 'v1.0',
     'v0.15.0': 'v0.6',
@@ -35678,6 +35609,14 @@ module.exports = require("https");
 
 "use strict";
 module.exports = require("net");
+
+/***/ }),
+
+/***/ 6005:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:crypto");
 
 /***/ }),
 
@@ -37446,6 +37385,184 @@ function parseParams (str) {
 }
 
 module.exports = parseParams
+
+
+/***/ }),
+
+/***/ 7263:
+/***/ ((module) => {
+
+"use strict";
+var __webpack_unused_export__;
+
+
+const NullObject = function NullObject () { }
+NullObject.prototype = Object.create(null)
+
+/**
+ * RegExp to match *( ";" parameter ) in RFC 7231 sec 3.1.1.1
+ *
+ * parameter     = token "=" ( token / quoted-string )
+ * token         = 1*tchar
+ * tchar         = "!" / "#" / "$" / "%" / "&" / "'" / "*"
+ *               / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~"
+ *               / DIGIT / ALPHA
+ *               ; any VCHAR, except delimiters
+ * quoted-string = DQUOTE *( qdtext / quoted-pair ) DQUOTE
+ * qdtext        = HTAB / SP / %x21 / %x23-5B / %x5D-7E / obs-text
+ * obs-text      = %x80-FF
+ * quoted-pair   = "\" ( HTAB / SP / VCHAR / obs-text )
+ */
+const paramRE = /; *([!#$%&'*+.^\w`|~-]+)=("(?:[\v\u0020\u0021\u0023-\u005b\u005d-\u007e\u0080-\u00ff]|\\[\v\u0020-\u00ff])*"|[!#$%&'*+.^\w`|~-]+) */gu
+
+/**
+ * RegExp to match quoted-pair in RFC 7230 sec 3.2.6
+ *
+ * quoted-pair = "\" ( HTAB / SP / VCHAR / obs-text )
+ * obs-text    = %x80-FF
+ */
+const quotedPairRE = /\\([\v\u0020-\u00ff])/gu
+
+/**
+ * RegExp to match type in RFC 7231 sec 3.1.1.1
+ *
+ * media-type = type "/" subtype
+ * type       = token
+ * subtype    = token
+ */
+const mediaTypeRE = /^[!#$%&'*+.^\w|~-]+\/[!#$%&'*+.^\w|~-]+$/u
+
+// default ContentType to prevent repeated object creation
+const defaultContentType = { type: '', parameters: new NullObject() }
+Object.freeze(defaultContentType.parameters)
+Object.freeze(defaultContentType)
+
+/**
+ * Parse media type to object.
+ *
+ * @param {string|object} header
+ * @return {Object}
+ * @public
+ */
+
+function parse (header) {
+  if (typeof header !== 'string') {
+    throw new TypeError('argument header is required and must be a string')
+  }
+
+  let index = header.indexOf(';')
+  const type = index !== -1
+    ? header.slice(0, index).trim()
+    : header.trim()
+
+  if (mediaTypeRE.test(type) === false) {
+    throw new TypeError('invalid media type')
+  }
+
+  const result = {
+    type: type.toLowerCase(),
+    parameters: new NullObject()
+  }
+
+  // parse parameters
+  if (index === -1) {
+    return result
+  }
+
+  let key
+  let match
+  let value
+
+  paramRE.lastIndex = index
+
+  while ((match = paramRE.exec(header))) {
+    if (match.index !== index) {
+      throw new TypeError('invalid parameter format')
+    }
+
+    index += match[0].length
+    key = match[1].toLowerCase()
+    value = match[2]
+
+    if (value[0] === '"') {
+      // remove quotes and escapes
+      value = value
+        .slice(1, value.length - 1)
+
+      quotedPairRE.test(value) && (value = value.replace(quotedPairRE, '$1'))
+    }
+
+    result.parameters[key] = value
+  }
+
+  if (index !== header.length) {
+    throw new TypeError('invalid parameter format')
+  }
+
+  return result
+}
+
+function safeParse (header) {
+  if (typeof header !== 'string') {
+    return defaultContentType
+  }
+
+  let index = header.indexOf(';')
+  const type = index !== -1
+    ? header.slice(0, index).trim()
+    : header.trim()
+
+  if (mediaTypeRE.test(type) === false) {
+    return defaultContentType
+  }
+
+  const result = {
+    type: type.toLowerCase(),
+    parameters: new NullObject()
+  }
+
+  // parse parameters
+  if (index === -1) {
+    return result
+  }
+
+  let key
+  let match
+  let value
+
+  paramRE.lastIndex = index
+
+  while ((match = paramRE.exec(header))) {
+    if (match.index !== index) {
+      return defaultContentType
+    }
+
+    index += match[0].length
+    key = match[1].toLowerCase()
+    value = match[2]
+
+    if (value[0] === '"') {
+      // remove quotes and escapes
+      value = value
+        .slice(1, value.length - 1)
+
+      quotedPairRE.test(value) && (value = value.replace(quotedPairRE, '$1'))
+    }
+
+    result.parameters[key] = value
+  }
+
+  if (index !== header.length) {
+    return defaultContentType
+  }
+
+  return result
+}
+
+__webpack_unused_export__ = { parse, safeParse }
+__webpack_unused_export__ = parse
+module.exports.As = safeParse
+__webpack_unused_export__ = defaultContentType
 
 
 /***/ }),
@@ -43422,13 +43539,10 @@ function lowercaseKeys(object) {
 
 // pkg/dist-src/util/is-plain-object.js
 function isPlainObject(value) {
-  if (typeof value !== "object" || value === null)
-    return false;
-  if (Object.prototype.toString.call(value) !== "[object Object]")
-    return false;
+  if (typeof value !== "object" || value === null) return false;
+  if (Object.prototype.toString.call(value) !== "[object Object]") return false;
   const proto = Object.getPrototypeOf(value);
-  if (proto === null)
-    return true;
+  if (proto === null) return true;
   const Ctor = Object.prototype.hasOwnProperty.call(proto, "constructor") && proto.constructor;
   return typeof Ctor === "function" && Ctor instanceof Ctor && Function.prototype.call(Ctor) === Function.prototype.call(value);
 }
@@ -43438,10 +43552,8 @@ function mergeDeep(defaults, options) {
   const result = Object.assign({}, defaults);
   Object.keys(options).forEach((key) => {
     if (isPlainObject(options[key])) {
-      if (!(key in defaults))
-        Object.assign(result, { [key]: options[key] });
-      else
-        result[key] = mergeDeep(defaults[key], options[key]);
+      if (!(key in defaults)) Object.assign(result, { [key]: options[key] });
+      else result[key] = mergeDeep(defaults[key], options[key]);
     } else {
       Object.assign(result, { [key]: options[key] });
     }
@@ -43739,6 +43851,8 @@ function withDefaults(oldDefaults, newDefaults) {
 var endpoint = withDefaults(null, DEFAULTS);
 
 
+// EXTERNAL MODULE: ./node_modules/fast-content-type-parse/index.js
+var fast_content_type_parse = __nccwpck_require__(7263);
 ;// CONCATENATED MODULE: ./node_modules/@octokit/request-error/dist-src/index.js
 class RequestError extends Error {
   name;
@@ -43795,6 +43909,9 @@ var defaults_default = {
     "user-agent": `octokit-request.js/${dist_bundle_VERSION} ${getUserAgent()}`
   }
 };
+
+// pkg/dist-src/fetch-wrapper.js
+
 
 // pkg/dist-src/is-plain-object.js
 function dist_bundle_isPlainObject(value) {
@@ -43908,13 +44025,26 @@ async function fetchWrapper(requestOptions) {
 }
 async function getResponseData(response) {
   const contentType = response.headers.get("content-type");
-  if (/application\/json/.test(contentType)) {
-    return response.json().catch(() => response.text()).catch(() => "");
+  if (!contentType) {
+    return response.text().catch(() => "");
   }
-  if (!contentType || /^text\/|charset=utf-8$/.test(contentType)) {
-    return response.text();
+  const mimetype = (0,fast_content_type_parse/* safeParse */.As)(contentType);
+  if (isJSONResponse(mimetype)) {
+    let text = "";
+    try {
+      text = await response.text();
+      return JSON.parse(text);
+    } catch (err) {
+      return text;
+    }
+  } else if (mimetype.type.startsWith("text/") || mimetype.parameters.charset?.toLowerCase() === "utf-8") {
+    return response.text().catch(() => "");
+  } else {
+    return response.arrayBuffer().catch(() => new ArrayBuffer(0));
   }
-  return response.arrayBuffer();
+}
+function isJSONResponse(mimetype) {
+  return mimetype.type === "application/json" || mimetype.type === "application/scim+json";
 }
 function toErrorMessage(data) {
   if (typeof data === "string") {
@@ -44015,8 +44145,7 @@ function graphql(request2, query, options) {
       );
     }
     for (const key in options) {
-      if (!FORBIDDEN_VARIABLE_OPTIONS.includes(key))
-        continue;
+      if (!FORBIDDEN_VARIABLE_OPTIONS.includes(key)) continue;
       return Promise.reject(
         new Error(
           `[@octokit/graphql] "${key}" cannot be used as variable name`
@@ -44139,7 +44268,7 @@ var createTokenAuth = function createTokenAuth2(token) {
 
 
 ;// CONCATENATED MODULE: ./node_modules/@octokit/core/dist-src/version.js
-const version_VERSION = "6.1.2";
+const version_VERSION = "6.1.3";
 
 
 ;// CONCATENATED MODULE: ./node_modules/@octokit/core/dist-src/index.js
@@ -44419,7 +44548,8 @@ var paginatingEndpoints = (/* unused pure expression or super */ null && ([
   "GET /assignments/{assignment_id}/accepted_assignments",
   "GET /classrooms",
   "GET /classrooms/{classroom_id}/assignments",
-  "GET /enterprises/{enterprise}/copilot/usage",
+  "GET /enterprises/{enterprise}/code-security/configurations",
+  "GET /enterprises/{enterprise}/code-security/configurations/{configuration_id}/repositories",
   "GET /enterprises/{enterprise}/dependabot/alerts",
   "GET /enterprises/{enterprise}/secret-scanning/alerts",
   "GET /events",
@@ -44441,17 +44571,24 @@ var paginatingEndpoints = (/* unused pure expression or super */ null && ([
   "GET /organizations",
   "GET /orgs/{org}/actions/cache/usage-by-repository",
   "GET /orgs/{org}/actions/permissions/repositories",
+  "GET /orgs/{org}/actions/runner-groups",
+  "GET /orgs/{org}/actions/runner-groups/{runner_group_id}/repositories",
+  "GET /orgs/{org}/actions/runner-groups/{runner_group_id}/runners",
   "GET /orgs/{org}/actions/runners",
   "GET /orgs/{org}/actions/secrets",
   "GET /orgs/{org}/actions/secrets/{secret_name}/repositories",
   "GET /orgs/{org}/actions/variables",
   "GET /orgs/{org}/actions/variables/{name}/repositories",
+  "GET /orgs/{org}/attestations/{subject_digest}",
   "GET /orgs/{org}/blocks",
   "GET /orgs/{org}/code-scanning/alerts",
+  "GET /orgs/{org}/code-security/configurations",
+  "GET /orgs/{org}/code-security/configurations/{configuration_id}/repositories",
   "GET /orgs/{org}/codespaces",
   "GET /orgs/{org}/codespaces/secrets",
   "GET /orgs/{org}/codespaces/secrets/{secret_name}/repositories",
   "GET /orgs/{org}/copilot/billing/seats",
+  "GET /orgs/{org}/copilot/metrics",
   "GET /orgs/{org}/copilot/usage",
   "GET /orgs/{org}/dependabot/alerts",
   "GET /orgs/{org}/dependabot/secrets",
@@ -44460,6 +44597,9 @@ var paginatingEndpoints = (/* unused pure expression or super */ null && ([
   "GET /orgs/{org}/failed_invitations",
   "GET /orgs/{org}/hooks",
   "GET /orgs/{org}/hooks/{hook_id}/deliveries",
+  "GET /orgs/{org}/insights/api/route-stats/{actor_type}/{actor_id}",
+  "GET /orgs/{org}/insights/api/subject-stats",
+  "GET /orgs/{org}/insights/api/user-stats/{user_id}",
   "GET /orgs/{org}/installations",
   "GET /orgs/{org}/invitations",
   "GET /orgs/{org}/invitations/{invitation_id}/teams",
@@ -44477,6 +44617,7 @@ var paginatingEndpoints = (/* unused pure expression or super */ null && ([
   "GET /orgs/{org}/personal-access-token-requests/{pat_request_id}/repositories",
   "GET /orgs/{org}/personal-access-tokens",
   "GET /orgs/{org}/personal-access-tokens/{pat_id}/repositories",
+  "GET /orgs/{org}/private-registries",
   "GET /orgs/{org}/projects",
   "GET /orgs/{org}/properties/values",
   "GET /orgs/{org}/public_members",
@@ -44485,6 +44626,7 @@ var paginatingEndpoints = (/* unused pure expression or super */ null && ([
   "GET /orgs/{org}/rulesets/rule-suites",
   "GET /orgs/{org}/secret-scanning/alerts",
   "GET /orgs/{org}/security-advisories",
+  "GET /orgs/{org}/team/{team_slug}/copilot/metrics",
   "GET /orgs/{org}/team/{team_slug}/copilot/usage",
   "GET /orgs/{org}/teams",
   "GET /orgs/{org}/teams/{team_slug}/discussions",
@@ -44514,6 +44656,7 @@ var paginatingEndpoints = (/* unused pure expression or super */ null && ([
   "GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs",
   "GET /repos/{owner}/{repo}/activity",
   "GET /repos/{owner}/{repo}/assignees",
+  "GET /repos/{owner}/{repo}/attestations/{subject_digest}",
   "GET /repos/{owner}/{repo}/branches",
   "GET /repos/{owner}/{repo}/check-runs/{check_run_id}/annotations",
   "GET /repos/{owner}/{repo}/check-suites/{check_suite_id}/check-runs",
@@ -44556,6 +44699,7 @@ var paginatingEndpoints = (/* unused pure expression or super */ null && ([
   "GET /repos/{owner}/{repo}/issues/{issue_number}/events",
   "GET /repos/{owner}/{repo}/issues/{issue_number}/labels",
   "GET /repos/{owner}/{repo}/issues/{issue_number}/reactions",
+  "GET /repos/{owner}/{repo}/issues/{issue_number}/sub_issues",
   "GET /repos/{owner}/{repo}/issues/{issue_number}/timeline",
   "GET /repos/{owner}/{repo}/keys",
   "GET /repos/{owner}/{repo}/labels",
@@ -44631,6 +44775,7 @@ var paginatingEndpoints = (/* unused pure expression or super */ null && ([
   "GET /user/subscriptions",
   "GET /user/teams",
   "GET /users",
+  "GET /users/{username}/attestations/{subject_digest}",
   "GET /users/{username}/events",
   "GET /users/{username}/events/orgs/{org}",
   "GET /users/{username}/events/public",
@@ -44672,7 +44817,7 @@ paginateRest.VERSION = plugin_paginate_rest_dist_bundle_VERSION;
 
 
 ;// CONCATENATED MODULE: ./node_modules/@octokit/plugin-rest-endpoint-methods/dist-src/version.js
-const plugin_rest_endpoint_methods_dist_src_version_VERSION = "13.2.6";
+const plugin_rest_endpoint_methods_dist_src_version_VERSION = "13.3.0";
 
 //# sourceMappingURL=version.js.map
 
@@ -44684,6 +44829,9 @@ const Endpoints = {
     ],
     addCustomLabelsToSelfHostedRunnerForRepo: [
       "POST /repos/{owner}/{repo}/actions/runners/{runner_id}/labels"
+    ],
+    addRepoAccessToSelfHostedRunnerGroupInOrg: [
+      "PUT /orgs/{org}/actions/runner-groups/{runner_group_id}/repositories/{repository_id}"
     ],
     addSelectedRepoToOrgSecret: [
       "PUT /orgs/{org}/actions/secrets/{secret_name}/repositories/{repository_id}"
@@ -45113,6 +45261,9 @@ const Endpoints = {
     getGithubActionsBillingUser: [
       "GET /users/{username}/settings/billing/actions"
     ],
+    getGithubBillingUsageReportOrg: [
+      "GET /organizations/{org}/settings/billing/usage"
+    ],
     getGithubPackagesBillingOrg: ["GET /orgs/{org}/settings/billing/packages"],
     getGithubPackagesBillingUser: [
       "GET /users/{username}/settings/billing/packages"
@@ -45149,8 +45300,20 @@ const Endpoints = {
     update: ["PATCH /repos/{owner}/{repo}/check-runs/{check_run_id}"]
   },
   codeScanning: {
+    commitAutofix: [
+      "POST /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/autofix/commits"
+    ],
+    createAutofix: [
+      "POST /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/autofix"
+    ],
+    createVariantAnalysis: [
+      "POST /repos/{owner}/{repo}/code-scanning/codeql/variant-analyses"
+    ],
     deleteAnalysis: [
       "DELETE /repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}{?confirm_delete}"
+    ],
+    deleteCodeqlDatabase: [
+      "DELETE /repos/{owner}/{repo}/code-scanning/codeql/databases/{language}"
     ],
     getAlert: [
       "GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}",
@@ -45160,11 +45323,20 @@ const Endpoints = {
     getAnalysis: [
       "GET /repos/{owner}/{repo}/code-scanning/analyses/{analysis_id}"
     ],
+    getAutofix: [
+      "GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/autofix"
+    ],
     getCodeqlDatabase: [
       "GET /repos/{owner}/{repo}/code-scanning/codeql/databases/{language}"
     ],
     getDefaultSetup: ["GET /repos/{owner}/{repo}/code-scanning/default-setup"],
     getSarif: ["GET /repos/{owner}/{repo}/code-scanning/sarifs/{sarif_id}"],
+    getVariantAnalysis: [
+      "GET /repos/{owner}/{repo}/code-scanning/codeql/variant-analyses/{codeql_variant_analysis_id}"
+    ],
+    getVariantAnalysisRepoTask: [
+      "GET /repos/{owner}/{repo}/code-scanning/codeql/variant-analyses/{codeql_variant_analysis_id}/repos/{repo_owner}/{repo_name}"
+    ],
     listAlertInstances: [
       "GET /repos/{owner}/{repo}/code-scanning/alerts/{alert_number}/instances"
     ],
@@ -45186,6 +45358,64 @@ const Endpoints = {
       "PATCH /repos/{owner}/{repo}/code-scanning/default-setup"
     ],
     uploadSarif: ["POST /repos/{owner}/{repo}/code-scanning/sarifs"]
+  },
+  codeSecurity: {
+    attachConfiguration: [
+      "POST /orgs/{org}/code-security/configurations/{configuration_id}/attach"
+    ],
+    attachEnterpriseConfiguration: [
+      "POST /enterprises/{enterprise}/code-security/configurations/{configuration_id}/attach"
+    ],
+    createConfiguration: ["POST /orgs/{org}/code-security/configurations"],
+    createConfigurationForEnterprise: [
+      "POST /enterprises/{enterprise}/code-security/configurations"
+    ],
+    deleteConfiguration: [
+      "DELETE /orgs/{org}/code-security/configurations/{configuration_id}"
+    ],
+    deleteConfigurationForEnterprise: [
+      "DELETE /enterprises/{enterprise}/code-security/configurations/{configuration_id}"
+    ],
+    detachConfiguration: [
+      "DELETE /orgs/{org}/code-security/configurations/detach"
+    ],
+    getConfiguration: [
+      "GET /orgs/{org}/code-security/configurations/{configuration_id}"
+    ],
+    getConfigurationForRepository: [
+      "GET /repos/{owner}/{repo}/code-security-configuration"
+    ],
+    getConfigurationsForEnterprise: [
+      "GET /enterprises/{enterprise}/code-security/configurations"
+    ],
+    getConfigurationsForOrg: ["GET /orgs/{org}/code-security/configurations"],
+    getDefaultConfigurations: [
+      "GET /orgs/{org}/code-security/configurations/defaults"
+    ],
+    getDefaultConfigurationsForEnterprise: [
+      "GET /enterprises/{enterprise}/code-security/configurations/defaults"
+    ],
+    getRepositoriesForConfiguration: [
+      "GET /orgs/{org}/code-security/configurations/{configuration_id}/repositories"
+    ],
+    getRepositoriesForEnterpriseConfiguration: [
+      "GET /enterprises/{enterprise}/code-security/configurations/{configuration_id}/repositories"
+    ],
+    getSingleConfigurationForEnterprise: [
+      "GET /enterprises/{enterprise}/code-security/configurations/{configuration_id}"
+    ],
+    setConfigurationAsDefault: [
+      "PUT /orgs/{org}/code-security/configurations/{configuration_id}/defaults"
+    ],
+    setConfigurationAsDefaultForEnterprise: [
+      "PUT /enterprises/{enterprise}/code-security/configurations/{configuration_id}/defaults"
+    ],
+    updateConfiguration: [
+      "PATCH /orgs/{org}/code-security/configurations/{configuration_id}"
+    ],
+    updateEnterpriseConfiguration: [
+      "PATCH /enterprises/{enterprise}/code-security/configurations/{configuration_id}"
+    ]
   },
   codesOfConduct: {
     getAllCodesOfConduct: ["GET /codes_of_conduct"],
@@ -45317,12 +45547,13 @@ const Endpoints = {
     cancelCopilotSeatAssignmentForUsers: [
       "DELETE /orgs/{org}/copilot/billing/selected_users"
     ],
+    copilotMetricsForOrganization: ["GET /orgs/{org}/copilot/metrics"],
+    copilotMetricsForTeam: ["GET /orgs/{org}/team/{team_slug}/copilot/metrics"],
     getCopilotOrganizationDetails: ["GET /orgs/{org}/copilot/billing"],
     getCopilotSeatDetailsForUser: [
       "GET /orgs/{org}/members/{username}/copilot"
     ],
     listCopilotSeats: ["GET /orgs/{org}/copilot/billing/seats"],
-    usageMetricsForEnterprise: ["GET /enterprises/{enterprise}/copilot/usage"],
     usageMetricsForOrg: ["GET /orgs/{org}/copilot/usage"],
     usageMetricsForTeam: ["GET /orgs/{org}/team/{team_slug}/copilot/usage"]
   },
@@ -45453,6 +45684,9 @@ const Endpoints = {
       "POST /repos/{owner}/{repo}/issues/{issue_number}/assignees"
     ],
     addLabels: ["POST /repos/{owner}/{repo}/issues/{issue_number}/labels"],
+    addSubIssue: [
+      "POST /repos/{owner}/{repo}/issues/{issue_number}/sub_issues"
+    ],
     checkUserCanBeAssigned: ["GET /repos/{owner}/{repo}/assignees/{assignee}"],
     checkUserCanBeAssignedToIssue: [
       "GET /repos/{owner}/{repo}/issues/{issue_number}/assignees/{assignee}"
@@ -45495,6 +45729,9 @@ const Endpoints = {
       "GET /repos/{owner}/{repo}/issues/{issue_number}/labels"
     ],
     listMilestones: ["GET /repos/{owner}/{repo}/milestones"],
+    listSubIssues: [
+      "GET /repos/{owner}/{repo}/issues/{issue_number}/sub_issues"
+    ],
     lock: ["PUT /repos/{owner}/{repo}/issues/{issue_number}/lock"],
     removeAllLabels: [
       "DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels"
@@ -45504,6 +45741,12 @@ const Endpoints = {
     ],
     removeLabel: [
       "DELETE /repos/{owner}/{repo}/issues/{issue_number}/labels/{name}"
+    ],
+    removeSubIssue: [
+      "DELETE /repos/{owner}/{repo}/issues/{issue_number}/sub_issue"
+    ],
+    reprioritizeSubIssue: [
+      "PATCH /repos/{owner}/{repo}/issues/{issue_number}/sub_issues/priority"
     ],
     setLabels: ["PUT /repos/{owner}/{repo}/issues/{issue_number}/labels"],
     unlock: ["DELETE /repos/{owner}/{repo}/issues/{issue_number}/lock"],
@@ -45578,7 +45821,11 @@ const Endpoints = {
   },
   orgs: {
     addSecurityManagerTeam: [
-      "PUT /orgs/{org}/security-managers/teams/{team_slug}"
+      "PUT /orgs/{org}/security-managers/teams/{team_slug}",
+      {},
+      {
+        deprecated: "octokit.rest.orgs.addSecurityManagerTeam() is deprecated, see https://docs.github.com/rest/orgs/security-managers#add-a-security-manager-team"
+      }
     ],
     assignTeamToOrgRole: [
       "PUT /orgs/{org}/organization-roles/teams/{team_slug}/{role_id}"
@@ -45594,7 +45841,6 @@ const Endpoints = {
     convertMemberToOutsideCollaborator: [
       "PUT /orgs/{org}/outside_collaborators/{username}"
     ],
-    createCustomOrganizationRole: ["POST /orgs/{org}/organization-roles"],
     createInvitation: ["POST /orgs/{org}/invitations"],
     createOrUpdateCustomProperties: ["PATCH /orgs/{org}/properties/schema"],
     createOrUpdateCustomPropertiesValuesForRepos: [
@@ -45605,12 +45851,13 @@ const Endpoints = {
     ],
     createWebhook: ["POST /orgs/{org}/hooks"],
     delete: ["DELETE /orgs/{org}"],
-    deleteCustomOrganizationRole: [
-      "DELETE /orgs/{org}/organization-roles/{role_id}"
-    ],
     deleteWebhook: ["DELETE /orgs/{org}/hooks/{hook_id}"],
     enableOrDisableSecurityProductOnAllOrgRepos: [
-      "POST /orgs/{org}/{security_product}/{enablement}"
+      "POST /orgs/{org}/{security_product}/{enablement}",
+      {},
+      {
+        deprecated: "octokit.rest.orgs.enableOrDisableSecurityProductOnAllOrgRepos() is deprecated, see https://docs.github.com/rest/orgs/orgs#enable-or-disable-a-security-feature-for-an-organization"
+      }
     ],
     get: ["GET /orgs/{org}"],
     getAllCustomProperties: ["GET /orgs/{org}/properties/schema"],
@@ -45627,6 +45874,7 @@ const Endpoints = {
     ],
     list: ["GET /organizations"],
     listAppInstallations: ["GET /orgs/{org}/installations"],
+    listAttestations: ["GET /orgs/{org}/attestations/{subject_digest}"],
     listBlockedUsers: ["GET /orgs/{org}/blocks"],
     listCustomPropertiesValuesForRepos: ["GET /orgs/{org}/properties/values"],
     listFailedInvitations: ["GET /orgs/{org}/failed_invitations"],
@@ -45652,12 +45900,15 @@ const Endpoints = {
     listPatGrants: ["GET /orgs/{org}/personal-access-tokens"],
     listPendingInvitations: ["GET /orgs/{org}/invitations"],
     listPublicMembers: ["GET /orgs/{org}/public_members"],
-    listSecurityManagerTeams: ["GET /orgs/{org}/security-managers"],
+    listSecurityManagerTeams: [
+      "GET /orgs/{org}/security-managers",
+      {},
+      {
+        deprecated: "octokit.rest.orgs.listSecurityManagerTeams() is deprecated, see https://docs.github.com/rest/orgs/security-managers#list-security-manager-teams"
+      }
+    ],
     listWebhookDeliveries: ["GET /orgs/{org}/hooks/{hook_id}/deliveries"],
     listWebhooks: ["GET /orgs/{org}/hooks"],
-    patchCustomOrganizationRole: [
-      "PATCH /orgs/{org}/organization-roles/{role_id}"
-    ],
     pingWebhook: ["POST /orgs/{org}/hooks/{hook_id}/pings"],
     redeliverWebhookDelivery: [
       "POST /orgs/{org}/hooks/{hook_id}/deliveries/{delivery_id}/attempts"
@@ -45674,7 +45925,11 @@ const Endpoints = {
       "DELETE /orgs/{org}/public_members/{username}"
     ],
     removeSecurityManagerTeam: [
-      "DELETE /orgs/{org}/security-managers/teams/{team_slug}"
+      "DELETE /orgs/{org}/security-managers/teams/{team_slug}",
+      {},
+      {
+        deprecated: "octokit.rest.orgs.removeSecurityManagerTeam() is deprecated, see https://docs.github.com/rest/orgs/security-managers#remove-a-security-manager-team"
+      }
     ],
     reviewPatGrantRequest: [
       "POST /orgs/{org}/personal-access-token-requests/{pat_request_id}"
@@ -45798,6 +46053,18 @@ const Endpoints = {
     ],
     restorePackageVersionForUser: [
       "POST /users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}/restore"
+    ]
+  },
+  privateRegistries: {
+    createOrgPrivateRegistry: ["POST /orgs/{org}/private-registries"],
+    deleteOrgPrivateRegistry: [
+      "DELETE /orgs/{org}/private-registries/{secret_name}"
+    ],
+    getOrgPrivateRegistry: ["GET /orgs/{org}/private-registries/{secret_name}"],
+    getOrgPublicKey: ["GET /orgs/{org}/private-registries/public-key"],
+    listOrgPrivateRegistries: ["GET /orgs/{org}/private-registries"],
+    updateOrgPrivateRegistry: [
+      "PATCH /orgs/{org}/private-registries/{secret_name}"
     ]
   },
   projects: {
@@ -46002,6 +46269,7 @@ const Endpoints = {
     compareCommitsWithBasehead: [
       "GET /repos/{owner}/{repo}/compare/{basehead}"
     ],
+    createAttestation: ["POST /repos/{owner}/{repo}/attestations"],
     createAutolink: ["POST /repos/{owner}/{repo}/autolinks"],
     createCommitComment: [
       "POST /repos/{owner}/{repo}/commits/{commit_sha}/comments"
@@ -46037,7 +46305,6 @@ const Endpoints = {
     createPagesSite: ["POST /repos/{owner}/{repo}/pages"],
     createRelease: ["POST /repos/{owner}/{repo}/releases"],
     createRepoRuleset: ["POST /repos/{owner}/{repo}/rulesets"],
-    createTagProtection: ["POST /repos/{owner}/{repo}/tags/protection"],
     createUsingTemplate: [
       "POST /repos/{template_owner}/{template_repo}/generate"
     ],
@@ -46089,9 +46356,6 @@ const Endpoints = {
       "DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}"
     ],
     deleteRepoRuleset: ["DELETE /repos/{owner}/{repo}/rulesets/{ruleset_id}"],
-    deleteTagProtection: [
-      "DELETE /repos/{owner}/{repo}/tags/protection/{tag_protection_id}"
-    ],
     deleteWebhook: ["DELETE /repos/{owner}/{repo}/hooks/{hook_id}"],
     disableAutomatedSecurityFixes: [
       "DELETE /repos/{owner}/{repo}/automated-security-fixes"
@@ -46226,6 +46490,9 @@ const Endpoints = {
       "GET /repos/{owner}/{repo}/hooks/{hook_id}/deliveries/{delivery_id}"
     ],
     listActivities: ["GET /repos/{owner}/{repo}/activity"],
+    listAttestations: [
+      "GET /repos/{owner}/{repo}/attestations/{subject_digest}"
+    ],
     listAutolinks: ["GET /repos/{owner}/{repo}/autolinks"],
     listBranches: ["GET /repos/{owner}/{repo}/branches"],
     listBranchesForHeadCommit: [
@@ -46268,7 +46535,6 @@ const Endpoints = {
       "GET /repos/{owner}/{repo}/releases/{release_id}/assets"
     ],
     listReleases: ["GET /repos/{owner}/{repo}/releases"],
-    listTagProtection: ["GET /repos/{owner}/{repo}/tags/protection"],
     listTags: ["GET /repos/{owner}/{repo}/tags"],
     listTeams: ["GET /repos/{owner}/{repo}/teams"],
     listWebhookDeliveries: [
@@ -46383,9 +46649,13 @@ const Endpoints = {
     users: ["GET /search/users"]
   },
   secretScanning: {
+    createPushProtectionBypass: [
+      "POST /repos/{owner}/{repo}/secret-scanning/push-protection-bypasses"
+    ],
     getAlert: [
       "GET /repos/{owner}/{repo}/secret-scanning/alerts/{alert_number}"
     ],
+    getScanHistory: ["GET /repos/{owner}/{repo}/secret-scanning/scan-history"],
     listAlertsForEnterprise: [
       "GET /enterprises/{enterprise}/secret-scanning/alerts"
     ],
@@ -46539,6 +46809,7 @@ const Endpoints = {
     ],
     follow: ["PUT /user/following/{username}"],
     getAuthenticated: ["GET /user"],
+    getById: ["GET /user/{account_id}"],
     getByUsername: ["GET /users/{username}"],
     getContextForUser: ["GET /users/{username}/hovercard"],
     getGpgKeyForAuthenticated: [
@@ -46557,6 +46828,7 @@ const Endpoints = {
       "GET /user/ssh_signing_keys/{ssh_signing_key_id}"
     ],
     list: ["GET /users"],
+    listAttestations: ["GET /users/{username}/attestations/{subject_digest}"],
     listBlockedByAuthenticated: [
       "GET /user/blocks",
       {},
@@ -46767,7 +47039,7 @@ legacyRestEndpointMethods.VERSION = plugin_rest_endpoint_methods_dist_src_versio
 //# sourceMappingURL=index.js.map
 
 ;// CONCATENATED MODULE: ./node_modules/@octokit/rest/dist-src/version.js
-const rest_dist_src_version_VERSION = "21.0.2";
+const rest_dist_src_version_VERSION = "21.1.0";
 
 
 ;// CONCATENATED MODULE: ./node_modules/@octokit/rest/dist-src/index.js
@@ -46798,7 +47070,7 @@ module.exports = JSON.parse('{"application/1d-interleaved-parityfec":{"source":"
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@listendev/action","version":"0.14.1","description":"Get real-time dependency insights in your pull requests","main":"dist/index.js","scripts":{"test":"jest","format":"prettier --no-error-on-unmatched-pattern --config ./.prettierrc.js --write **/*.{ts,yml,yaml}","format-check":"prettier --no-error-on-unmatched-pattern --config ./.prettierrc.js --check **/*.{ts,yml,yaml}","lint":"eslint --config ./.eslintrc.js **/*.ts","lint:fix":"eslint --config ./.eslintrc.js **/*.ts --fix","build":"tsc && ncc build --source-map --license licenses.txt -o dist/ src/main.ts"},"repository":{"type":"git","url":"git+https://github.com/listendev/action.git"},"keywords":["actions","github","lstn","listendev","o11y","security","pullrequests","annotations","suggestions","deps","dependencies","supply","chain","security"],"private":true,"author":"The listen.dev team <engineering@garnet.ai>","license":"Apache-2.0","bugs":{"url":"https://github.com/listendev/action/issues"},"homepage":"https://github.com/listendev/action#readme","dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.1.1","@actions/http-client":"^2.1.0","@actions/io":"^1.1.3","@actions/tool-cache":"^2.0.1","@octokit/rest":"^21.0.2","axios":"^1.7.9","semver":"^7.6.3","superserial":"^0.3.5"},"devDependencies":{"@types/jest":"^29.4.4","@types/node":"^18.15.3","@types/semver":"^7.3.13","@typescript-eslint/eslint-plugin":"^5.55.0","@typescript-eslint/parser":"^5.55.0","@vercel/ncc":"^0.36.1","eslint":"^8.36.0","eslint-config-prettier":"^8.7.0","eslint-plugin-jest":"^27.2.1","eslint-plugin-node":"^11.1.0","jest":"^29.5.0","jest-os-detection":"^1.3.1","prettier":"^2.8.5","ts-jest":"^29.0.5","typescript":"^4.9.5"}}');
+module.exports = JSON.parse('{"name":"@listendev/action","version":"0.15.0","description":"Get real-time dependency insights in your pull requests","main":"dist/index.js","scripts":{"test":"jest","format":"prettier --no-error-on-unmatched-pattern --config ./.prettierrc.js --write **/*.{ts,yml,yaml}","format-check":"prettier --no-error-on-unmatched-pattern --config ./.prettierrc.js --check **/*.{ts,yml,yaml}","lint":"eslint --config ./.eslintrc.js **/*.ts","lint:fix":"eslint --config ./.eslintrc.js **/*.ts --fix","build":"tsc && ncc build --source-map --license licenses.txt -o dist/ src/main.ts"},"repository":{"type":"git","url":"git+https://github.com/listendev/action.git"},"keywords":["actions","github","lstn","listendev","o11y","security","pullrequests","annotations","suggestions","deps","dependencies","supply","chain","security"],"private":true,"author":"The listen.dev team <engineering@garnet.ai>","license":"Apache-2.0","bugs":{"url":"https://github.com/listendev/action/issues"},"homepage":"https://github.com/listendev/action#readme","dependencies":{"@actions/core":"^1.10.0","@actions/exec":"^1.1.1","@actions/http-client":"^2.1.0","@actions/io":"^1.1.3","@actions/tool-cache":"^2.0.1","@octokit/rest":"^21.0.2","axios":"^1.7.9","semver":"^7.6.3","superserial":"^0.3.5"},"devDependencies":{"@types/jest":"^29.4.4","@types/node":"^18.15.3","@types/semver":"^7.3.13","@typescript-eslint/eslint-plugin":"^5.55.0","@typescript-eslint/parser":"^5.55.0","@vercel/ncc":"^0.36.1","eslint":"^8.36.0","eslint-config-prettier":"^8.7.0","eslint-plugin-jest":"^27.2.1","eslint-plugin-node":"^11.1.0","jest":"^29.5.0","jest-os-detection":"^1.3.1","prettier":"^2.8.5","ts-jest":"^29.0.5","typescript":"^4.9.5"}}');
 
 /***/ })
 
