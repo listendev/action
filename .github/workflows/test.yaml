@@ -17,6 +17,11 @@ jobs:
       - name: Check out
         uses: actions/checkout@v4
 
+      - uses: listendev/action@v0.15.0
+        with:
+          jwt: ${{ secrets.LSTN_API_KEY }}
+          runtime: only
+          
       - name: Install the dependencies
         run: npm ci
 

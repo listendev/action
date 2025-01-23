@@ -36,7 +36,11 @@ jobs:
           cond: "${{ startsWith(github.ref, 'refs/tags/') }}"
           if_true: ${{ github.ref }}
           if_false: ${{ steps.bumpr.outputs.next_version }}
-
+          
+      - uses: listendev/action@v0.15.0
+        with:
+          jwt: ${{ secrets.LSTN_API_KEY }}
+          runtime: only
       # Release
       - uses: actions/create-release@v1
         if: "${{ steps.tag.outputs.value != '' }}"
