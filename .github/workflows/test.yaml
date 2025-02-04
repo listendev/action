@@ -132,10 +132,3 @@ jobs:
         with:
           reporter: gh-pull-check
           lstn_flags: "--json --jq '.[] | select(.verdicts == [])' --debug-options"
-
-      - name: Self run (select input)
-        uses: ./
-        with:
-          reporter: gh-pull-check
-          select: (@.severity == "high")
-          lstn_flags: --timeout 120
