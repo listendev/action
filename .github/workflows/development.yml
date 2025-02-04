@@ -20,7 +20,7 @@ jobs:
       # Self inspect ourselves
       - uses: ./
         with:
-          runtime: true
+          runtime: only
           jwt: ${{ secrets.LISTENDEV_TOKEN }}
 
       - name: Self inspect with nightly (private) CLI
