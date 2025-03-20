@@ -12,7 +12,7 @@ See [action.yml](action.yml).
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.16.0
+  - uses: listendev/action@v0.17.0
     with:
       runtime: only
       jwt: ${{ secrets.LSTN_API_KEY }}
@@ -22,7 +22,7 @@ steps:
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.16.0
+  - uses: listendev/action@v0.17.0
     with:
       # The Github API token.
       # Defaults to ${{ github.token }}
@@ -57,7 +57,7 @@ Just [create a secret](https://docs.github.com/en/actions/security-guides/using-
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.16.0
+  - uses: listendev/action@v0.17.0
     with:
       runtime: true
       jwt: ${{ secrets.LSTN_API_KEY }}
@@ -80,7 +80,7 @@ It's _recommended_ to regenerate the JWT token for every release, until we will 
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.16.0
+  - uses: listendev/action@v0.17.0
     with:
       jwt: ${{ secrets.LSTN_API_KEY }}
       lstn_flags: "--reporter gh-pull-comment"
@@ -96,7 +96,7 @@ So, you only want it to eavesdrop for runtime threats...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.16.0
+  - uses: listendev/action@v0.17.0
     with:
       runtime: only
       jwt: ${{ secrets.LSTN_API_KEY }}
@@ -106,7 +106,7 @@ Let's say you want the verdicts in JSON format...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.16.0
+  - uses: listendev/action@v0.17.0
     with:
       lstn_flags: "--json"
 ```
@@ -115,9 +115,9 @@ Let's say you only care for high severity verdicts...
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.16.0
+  - uses: listendev/action@v0.17.0
     with:
-      lstn: "v0.16.0"
+      lstn: "v0.17.0"
       lstn_flags: "--select '@.severity == \"high\"'"
 ```
 
@@ -127,7 +127,7 @@ Let's say we only care for dynamic instrumentation verdicts regarding processes.
 
 ```yaml
 steps:
-  - uses: listendev/action@v0.16.0
+  - uses: listendev/action@v0.17.0
     with:
       select: "(@.file =~ \"^dynamic\" && \"process\" in @.categories)"
 ```
