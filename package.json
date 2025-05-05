@@ -1,6 +1,6 @@
 {
   "name": "@listendev/action",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "Get real-time dependency insights in your pull requests",
   "main": "dist/index.js",
   "scripts": {
