@@ -2,7 +2,8 @@
   "lockfile_version": "1",
   "packages": {
     "github:NixOS/nixpkgs/nixpkgs-unstable": {
-      "resolved": "github:NixOS/nixpkgs/3549532663732bfd89993204d40543e9edaec4f2?lastModified=1742272065&narHash=sha256-ud8vcSzJsZ%2FCK%2Br8%2Fv0lyf4yUntVmDq6Z0A41ODfWbE%3D"
+      "last_modified": "2025-05-04T04:25:16Z",
+      "resolved": "github:NixOS/nixpkgs/6b1c028bce9c89e9824cde040d6986d428296055?lastModified=1746332716&narHash=sha256-VBmKSkmw9PYBCEGhBKzORjx%2BnwNZkPZyHcUHE21A%2Fws%3D"
     },
     "nodejs@20": {
       "last_modified": "2025-03-16T23:54:35Z",
@@ -29,29 +30,29 @@
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/vr3nq0bhrwlnm2prrcwk2m947smfpi87-nodejs-20.19.0",
+              "path": "/nix/store/qz522zmsx441py29xy69sf5671bkhpj2-nodejs-20.19.0",
               "default": true
             },
             {
               "name": "libv8",
-              "path": "/nix/store/7xdmbic7ndn40ihqs9fgawcnr8x090nj-nodejs-20.19.0-libv8"
+              "path": "/nix/store/7i02830b2pxlapzav6yyggymqmp6rk02-nodejs-20.19.0-libv8"
             }
           ],
-          "store_path": "/nix/store/vr3nq0bhrwlnm2prrcwk2m947smfpi87-nodejs-20.19.0"
+          "store_path": "/nix/store/qz522zmsx441py29xy69sf5671bkhpj2-nodejs-20.19.0"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/jjg81i76garf5jii7vyfm5a2dnlng3gi-nodejs-20.19.0",
+              "path": "/nix/store/4k73p2z9h5rnfv9gal8n6m4srx5sggs8-nodejs-20.19.0",
               "default": true
             },
             {
               "name": "libv8",
-              "path": "/nix/store/l90bx7jan3fx5r6z3zn1qya8ans38hrq-nodejs-20.19.0-libv8"
+              "path": "/nix/store/px89hqr3wcfk0w6146hf4171bvj4chgp-nodejs-20.19.0-libv8"
             }
           ],
-          "store_path": "/nix/store/jjg81i76garf5jii7vyfm5a2dnlng3gi-nodejs-20.19.0"
+          "store_path": "/nix/store/4k73p2z9h5rnfv9gal8n6m4srx5sggs8-nodejs-20.19.0"
         },
         "x86_64-linux": {
           "outputs": [
